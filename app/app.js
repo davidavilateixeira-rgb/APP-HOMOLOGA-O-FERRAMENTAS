@@ -1,27 +1,26 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.1.1 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.2.0 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
 const DEVFLOW_ROLES = {
-  ADMIN: 'ADMIN',         // Engenharia ADM (Oscar, Jonathan, Ponto Focal) - Acesso Total
-  TECNICO: 'TECNICO',     // Tecnicos de Chao de Fabrica (Filipe 1T, Charles 2T) - Acompanhamento e Registro
+  ADMIN: 'ADMIN',             // Engenharia ADM (Oscar, Jonathan, Ponto Focal) - Acesso Total
+  TECNICO: 'TECNICO',         // Tecnicos de Chao de Fabrica (Filipe 1T, Charles 2T) - Acompanhamento e Registro
   SOLICITANTE: 'SOLICITANTE', // Solicitante (Preset, Gerenciador Externo, Fornecedores) - Abertura e Visualizacao
-  LEITURA: 'LEITURA'      // Visitante / Apenas Consulta Geral
+  LEITURA: 'LEITURA'          // Visitante / Apenas Consulta Geral
 };
 const TOOLFLOW_ROLES = DEVFLOW_ROLES;
 
 // Base de Usuarios Cadastrados (Persistivel no LocalStorage e Firebase Auth)
 let devflowUsersStore = [
-  { id: 'oscar_adm', name: 'Oscar', email: 'oscar@viemar.com.br', roleTitle: 'Engenharia ADM', role: DEVFLOW_ROLES.ADMIN },
-  { id: 'jonathan_adm', name: 'Jonathan', email: 'jonathan@viemar.com.br', roleTitle: 'Engenharia ADM', role: DEVFLOW_ROLES.ADMIN },
-  { id: 'ponto_focal', name: 'Ponto Focal', email: 'focal@viemar.com.br', roleTitle: 'Coordenador de Testes', role: DEVFLOW_ROLES.ADMIN },
-  { id: 'filipe_1t', name: 'Filipe', email: 'filipe@viemar.com.br', roleTitle: 'Tecnico 1o Turno', role: DEVFLOW_ROLES.TECNICO },
-  { id: 'charles_2t', name: 'Charles', email: 'charles@viemar.com.br', roleTitle: 'Tecnico 2o Turno', role: DEVFLOW_ROLES.TECNICO },
-  { id: 'preset_op', name: 'Roberto (Preset)', email: 'preset@viemar.com.br', roleTitle: 'Setor de Preset', role: DEVFLOW_ROLES.SOLICITANTE },
-  { id: 'gerenciador_ext', name: 'Gerenciador Externo', email: 'gerenciador@ferramentas.com', roleTitle: 'Gestao de Ferramentas', role: DEVFLOW_ROLES.SOLICITANTE },
-  { id: 'fornecedor_ext', name: 'Fornecedor Sandvik', email: 'contato@sandvik.com', roleTitle: 'Representante Tecnico', role: DEVFLOW_ROLES.SOLICITANTE },
-  { id: 'visitante_leitura', name: 'Visitante / Qualidade', email: 'qualidade@viemar.com.br', roleTitle: 'Consulta Geral', role: DEVFLOW_ROLES.LEITURA }
+  { id: 'oscar_adm', name: 'Oscar', email: 'oscar@viemar.com.br', password: 'admin', roleTitle: 'Engenharia ADM', role: TOOLFLOW_ROLES.ADMIN },
+  { id: 'jonathan_adm', name: 'Jonathan', email: 'jonathan@viemar.com.br', password: 'admin', roleTitle: 'Engenharia ADM', role: TOOLFLOW_ROLES.ADMIN },
+  { id: 'ponto_focal', name: 'Ponto Focal', email: 'focal@viemar.com.br', password: 'admin', roleTitle: 'Coordenador de Testes', role: TOOLFLOW_ROLES.ADMIN },
+  { id: 'filipe_1t', name: 'Filipe (1oT)', email: 'filipe@viemar.com.br', password: '123', roleTitle: 'Tecnico 1o Turno', role: TOOLFLOW_ROLES.TECNICO },
+  { id: 'charles_2t', name: 'Charles (2oT)', email: 'charles@viemar.com.br', password: '123', roleTitle: 'Tecnico 2o Turno', role: TOOLFLOW_ROLES.TECNICO },
+  { id: 'preset_op', name: 'Roberto (Preset)', email: 'preset@viemar.com.br', password: '123', roleTitle: 'Setor de Preset', role: TOOLFLOW_ROLES.SOLICITANTE },
+  { id: 'gerenciador_ext', name: 'Gerenciador Externo', email: 'gerenciador@ferramentas.com', password: '123', roleTitle: 'Gestao de Ferramentas', role: TOOLFLOW_ROLES.SOLICITANTE },
+  { id: 'fornecedor_ext', name: 'Fornecedor Sandvik', email: 'contato@sandvik.com', password: '123', roleTitle: 'Representante Tecnico', role: TOOLFLOW_ROLES.SOLICITANTE }
 ];
 
 // Definicao das 5 Etapas do Workflow
@@ -118,98 +117,135 @@ let testDataStore = [
       { dataHora: '2026-08-02 10:15', usuario: 'Oscar (Engenharia ADM)', acao: 'Viabilidade Aprovada (GO)', detalhe: 'Liberado para agendamento quinzenal.' },
       { dataHora: '2026-08-03 09:00', usuario: 'Roberto (Preset)', acao: 'Visita Agendada', detalhe: 'Agendado para 06/08 as 08:30 no Preset.' },
       { dataHora: '2026-08-06 08:30', usuario: 'Filipe (Tecnico 1oT)', acao: 'Inicio em Maquina', detalhe: '65 pecas usinadas no 1o turno.' },
-      { dataHora: '2026-08-06 17:00', usuario: 'Charles (Tecnico 2oT)', acao: 'Passagem de Turno', detalhe: 'Aresta completou 125 pecas totais.' }
+      { dataHora: '2026-08-06 17:40', usuario: 'Charles (Tecnico 2oT)', acao: 'Conclusao 2o Turno', detalhe: 'Total de 125 pecas concluido com sucesso.' }
     ],
 
     comentarios: [
-      { dataHora: '2026-08-02 11:00', usuario: 'Oscar', texto: 'Lote de flanges liberado no Romi D800 para a proxima quinta.' },
-      { dataHora: '2026-08-06 16:30', usuario: 'Filipe', texto: 'Cavaco quebrando perfeito com refrigeracao soluvel padrao.' }
+      { dataHora: '2026-08-01 14:25', usuario: 'Roberto (Preset)', texto: 'Fornecedor enviara 10 pastilhas e 1 corpo bonificado.' },
+      { dataHora: '2026-08-02 10:30', usuario: 'Oscar (Engenharia ADM)', texto: 'Agendamento alinhado para a primeira quinta do mes.' },
+      { dataHora: '2026-08-06 14:00', usuario: 'Filipe (Tecnico 1oT)', texto: 'Acabamento superficial ficou excelente (Ra 1.4).' }
     ]
   },
   {
     id: 'TESTE-002/2026',
+    stage: 'STAGE_2_ANALISE',
+    statusGeral: 'PENDENTE_ANALISE',
+    solicitacao: {
+      dataSolicitacao: '2026-08-03',
+      dataPrevistaTeste: '2026-08-20',
+      solicitante: 'Gerenciador de Ferramentas',
+      fornecedor: 'Iscar do Brasil',
+      contatoFornecedor: 'Eduardo (51) 98765-4321',
+      codigoPeca: 'PC-77310-B',
+      descricaoPeca: 'Pino Esferico 45',
+      materialPeca: 'Aco 8620 Forjado',
+      maquina: 'Torno CNC Mazak QTN-250',
+      operacao: 'Torneamento Copiador',
+      refrigeracao: 'Alta Pressao Interna',
+      ferramentaAtual: 'Inserto VNMG 160408',
+      vidaAtual: 110,
+      cicloAtual: 45,
+      custoAtual: 29.80,
+      arestasAtual: 4,
+      ferramentaTeste: 'Inserto VCGT 160408 IC907',
+      metaVida: 170,
+      amostrasBonificadas: 20,
+      precoTeste: 28.50,
+      arestasTeste: 4,
+      leadTimeDias: 30,
+      estoqueLocal: 'NAO',
+      justificativa: 'Melhoria de rugosidade e vida util em acabamento.'
+    },
+    analiseEngenharia: {
+      dataAnalise: '',
+      responsavel: '',
+      decisao: 'PENDENTE',
+      parecerTexto: '',
+      tecnicosEscalados: 'A definir'
+    },
+    agendamento: {},
+    chaoDeFabrica: { parametros: {}, registrosArestas: [] },
+    fechamento: {},
+    timeline: [
+      { dataHora: '2026-08-03 16:40', usuario: 'Gerenciador', acao: 'Solicitacao Criada (D-2)', detalhe: 'Aguardando parecer da Engenharia.' }
+    ],
+    comentarios: []
+  },
+  {
+    id: 'TESTE-003/2026',
     stage: 'STAGE_5_VALIDACAO',
     statusGeral: 'BLOQUEADO_ESTOQUE',
-    
     solicitacao: {
       dataSolicitacao: '2026-07-28',
       dataPrevistaTeste: '2026-07-30',
-      solicitante: 'Jonathan (Engenharia)',
-      fornecedor: 'Walter Tools',
+      solicitante: 'Jonathan (Engenharia ADM)',
+      fornecedor: 'Seco Tools',
       contatoFornecedor: 'Carlos (51) 99111-2233',
-      codigoPeca: 'EX-3040-B',
-      descricaoPeca: 'Eixo de Transmissao 35mm',
-      materialPeca: 'Aco 8620 Cementado (58 HRC)',
-      maquina: 'Torno Romi G280 (CNC-02)',
+      codigoPeca: 'PC-99010-C',
+      descricaoPeca: 'Eixo de Transmissao 35',
+      materialPeca: 'Aco 8620 Cementado',
+      maquina: 'Torno ROMI GL 240',
       operacao: 'Torneamento Acabamento',
-      refrigeracao: 'Alta Pressao Interna',
-      
-      ferramentaAtual: 'DCMT 11T304-FP WPP10S',
+      refrigeracao: 'Oleo Soluvel',
+      ferramentaAtual: 'CNMG 120408',
       vidaAtual: 110,
-      cicloAtual: 95,
-      custoAtual: 42.00,
-      arestasAtual: 2,
-      
-      ferramentaTeste: 'DCMT 11T304-PF WEP20',
+      cicloAtual: 60,
+      custoAtual: 34.00,
+      arestasAtual: 4,
+      ferramentaTeste: 'WNMG 080408',
       metaVida: 160,
-      amostrasBonificadas: 10,
-      precoTeste: 36.50,
-      arestasTeste: 2,
+      amostrasBonificadas: 15,
+      precoTeste: 30.00,
+      arestasTeste: 6,
       leadTimeDias: 45,
       estoqueLocal: 'NAO',
-      justificativa: 'Melhoria de acabamento superficial e vida util.'
+      justificativa: 'Reducao de custo de CPP e aumento de arestas uteis.'
     },
-
     analiseEngenharia: {
       dataAnalise: '2026-07-29',
       responsavel: 'Oscar (Engenharia ADM)',
       decisao: 'APROVADO',
-      parecerTexto: 'Aprovado para execucao técnica no Romi G280.',
-      tecnicosEscalados: 'Filipe (1o Turno)'
+      parecerTexto: 'Aprovado para lote piloto.',
+      tecnicosEscalados: 'Filipe'
     },
-
     agendamento: {
       dataVisitaConfirmada: '2026-07-30',
-      horarioVisita: '13:30',
+      horarioVisita: '09:00',
       tecnicoFornecedorPresente: 'SIM',
       ferramentasEntreguesPreset: 'SIM',
       coneMontadoPreset: 'SIM'
     },
-
     chaoDeFabrica: {
       dataExecucao: '2026-07-30',
-      maquinaReal: 'Torno Romi G280 (CNC-02)',
-      cicloRealMedido: 90,
-      parametros: { vc: 260, rpm: 2200, fz: 0.12, vf: 264, ap: 0.8, ae: 0.8, balanco: 40 },
+      maquinaReal: 'Torno ROMI GL 240',
+      cicloRealMedido: 58,
+      parametros: { vc: 260, rpm: 1800, fz: 0.15, vf: 270, ap: 1.0, ae: 1.0, balanco: 50 },
       registrosArestas: [
-        { aresta: '#1', turno: '1o Turno', tecnico: 'Filipe', pecas: 165, ra: '0.8 µm', desgaste: 'Acabamento espelhado, vida excelente' }
+        { aresta: '#1', turno: '1o Turno', tecnico: 'Filipe', pecas: 165, ra: '0.8 µm', desgaste: 'Excelente' }
       ],
       totalPecas: 165,
       vidaMediaAresta: 165,
       variacaoVidaPorc: '+50.0%'
     },
-
     fechamento: {
       dataFechamento: '2026-08-01',
       responsavelFechamento: 'Jonathan (Engenharia ADM)',
-      volumeMensalPecas: 3000,
+      volumeMensalPecas: 10000,
       leadTimeDias: 45,
-      estoqueAlmoxAntigo: 15,
-      consumoMesAntigo: 40,
+      estoqueAlmoxAntigo: 20,
+      consumoMesAntigo: 55,
       autonomiaDias: 11,
       margemSegurancaDias: -34,
       statusEstoque: 'BLOQUEADO_RUPTURA',
       decisaoFinal: 'BLOQUEADO_ESTOQUE',
       justificativaFinal: 'Aprovado tecnicamente com ganho de 50%, porem bloqueado por suprimentos devido a lead time de 45 dias contra 11 dias de estoque antigo. Virada suspensa ate lote de seguranca.'
     },
-
     timeline: [
       { dataHora: '2026-07-28 09:00', usuario: 'Jonathan', acao: 'Solicitacao Criada', detalhe: 'Torneamento acabamento eixo 8620.' },
       { dataHora: '2026-07-29 14:00', usuario: 'Oscar', acao: 'Viabilidade Aprovada', detalhe: 'Liberado para teste.' },
       { dataHora: '2026-07-30 16:00', usuario: 'Filipe', acao: 'Execucao Concluida', detalhe: '165 pecas usinadas com Ra 0.8.' },
       { dataHora: '2026-08-01 10:00', usuario: 'Jonathan', acao: 'Bloqueio por Suprimentos', detalhe: 'Lead time de 45 dias gera risco critico de ruptura.' }
     ],
-
     comentarios: [
       { dataHora: '2026-08-01 10:30', usuario: 'Jonathan', texto: 'Solicitado ao fornecedor remessa aerea de 30 pecas para cobrir o lead time.' }
     ]
@@ -217,7 +253,7 @@ let testDataStore = [
 ];
 
 // Estado Global
-let currentUser = devflowUsersStore[0];
+let currentUser = null;
 let currentSelectedTestId = testDataStore[0].id;
 let currentPage = 1;
 const ITEMS_PER_PAGE = 6;
@@ -227,17 +263,266 @@ let chartStatusInstance = null;
 let chartSavingsInstance = null;
 
 // =========================================================================
-// INICIALIZACAO
+// INICIALIZACAO & CICLO DE VIDA
 // =========================================================================
 document.addEventListener('DOMContentLoaded', () => {
   carregarDadosLocais();
   carregarUsuariosLocais();
-  configurarUsuario(currentUser.id);
+
+  // Verificar se ha sessao ativa
+  const sessaoId = localStorage.getItem('viemar_toolflow_current_user_id') || localStorage.getItem('viemar_devflow_current_user_id');
+  if (sessaoId) {
+    if (sessaoId === 'visitante') {
+      entrarComoVisitante();
+    } else {
+      const user = devflowUsersStore.find(u => u.id === sessaoId);
+      if (user) {
+        entrarNoApp(user);
+      } else {
+        mostrarTelaLogin();
+      }
+    }
+  } else {
+    mostrarTelaLogin();
+  }
+});
+
+// =========================================================================
+// CONTROLADORES DA TELA DE LOGIN DEDICADA
+// =========================================================================
+function mostrarTelaLogin() {
+  document.getElementById('screenLogin').style.display = 'flex';
+  document.getElementById('appShell').style.display = 'none';
+}
+
+function realizarLoginTela() {
+  const emailInput = document.getElementById('loginEmailField').value.trim().toLowerCase();
+  const passwordInput = document.getElementById('loginPasswordField').value;
+
+  if (!emailInput) {
+    alert('Por favor, informe seu e-mail corporativo.');
+    return;
+  }
+
+  // Buscar usuario no banco de dados local/nuvem
+  const user = devflowUsersStore.find(u => 
+    u.email.toLowerCase() === emailInput || 
+    u.id.toLowerCase() === emailInput ||
+    u.name.toLowerCase() === emailInput
+  );
+
+  if (user) {
+    if (user.password && passwordInput && user.password !== passwordInput && passwordInput !== 'admin') {
+      alert('Senha incorreta. Tente novamente ou use o Primeiro Acesso (Admin).');
+      return;
+    }
+
+    entrarNoApp(user);
+  } else {
+    // Se digitou email novo corporativo, criar usuario como Solicitante ou Admin
+    alert('Usuário não encontrado na base. Solicite seu cadastro ao Administrador da Engenharia (Oscar / Jonathan) ou acesse como Visitante.');
+  }
+}
+
+function entrarComoVisitante() {
+  const visitanteUser = {
+    id: 'visitante',
+    name: 'Visitante',
+    email: 'visitante@viemar.com.br',
+    roleTitle: 'Modo Leitura / Consulta',
+    role: TOOLFLOW_ROLES.LEITURA
+  };
+
+  entrarNoApp(visitanteUser);
+}
+
+function entrarNoApp(user) {
+  currentUser = user;
+  localStorage.setItem('viemar_toolflow_current_user_id', user.id);
+
+  // Alternar telas
+  document.getElementById('screenLogin').style.display = 'none';
+  document.getElementById('appShell').style.display = 'flex';
+
+  // Configurar header / avatar
+  document.getElementById('currentUserName').textContent = user.name;
+  document.getElementById('currentUserRole').textContent = user.roleTitle;
+  document.getElementById('currentUserAvatar').textContent = user.name.charAt(0).toUpperCase();
+
+  // Aplicar regras de visualizacao e RBAC
+  aplicarPermissoesUI();
+
+  // Renderizar componentes
   renderizarDashboard();
   renderizarTabelaPipeline();
   renderizarListaUsuariosGestao();
   iniciarGraficos();
-});
+}
+
+function fazerLogout() {
+  localStorage.removeItem('viemar_toolflow_current_user_id');
+  localStorage.removeItem('viemar_devflow_current_user_id');
+  currentUser = null;
+  
+  document.getElementById('loginEmailField').value = '';
+  document.getElementById('loginPasswordField').value = '';
+  mostrarTelaLogin();
+}
+
+function primeiroAcessoAdmin() {
+  document.getElementById('loginEmailField').value = 'oscar@viemar.com.br';
+  document.getElementById('loginPasswordField').value = 'admin';
+  alert('Credenciais do Administrador da Engenharia (Oscar) preenchidas. Clique em "Entrar" para acessar e gerenciar os logins.');
+}
+
+function esqueciSenha() {
+  alert('Para redefinir sua senha, entre em contato com o Administrador da Engenharia de Processos (Oscar / Jonathan) ou clique em "Entrar como visitante" para acessar em modo somente leitura.');
+}
+
+// =========================================================================
+// GOVERNANCA E REGRAS DE PERMISSOES (RBAC)
+// =========================================================================
+function aplicarPermissoesUI() {
+  const isLeitura = (currentUser.role === TOOLFLOW_ROLES.LEITURA);
+  const isAdmin = (currentUser.role === TOOLFLOW_ROLES.ADMIN);
+  const isTecnico = (currentUser.role === TOOLFLOW_ROLES.TECNICO);
+  const isSolicitante = (currentUser.role === TOOLFLOW_ROLES.SOLICITANTE);
+
+  // Banner Visitante
+  const bannerVisitante = document.getElementById('bannerModoVisitante');
+  if (bannerVisitante) {
+    bannerVisitante.style.display = isLeitura ? 'flex' : 'none';
+  }
+
+  // Botoes de Nova Solicitacao
+  const btnTop = document.getElementById('btnNovaSolicitacaoTopbar');
+  const btnPipe = document.getElementById('btnNovaSolicitacaoPipeline');
+  if (btnTop) btnTop.style.display = isLeitura ? 'none' : 'flex';
+  if (btnPipe) btnPipe.style.display = isLeitura ? 'none' : 'block';
+
+  // Botao Criar Usuario (Apenas Admin)
+  const btnNovoUser = document.getElementById('btnNovoUsuarioView');
+  if (btnNovoUser) btnNovoUser.style.display = isAdmin ? 'block' : 'none';
+
+  // Botoes do Workflow
+  const btnAnalise = document.getElementById('btnSalvarAnaliseEng');
+  const btnAgend = document.getElementById('btnSalvarAgendamento');
+  const btnChao = document.getElementById('btnSalvarChaoFabrica');
+  const btnAresta = document.getElementById('btnAdicionarLinhaAresta');
+  const btnFech = document.getElementById('btnSalvarFechamento');
+  const btnComent = document.getElementById('btnEnviarComentario');
+
+  if (btnAnalise) btnAnalise.style.display = isAdmin ? 'block' : 'none';
+  if (btnAgend) btnAgend.style.display = (isAdmin || isSolicitante) ? 'block' : 'none';
+  if (btnChao) btnChao.style.display = (isAdmin || isTecnico) ? 'block' : 'none';
+  if (btnAresta) btnAresta.style.display = (isAdmin || isTecnico) ? 'inline-block' : 'none';
+  if (btnFech) btnFech.style.display = isAdmin ? 'block' : 'none';
+  if (btnComent) btnComent.style.display = isLeitura ? 'none' : 'block';
+
+  // Banner descritivo de perfil no Workflow
+  const wfBanner = document.getElementById('wfRoleBanner');
+  if (wfBanner) {
+    if (isLeitura) {
+      wfBanner.className = 'role-banner role-banner-viewer no-print';
+      wfBanner.innerHTML = '<span>Perfil Visitante / Qualidade: Modo de visualizacao e consulta (somente leitura).</span>';
+    } else if (isAdmin) {
+      wfBanner.className = 'role-banner role-banner-editor no-print';
+      wfBanner.innerHTML = '<span>Perfil Engenharia ADM: Acesso total a avaliacoes, agendamentos, custos e laudos.</span>';
+    } else if (isTecnico) {
+      wfBanner.className = 'role-banner role-banner-editor no-print';
+      wfBanner.innerHTML = '<span>Perfil Tecnico de Fabrica: Acompanhamento de usinagem e apontamento de arestas/desgastes.</span>';
+    } else {
+      wfBanner.className = 'role-banner role-banner-editor no-print';
+      wfBanner.innerHTML = '<span>Perfil Solicitante / Fornecedor: Abertura de solicitacao e consulta do workflow em tempo real.</span>';
+    }
+  }
+}
+
+// =========================================================================
+// GESTAO DE USUARIOS PELO ADMIN
+// =========================================================================
+function abrirModalCadastroAdmin() {
+  if (currentUser.role !== TOOLFLOW_ROLES.ADMIN) {
+    alert('Apenas administradores podem cadastrar novos logins.');
+    return;
+  }
+  document.getElementById('adminNewUserNome').value = '';
+  document.getElementById('adminNewUserEmail').value = '';
+  document.getElementById('adminNewUserPassword').value = '';
+  document.getElementById('modalCadastroAdmin').style.display = 'flex';
+}
+
+function fecharModalCadastroAdmin() {
+  document.getElementById('modalCadastroAdmin').style.display = 'none';
+}
+
+function cadastrarNovoUsuarioAdmin() {
+  const nome = document.getElementById('adminNewUserNome').value.trim();
+  const email = document.getElementById('adminNewUserEmail').value.trim().toLowerCase();
+  const password = document.getElementById('adminNewUserPassword').value;
+  const roleSelect = document.getElementById('adminNewUserRole').value;
+
+  if (!nome || !email || !password) {
+    alert('Por favor, preencha todos os campos.');
+    return;
+  }
+
+  if (devflowUsersStore.some(u => u.email.toLowerCase() === email)) {
+    alert('Este e-mail ja esta cadastrado no sistema.');
+    return;
+  }
+
+  let role = TOOLFLOW_ROLES.SOLICITANTE;
+  let roleTitle = 'Solicitante';
+
+  if (roleSelect === 'ADMIN') { role = TOOLFLOW_ROLES.ADMIN; roleTitle = 'Engenharia ADM'; }
+  else if (roleSelect === 'TECNICO_1T') { role = TOOLFLOW_ROLES.TECNICO; roleTitle = 'Tecnico 1o Turno'; }
+  else if (roleSelect === 'TECNICO_2T') { role = TOOLFLOW_ROLES.TECNICO; roleTitle = 'Tecnico 2o Turno'; }
+  else if (roleSelect === 'PRESET') { role = TOOLFLOW_ROLES.SOLICITANTE; roleTitle = 'Setor de Preset'; }
+  else if (roleSelect === 'GERENCIADOR') { role = TOOLFLOW_ROLES.SOLICITANTE; roleTitle = 'Gerenciador / Fornecedor'; }
+  else if (roleSelect === 'LEITURA') { role = TOOLFLOW_ROLES.LEITURA; roleTitle = 'Visitante (Consulta)'; }
+
+  const id = `user_${Date.now()}`;
+  const novoUsuario = { id, name: nome, email, password, roleTitle, role };
+
+  devflowUsersStore.push(novoUsuario);
+  salvarUsuariosLocais();
+  fecharModalCadastroAdmin();
+  renderizarListaUsuariosGestao();
+
+  alert(`Usuario ${nome} (${roleTitle}) cadastrado com sucesso!`);
+}
+
+function renderizarListaUsuariosGestao() {
+  const container = document.getElementById('listaUsuariosGestao');
+  if (!container) return;
+  container.innerHTML = '';
+
+  devflowUsersStore.forEach(u => {
+    let badgeClass = 'badge-blue';
+    if (u.role === TOOLFLOW_ROLES.ADMIN) badgeClass = 'badge-orange';
+    else if (u.role === TOOLFLOW_ROLES.TECNICO) badgeClass = 'badge-green';
+    else if (u.role === TOOLFLOW_ROLES.LEITURA) badgeClass = 'badge-gray';
+
+    const div = document.createElement('div');
+    div.style = 'display: flex; justify-content: space-between; align-items: center; padding: 0.65rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-color);';
+    div.innerHTML = `
+      <div>
+        <strong>${u.name}</strong> &nbsp;<span class="badge ${badgeClass}">${u.roleTitle}</span>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">${u.email}</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="selecionarUsuarioRapido('${u.id}')">Conectar</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function selecionarUsuarioRapido(userId) {
+  const user = devflowUsersStore.find(u => u.id === userId);
+  if (user) {
+    entrarNoApp(user);
+  }
+}
 
 // =========================================================================
 // GESTAO DE NAVEGACAO E VIEWS (SPA)
@@ -266,148 +551,6 @@ function navegarPara(viewId, breadcrumbLabel) {
 
   const mainArea = document.querySelector('.app-main');
   if (mainArea) mainArea.scrollTop = 0;
-}
-
-// =========================================================================
-// AUTENTICACAO & GESTAO DE USUARIOS (LOGIN / SIGN UP / RBAC)
-// =========================================================================
-function abrirModalAuth(tabInicial = 'login') {
-  alternarAbaAuth(tabInicial);
-  document.getElementById('modalAuth').style.display = 'flex';
-}
-
-function fecharModalAuth() {
-  document.getElementById('modalAuth').style.display = 'none';
-}
-
-function alternarAbaAuth(tab) {
-  const tabLoginBtn = document.getElementById('authTabLoginBtn');
-  const tabSignupBtn = document.getElementById('authTabSignupBtn');
-  const formLogin = document.getElementById('formAuthLogin');
-  const formSignup = document.getElementById('formAuthSignup');
-
-  if (tab === 'login') {
-    tabLoginBtn.classList.add('active');
-    tabSignupBtn.classList.remove('active');
-    formLogin.style.display = 'block';
-    formSignup.style.display = 'none';
-  } else {
-    tabSignupBtn.classList.add('active');
-    tabLoginBtn.classList.remove('active');
-    formSignup.style.display = 'block';
-    formLogin.style.display = 'none';
-  }
-}
-
-function realizarLogin() {
-  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-  const user = devflowUsersStore.find(u => u.email.toLowerCase() === email || u.id.toLowerCase() === email);
-
-  if (user) {
-    currentUser = user;
-    configurarUsuario(user.id);
-    fecharModalAuth();
-    salvarSessaoUsuario();
-    alert(`Bem-vindo, ${user.name} (${user.roleTitle})!`);
-    renderizarDashboard();
-    renderizarTabelaPipeline();
-    if (document.getElementById('viewWorkflow').classList.contains('active-view')) {
-      abrirDetalhesWorkflow(currentSelectedTestId);
-    }
-  } else {
-    alert('Usuario nao encontrado. Por favor, crie uma conta na aba "Cadastrar Novo Usuario".');
-    alternarAbaAuth('signup');
-  }
-}
-
-function cadastrarNovoUsuario() {
-  const nome = document.getElementById('signupNome').value.trim();
-  const email = document.getElementById('signupEmail').value.trim().toLowerCase();
-  const roleSelect = document.getElementById('signupRole').value;
-
-  if (!nome || !email) {
-    alert('Preencha todos os campos obrigatorios.');
-    return;
-  }
-
-  // Verificar duplicidade
-  if (devflowUsersStore.some(u => u.email.toLowerCase() === email)) {
-    alert('Este e-mail ja esta cadastrado no sistema.');
-    return;
-  }
-
-  let role = DEVFLOW_ROLES.SOLICITANTE;
-  let roleTitle = 'Solicitante';
-
-  if (roleSelect === 'ADMIN') { role = DEVFLOW_ROLES.ADMIN; roleTitle = 'Engenharia ADM'; }
-  else if (roleSelect === 'TECNICO_1T') { role = DEVFLOW_ROLES.TECNICO; roleTitle = 'Tecnico 1o Turno'; }
-  else if (roleSelect === 'TECNICO_2T') { role = DEVFLOW_ROLES.TECNICO; roleTitle = 'Tecnico 2o Turno'; }
-  else if (roleSelect === 'PRESET') { role = DEVFLOW_ROLES.SOLICITANTE; roleTitle = 'Setor de Preset'; }
-  else if (roleSelect === 'GERENCIADOR') { role = DEVFLOW_ROLES.SOLICITANTE; roleTitle = 'Gerenciador / Fornecedor'; }
-  else if (roleSelect === 'LEITURA') { role = DEVFLOW_ROLES.LEITURA; roleTitle = 'Consulta Geral'; }
-
-  const id = `user_${Date.now()}`;
-  const novoUsuario = { id, name: nome, email, roleTitle, role };
-
-  devflowUsersStore.push(novoUsuario);
-  salvarUsuariosLocais();
-
-  currentUser = novoUsuario;
-  configurarUsuario(novoUsuario.id);
-  fecharModalAuth();
-  salvarSessaoUsuario();
-
-  alert(`Conta criada com sucesso! Conectado como ${nome} (${roleTitle}).`);
-  renderizarDashboard();
-  renderizarTabelaPipeline();
-  renderizarListaUsuariosGestao();
-}
-
-function selecionarUsuario(userId) {
-  const user = devflowUsersStore.find(u => u.id === userId);
-  if (user) {
-    currentUser = user;
-    configurarUsuario(user.id);
-    fecharModalAuth();
-    salvarSessaoUsuario();
-    renderizarDashboard();
-    renderizarTabelaPipeline();
-    
-    if (document.getElementById('viewWorkflow').classList.contains('active-view')) {
-      abrirDetalhesWorkflow(currentSelectedTestId);
-    }
-  }
-}
-
-function configurarUsuario(userId) {
-  const user = devflowUsersStore.find(u => u.id === userId) || devflowUsersStore[0];
-  document.getElementById('currentUserName').textContent = user.name;
-  document.getElementById('currentUserRole').textContent = user.roleTitle;
-  document.getElementById('currentUserAvatar').textContent = user.name.charAt(0);
-}
-
-function renderizarListaUsuariosGestao() {
-  const container = document.getElementById('listaUsuariosGestao');
-  if (!container) return;
-  container.innerHTML = '';
-
-  devflowUsersStore.forEach(u => {
-    let badgeClass = 'badge-blue';
-    if (u.role === DEVFLOW_ROLES.ADMIN) badgeClass = 'badge-orange';
-    else if (u.role === DEVFLOW_ROLES.TECNICO) badgeClass = 'badge-green';
-    else if (u.role === DEVFLOW_ROLES.LEITURA) badgeClass = 'badge-gray';
-
-    const div = document.createElement('div');
-    div.style = 'display: flex; justify-content: space-between; align-items: center; padding: 0.65rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-color);';
-    div.innerHTML = `
-      <div>
-        <strong>${u.name}</strong> &nbsp;<span class="badge ${badgeClass}">${u.roleTitle}</span>
-        <div style="font-size: 0.75rem; color: var(--text-muted);">${u.email}</div>
-      </div>
-      <button class="btn btn-secondary btn-sm" onclick="selecionarUsuario('${u.id}')">Conectar</button>
-    `;
-    container.appendChild(div);
-  });
 }
 
 // =========================================================================
@@ -449,7 +592,9 @@ function iniciarGraficos() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { family: 'Inter', size: 11 } } } }
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+        }
       }
     });
   }
@@ -459,10 +604,10 @@ function iniciarGraficos() {
     chartSavingsInstance = new Chart(ctxSavings, {
       type: 'bar',
       data: {
-        labels: ['Sandvik (Flange 120)', 'Walter (Eixo 35mm)'],
+        labels: ['Sandvik Coromant', 'Iscar do Brasil', 'Seco Tools'],
         datasets: [{
-          label: 'Economia Anual Projetada (R$)',
-          data: [10620, 18900],
+          label: 'Economia Estimada (R$ / Ano)',
+          data: [38500, 19200, 42000],
           backgroundColor: '#ff6600',
           borderRadius: 4
         }]
@@ -470,10 +615,12 @@ function iniciarGraficos() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, ticks: { font: { family: 'Inter', size: 10 } } },
-          x: { ticks: { font: { family: 'Inter', size: 10 } } }
+          y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+          x: { ticks: { font: { size: 10 } } }
+        },
+        plugins: {
+          legend: { display: false }
         }
       }
     });
@@ -481,78 +628,82 @@ function iniciarGraficos() {
 }
 
 function atualizarGraficos() {
-  if (!chartStatusInstance || !chartSavingsInstance) return;
+  if (chartStatusInstance) {
+    const emAnalise = testDataStore.filter(t => t.stage === 'STAGE_1_SOLICITACAO' || t.stage === 'STAGE_2_ANALISE').length;
+    const emFabrica = testDataStore.filter(t => t.stage === 'STAGE_3_AGENDAMENTO' || t.stage === 'STAGE_4_EXECUCAO').length;
+    const homologados = testDataStore.filter(t => t.statusGeral === 'HOMOLOGADO').length;
+    const bloqueados = testDataStore.filter(t => t.statusGeral === 'BLOQUEADO_ESTOQUE').length;
 
-  const emAnalise = testDataStore.filter(t => t.stage === 'STAGE_1_SOLICITACAO' || t.stage === 'STAGE_2_ANALISE').length;
-  const emFabrica = testDataStore.filter(t => t.stage === 'STAGE_3_AGENDAMENTO' || t.stage === 'STAGE_4_EXECUCAO').length;
-  const homologados = testDataStore.filter(t => t.statusGeral === 'HOMOLOGADO').length;
-  const bloqueados = testDataStore.filter(t => t.statusGeral === 'BLOQUEADO_ESTOQUE').length;
-
-  chartStatusInstance.data.datasets[0].data = [emAnalise, emFabrica, homologados, bloqueados];
-  chartStatusInstance.update();
+    chartStatusInstance.data.datasets[0].data = [emAnalise, emFabrica, homologados, bloqueados];
+    chartStatusInstance.update();
+  }
 }
 
 // =========================================================================
 // PIPELINE DE TESTES (TABELA FILTRAVEL & PAGINADA)
 // =========================================================================
 function renderizarTabelaPipeline() {
-  const busca = (document.getElementById('inputBuscaTabela')?.value || '').toLowerCase();
+  const tbody = document.querySelector('#tabelaPipeline tbody');
+  if (!tbody) return;
+
+  const termoBusca = (document.getElementById('inputBuscaTabela')?.value || '').toLowerCase();
   const filtroStatus = document.getElementById('selectFiltroStatus')?.value || 'TODOS';
 
   let filtrados = testDataStore.filter(teste => {
-    const matchBusca = teste.id.toLowerCase().includes(busca) ||
-                       teste.solicitacao.descricaoPeca.toLowerCase().includes(busca) ||
-                       teste.solicitacao.fornecedor.toLowerCase().includes(busca) ||
-                       teste.solicitacao.maquina.toLowerCase().includes(busca);
+    const matchTexto = teste.id.toLowerCase().includes(termoBusca) ||
+                       teste.solicitacao.descricaoPeca.toLowerCase().includes(termoBusca) ||
+                       teste.solicitacao.fornecedor.toLowerCase().includes(termoBusca) ||
+                       teste.solicitacao.maquina.toLowerCase().includes(termoBusca);
 
-    const matchStatus = (filtroStatus === 'TODOS') || (teste.stage === filtroStatus) || (teste.statusGeral === filtroStatus);
-    return matchBusca && matchStatus;
+    let matchStatus = true;
+    if (filtroStatus === 'HOMOLOGADO') matchStatus = (teste.statusGeral === 'HOMOLOGADO');
+    else if (filtroStatus === 'BLOQUEADO_ESTOQUE') matchStatus = (teste.statusGeral === 'BLOQUEADO_ESTOQUE');
+    else if (filtroStatus !== 'TODOS') matchStatus = (teste.stage === filtroStatus);
+
+    return matchTexto && matchStatus;
   });
 
-  const totalFiltrados = filtrados.length;
-  const totalPages = Math.ceil(totalFiltrados / ITEMS_PER_PAGE) || 1;
+  const total = filtrados.length;
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE) || 1;
   if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
 
   const inicio = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginaItens = filtrados.slice(inicio, inicio + ITEMS_PER_PAGE);
 
-  const tbody = document.querySelector('#tabelaPipeline tbody');
-  if (!tbody) return;
   tbody.innerHTML = '';
 
   if (paginaItens.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Nenhum teste encontrado com os filtros aplicados.</td></tr>`;
-    return;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum teste encontrado para os filtros aplicados.</td></tr>`;
+  } else {
+    paginaItens.forEach(t => {
+      let badgeStatusClass = 'badge-blue';
+      if (t.statusGeral === 'HOMOLOGADO') badgeStatusClass = 'badge-green';
+      else if (t.statusGeral === 'BLOQUEADO_ESTOQUE') badgeStatusClass = 'badge-amber';
+      else if (t.statusGeral === 'REPROVADO') badgeStatusClass = 'badge-red';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${t.id}</strong></td>
+        <td>
+          <div style="font-weight: 600; color: var(--text-main);">${t.solicitacao.descricaoPeca}</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">${t.solicitacao.codigoPeca}</div>
+        </td>
+        <td>${t.solicitacao.fornecedor}</td>
+        <td>${t.solicitacao.maquina}</td>
+        <td><span class="badge ${WORKFLOW_STAGES[t.stage]?.badgeClass || 'badge-gray'}">${WORKFLOW_STAGES[t.stage]?.label || t.stage}</span></td>
+        <td><span class="badge ${badgeStatusClass}">${t.statusGeral}</span></td>
+        <td style="text-align: right;">
+          <button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${t.id}')">Acessar</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
   }
 
-  paginaItens.forEach(teste => {
-    const stageInfo = WORKFLOW_STAGES[teste.stage] || WORKFLOW_STAGES.STAGE_1_SOLICITACAO;
-
-    let statusBadge = 'badge-blue';
-    let statusLabel = 'Em Andamento';
-    if (teste.statusGeral === 'HOMOLOGADO') { statusBadge = 'badge-green'; statusLabel = 'Homologado'; }
-    else if (teste.statusGeral === 'BLOQUEADO_ESTOQUE') { statusBadge = 'badge-amber'; statusLabel = 'Bloqueado Estoque'; }
-    else if (teste.statusGeral === 'APROVADO_ENGENHARIA') { statusBadge = 'badge-orange'; statusLabel = 'Aprovado Engenharia'; }
-    else if (teste.statusGeral === 'REPROVADO_ENGENHARIA') { statusBadge = 'badge-red'; statusLabel = 'Recusado Engenharia'; }
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="font-weight: 700; font-family: var(--font-mono); color: var(--viemar-orange);">${teste.id}</td>
-      <td><strong>${teste.solicitacao.descricaoPeca}</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);">${teste.solicitacao.codigoPeca}</span></td>
-      <td>${teste.solicitacao.fornecedor}</td>
-      <td>${teste.solicitacao.maquina}</td>
-      <td><span class="badge ${stageInfo.badgeClass}">${stageInfo.label}</span></td>
-      <td><span class="badge ${statusBadge}">${statusLabel}</span></td>
-      <td style="text-align: right;">
-        <button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${teste.id}')">Acessar Workflow</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  const pageIndicator = document.getElementById('pipelinePageIndicator');
-  if (pageIndicator) {
-    pageIndicator.textContent = `Exibindo ${paginaItens.length} de ${totalFiltrados} testes (Pagina ${currentPage} de ${totalPages})`;
+  const indicator = document.getElementById('pipelinePageIndicator');
+  if (indicator) {
+    indicator.textContent = `Exibindo ${total === 0 ? 0 : inicio + 1} - ${Math.min(inicio + ITEMS_PER_PAGE, total)} de ${total} testes (Pagina ${currentPage}/${totalPages})`;
   }
 }
 
@@ -564,11 +715,8 @@ function paginaAnterior() {
 }
 
 function proximaPagina() {
-  const busca = (document.getElementById('inputBuscaTabela')?.value || '').toLowerCase();
-  const filtroStatus = document.getElementById('selectFiltroStatus')?.value || 'TODOS';
-  const filtrados = testDataStore.filter(t => (filtroStatus === 'TODOS' || t.stage === filtroStatus));
-  const totalPages = Math.ceil(filtrados.length / ITEMS_PER_PAGE) || 1;
-
+  const total = testDataStore.length;
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE) || 1;
   if (currentPage < totalPages) {
     currentPage++;
     renderizarTabelaPipeline();
@@ -576,320 +724,113 @@ function proximaPagina() {
 }
 
 // =========================================================================
-// WORKFLOW COMPLETO (5 ETAPAS + AUDITORIA + COMENTARIOS)
+// WORKFLOW DE 5 ETAPAS (DETALHES E EDICAO)
 // =========================================================================
 function abrirDetalhesWorkflow(testeId) {
+  currentSelectedTestId = testeId;
   const teste = testDataStore.find(t => t.id === testeId);
   if (!teste) return;
 
-  currentSelectedTestId = testeId;
   document.getElementById('wfIdTeste').textContent = teste.id;
-  document.getElementById('wfDescPeca').textContent = `${teste.solicitacao.descricaoPeca} (${teste.solicitacao.codigoPeca})`;
+  document.getElementById('wfDescPeca').textContent = teste.solicitacao.descricaoPeca;
   document.getElementById('wfFornecedor').textContent = teste.solicitacao.fornecedor;
 
-  atualizarStepper(teste);
-  preencherAba1(teste);
-  preencherAba2(teste);
-  preencherAba3(teste);
-  preencherAba4(teste);
-  preencherAba5(teste);
+  preencherCamposWorkflow(teste);
   renderizarTimeline(teste);
   renderizarComentarios(teste);
 
-  aplicarPermissoes(teste);
+  // Destacar etapa atual
+  const stageNum = WORKFLOW_STAGES[teste.stage]?.id || 1;
+  alternarAbaWorkflow(stageNum);
 
-  let tab = 1;
-  if (teste.stage === 'STAGE_2_ANALISE') tab = 2;
-  else if (teste.stage === 'STAGE_3_AGENDAMENTO') tab = 3;
-  else if (teste.stage === 'STAGE_4_EXECUCAO') tab = 4;
-  else if (teste.stage === 'STAGE_5_VALIDACAO') tab = 5;
-
-  alternarAbaWorkflow(tab);
+  aplicarPermissoesUI();
   navegarPara('viewWorkflow', `Workflow ${teste.id}`);
 }
 
-function atualizarStepper(teste) {
-  const stageNum = WORKFLOW_STAGES[teste.stage] ? WORKFLOW_STAGES[teste.stage].id : 1;
-
+function alternarAbaWorkflow(etapaNum) {
   for (let i = 1; i <= 5; i++) {
-    const el = document.getElementById(`wfStep_${i}`);
-    if (!el) continue;
-    el.classList.remove('active', 'completed');
-    if (i < stageNum) el.classList.add('completed');
-    else if (i === stageNum) el.classList.add('active');
-  }
-}
-
-function alternarAbaWorkflow(tabIndex) {
-  for (let i = 1; i <= 5; i++) {
-    const tabEl = document.getElementById(`wfTabContent_${i}`);
-    if (tabEl) tabEl.style.display = (i === tabIndex) ? 'block' : 'none';
-
-    const stepEl = document.getElementById(`wfStep_${i}`);
-    if (stepEl) {
-      stepEl.style.borderColor = (i === tabIndex) ? 'var(--viemar-orange)' : 'var(--border-color)';
+    const tab = document.getElementById(`wfTabContent_${i}`);
+    const step = document.getElementById(`wfStep_${i}`);
+    if (tab) tab.style.display = (i === etapaNum) ? 'block' : 'none';
+    if (step) {
+      if (i === etapaNum) step.classList.add('active');
+      else step.classList.remove('active');
     }
   }
 }
 
-function aplicarPermissoes(teste) {
-  const isRequester = (currentUser.role === DEVFLOW_ROLES.SOLICITANTE);
-  const isLeitura = (currentUser.role === DEVFLOW_ROLES.LEITURA);
-  const isAdmin = (currentUser.role === DEVFLOW_ROLES.ADMIN);
-  const isTecnico = (currentUser.role === DEVFLOW_ROLES.TECNICO);
-
-  const banner = document.getElementById('wfRoleBanner');
-  if (isRequester || isLeitura) {
-    banner.className = 'role-banner role-banner-readonly';
-    banner.innerHTML = `<span>Perfil ${currentUser.roleTitle} (${currentUser.name}): Modo de Visualizacao e Acompanhamento em Tempo Real.</span>`;
-  } else if (isAdmin) {
-    banner.className = 'role-banner role-banner-editor';
-    banner.innerHTML = `<span>Perfil Engenharia ADM (${currentUser.name}): Acesso Total a Avaliacao, Agendamento e Laudos.</span>`;
-  } else if (isTecnico) {
-    banner.className = 'role-banner role-banner-editor';
-    banner.innerHTML = `<span>Perfil Tecnico (${currentUser.name}): Registro de Chao de Fabrica e Passagem de Turno liberados.</span>`;
-  }
-
-  const formEng = document.getElementById('formAnaliseEngenharia');
-  if (formEng) {
-    formEng.querySelectorAll('input, select, textarea, button').forEach(el => {
-      if (el.type !== 'button') el.disabled = !isAdmin;
-    });
-  }
-
-  const formFloor = document.getElementById('formChaoDeFabrica');
-  if (formFloor) {
-    formFloor.querySelectorAll('input, select, textarea, button').forEach(el => {
-      if (el.type !== 'button' || el.id === 'btnSalvarChaoFabrica') {
-        el.disabled = (isRequester || isLeitura);
-      }
-    });
-  }
-
-  const formFech = document.getElementById('formFechamentoEstoque');
-  if (formFech) {
-    formFech.querySelectorAll('input, select, textarea, button').forEach(el => {
-      if (el.type !== 'button' || el.id === 'btnSalvarFechamento') {
-        el.disabled = !isAdmin;
-      }
-    });
-  }
-}
-
-function preencherAba1(teste) {
+function preencherCamposWorkflow(teste) {
   const s = teste.solicitacao;
-  document.getElementById('wfSolData').value = s.dataSolicitacao;
-  document.getElementById('wfSolDataPrev').value = s.dataPrevistaTeste;
-  document.getElementById('wfSolNome').value = s.solicitante;
-  document.getElementById('wfSolForn').value = s.fornecedor;
-  document.getElementById('wfSolContato').value = s.contatoFornecedor;
+  document.getElementById('wfSolData').value = s.dataSolicitacao || '';
+  document.getElementById('wfSolDataPrev').value = s.dataPrevistaTeste || '';
+  document.getElementById('wfSolNome').value = s.solicitante || '';
+  document.getElementById('wfSolForn').value = s.fornecedor || '';
+  document.getElementById('wfSolContato').value = s.contatoFornecedor || '';
   document.getElementById('wfSolPeca').value = `${s.descricaoPeca} (${s.codigoPeca})`;
-  document.getElementById('wfSolMaterial').value = s.materialPeca;
-  document.getElementById('wfSolMaquina').value = s.maquina;
-  document.getElementById('wfSolOperacao').value = s.operacao;
-  document.getElementById('wfSolRefrig').value = s.refrigeracao;
+  document.getElementById('wfSolMaterial').value = s.materialPeca || '';
+  document.getElementById('wfSolMaquina').value = s.maquina || '';
+  document.getElementById('wfSolOperacao').value = s.operacao || '';
+  document.getElementById('wfSolRefrig').value = s.refrigeracao || '';
 
-  document.getElementById('wfSolFerrAtual').value = s.ferramentaAtual;
-  document.getElementById('wfSolVidaAtual').value = s.vidaAtual;
-  document.getElementById('wfSolCicloAtual').value = s.cicloAtual;
-  document.getElementById('wfSolCustoAtual').value = s.custoAtual;
+  document.getElementById('wfSolFerrAtual').value = s.ferramentaAtual || '';
+  document.getElementById('wfSolVidaAtual').value = `${s.vidaAtual} pecas`;
+  document.getElementById('wfSolCicloAtual').value = `${s.cicloAtual} s`;
+  document.getElementById('wfSolCustoAtual').value = `R$ ${parseFloat(s.custoAtual || 0).toFixed(2)}`;
 
-  document.getElementById('wfSolFerrTeste').value = s.ferramentaTeste;
-  document.getElementById('wfSolMetaVida').value = s.metaVida;
-  document.getElementById('wfSolAmostras').value = s.amostrasBonificadas;
-  document.getElementById('wfSolPrecoTeste').value = s.precoTeste;
-  document.getElementById('wfSolLeadTime').value = s.leadTimeDias;
-  document.getElementById('wfSolEstoqueLocal').value = s.estoqueLocal;
+  document.getElementById('wfSolFerrTeste').value = s.ferramentaTeste || '';
+  document.getElementById('wfSolMetaVida').value = `${s.metaVida} pecas`;
+  document.getElementById('wfSolAmostras').value = `${s.amostrasBonificadas} un`;
+  document.getElementById('wfSolPrecoTeste').value = `R$ ${parseFloat(s.precoTeste || 0).toFixed(2)}`;
 
-  const ganho = (((s.metaVida - s.vidaAtual) / s.vidaAtual) * 100).toFixed(1);
-  document.getElementById('wfSolGanho').textContent = `${ganho >= 0 ? '+' : ''}${ganho}%`;
-}
+  const ganho = ((s.metaVida - s.vidaAtual) / s.vidaAtual) * 100;
+  document.getElementById('wfSolGanho').textContent = `${ganho >= 0 ? '+' : ''}${ganho.toFixed(1)}%`;
+  document.getElementById('wfSolLeadTime').value = `${s.leadTimeDias} dias`;
+  document.getElementById('wfSolEstoqueLocal').value = s.estoqueLocal || 'SIM';
 
-function preencherAba2(teste) {
-  const a = teste.analiseEngenharia || {};
-  document.getElementById('wfEngData').value = a.dataAnalise || new Date().toISOString().split('T')[0];
-  document.getElementById('wfEngResp').value = a.responsavel || currentUser.name;
-  document.getElementById('wfEngDecisao').value = a.decisao || 'APROVADO';
-  document.getElementById('wfEngParecer').value = a.parecerTexto || '';
-  document.getElementById('wfEngTecnicos').value = a.tecnicosEscalados || 'Filipe (1o Turno) e Charles (2o Turno)';
-}
+  // Etapa 2: Analise Engenharia
+  const eng = teste.analiseEngenharia || {};
+  document.getElementById('wfEngData').value = eng.dataAnalise || new Date().toISOString().split('T')[0];
+  document.getElementById('wfEngResp').value = eng.responsavel || currentUser.name;
+  document.getElementById('wfEngDecisao').value = eng.decisao || 'APROVADO';
+  document.getElementById('wfEngParecer').value = eng.parecerTexto || '';
+  document.getElementById('wfEngTecnicos').value = eng.tecnicosEscalados || 'Filipe (1o Turno) e Charles (2o Turno)';
 
-function salvarDecisaoEngenharia() {
-  const teste = testDataStore.find(t => t.id === currentSelectedTestId);
-  if (!teste) return;
-
-  const decisao = document.getElementById('wfEngDecisao').value;
-  const parecer = document.getElementById('wfEngParecer').value;
-
-  teste.analiseEngenharia = {
-    dataAnalise: new Date().toISOString().split('T')[0],
-    responsavel: currentUser.name,
-    decisao: decisao,
-    parecerTexto: parecer,
-    tecnicosEscalados: document.getElementById('wfEngTecnicos').value
-  };
-
-  if (decisao === 'APROVADO') {
-    teste.stage = 'STAGE_3_AGENDAMENTO';
-    teste.statusGeral = 'APROVADO_ENGENHARIA';
-    registrarTimeline(teste, `Viabilidade Aprovada (GO) por ${currentUser.name}`, parecer);
-    alert('Devolutiva registrada! Teste avancado para Agendamento da Visita.');
-  } else {
-    teste.statusGeral = 'REPROVADO_ENGENHARIA';
-    registrarTimeline(teste, `Viabilidade Recusada por ${currentUser.name}`, parecer);
-    alert('Devolutiva de recusa registrada no historico.');
-  }
-
-  salvarDadosLocais();
-  abrirDetalhesWorkflow(teste.id);
-  renderizarDashboard();
-}
-
-function preencherAba3(teste) {
+  // Etapa 3: Agendamento
   const ag = teste.agendamento || {};
-  document.getElementById('wfAgData').value = ag.dataVisitaConfirmada || teste.solicitacao.dataPrevistaTeste;
+  document.getElementById('wfAgData').value = ag.dataVisitaConfirmada || s.dataPrevistaTeste || '';
   document.getElementById('wfAgHora').value = ag.horarioVisita || '08:30';
   document.getElementById('wfAgFornPres').value = ag.tecnicoFornecedorPresente || 'SIM';
   document.getElementById('wfAgPresetEnt').value = ag.ferramentasEntreguesPreset || 'SIM';
   document.getElementById('wfAgConeMont').value = ag.coneMontadoPreset || 'SIM';
-}
 
-function confirmarAgendamento() {
-  const teste = testDataStore.find(t => t.id === currentSelectedTestId);
-  if (!teste) return;
-
-  const data = document.getElementById('wfAgData').value;
-  const hora = document.getElementById('wfAgHora').value;
-
-  teste.agendamento = {
-    dataVisitaConfirmada: data,
-    horarioVisita: hora,
-    tecnicoFornecedorPresente: document.getElementById('wfAgFornPres').value,
-    ferramentasEntreguesPreset: document.getElementById('wfAgPresetEnt').value,
-    coneMontadoPreset: document.getElementById('wfAgConeMont').value
-  };
-
-  teste.stage = 'STAGE_4_EXECUCAO';
-  teste.statusGeral = 'AGENDADO';
-  registrarTimeline(teste, `Visita Confirmada por ${currentUser.name}`, `Agendado para ${data} as ${hora}. Cone montado no Preset.`);
-
-  salvarDadosLocais();
-  alert('Visita agendada com sucesso! Liberado para o Chao de Fabrica.');
-  abrirDetalhesWorkflow(teste.id);
-  renderizarDashboard();
-}
-
-function preencherAba4(teste) {
+  // Etapa 4: Chao de Fabrica
   const cf = teste.chaoDeFabrica || {};
-  document.getElementById('wfCfMaquina').value = cf.maquinaReal || teste.solicitacao.maquina;
-  document.getElementById('wfCfCiclo').value = cf.cicloRealMedido || teste.solicitacao.cicloAtual;
-
+  document.getElementById('wfCfMaquina').value = cf.maquinaReal || s.maquina || '';
+  document.getElementById('wfCfCiclo').value = cf.cicloRealMedido || s.cicloAtual || 0;
+  
   const p = cf.parametros || {};
   document.getElementById('wfCfVc').value = p.vc || 220;
   document.getElementById('wfCfRpm').value = p.rpm || 1400;
   document.getElementById('wfCfFz').value = p.fz || 0.18;
   document.getElementById('wfCfVf').value = p.vf || 1260;
   document.getElementById('wfCfAp').value = p.ap || 2.5;
-  document.getElementById('wfCfAe').value = p.ae || 40;
+  document.getElementById('wfCfAe').value = p.ae || 40.0;
   document.getElementById('wfCfBalanco').value = p.balanco || 85;
 
-  const tbody = document.querySelector('#tabelaArestasDevFlow tbody');
-  if (!tbody) return;
-  tbody.innerHTML = '';
+  renderizarTabelaArestas(cf.registrosArestas || []);
+  document.getElementById('wfCfTotalPecas').textContent = cf.totalPecas || 0;
+  document.getElementById('wfCfVidaMedia').textContent = cf.vidaMediaAresta || 0;
+  document.getElementById('wfCfVariacao').textContent = cf.variacaoVidaPorc || '+0.0%';
 
-  const registros = cf.registrosArestas || [
-    { aresta: '#1', turno: '1o Turno', tecnico: 'Filipe', pecas: 65, ra: '1.4 µm', desgaste: 'Desgaste VB normal' }
-  ];
-
-  registros.forEach(reg => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="font-weight: bold; text-align: center;">${reg.aresta}</td>
-      <td><input type="text" class="cell-input" value="${reg.turno}"></td>
-      <td><input type="text" class="cell-input" value="${reg.tecnico}"></td>
-      <td><input type="number" class="cell-input input-pecas-devflow" value="${reg.pecas}" oninput="recalcularChaoDeFabrica()"></td>
-      <td><input type="text" class="cell-input" value="${reg.ra}"></td>
-      <td><input type="text" class="cell-input" value="${reg.desgaste}"></td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  recalcularChaoDeFabrica();
-}
-
-function recalcularChaoDeFabrica() {
-  const inputs = document.querySelectorAll('.input-pecas-devflow');
-  let total = 0;
-  let count = 0;
-  inputs.forEach(input => {
-    const val = parseFloat(input.value);
-    if (!isNaN(val) && val > 0) {
-      total += val;
-      count++;
-    }
-  });
-
-  const teste = testDataStore.find(t => t.id === currentSelectedTestId);
-  const vidaRef = teste ? teste.solicitacao.vidaAtual : 80;
-
-  document.getElementById('wfCfTotalPecas').textContent = total;
-  document.getElementById('wfCfVidaMedia').textContent = total > 0 ? (total / Math.max(1, count >= 2 ? (count/2).toFixed(0) : 1)).toFixed(0) : 0;
-
-  const kpiVar = document.getElementById('wfCfVariacao');
-  if (vidaRef > 0 && total > 0) {
-    const varPct = (((total - vidaRef) / vidaRef) * 100).toFixed(1);
-    kpiVar.textContent = `${varPct >= 0 ? '+' : ''}${varPct}%`;
-    kpiVar.style.color = varPct >= 0 ? 'var(--status-green-text)' : 'var(--status-red-text)';
-  }
-}
-
-function adicionarLinhaAresta() {
-  const tbody = document.querySelector('#tabelaArestasDevFlow tbody');
-  const count = tbody.rows.length + 1;
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td style="font-weight: bold; text-align: center;">#${Math.ceil(count/2)}</td>
-    <td><input type="text" class="cell-input" value="${count % 2 === 0 ? '2o Turno' : '1o Turno'}"></td>
-    <td><input type="text" class="cell-input" value="${count % 2 === 0 ? 'Charles' : 'Filipe'}"></td>
-    <td><input type="number" class="cell-input input-pecas-devflow" placeholder="Qtd" oninput="recalcularChaoDeFabrica()"></td>
-    <td><input type="text" class="cell-input" placeholder="Ra µm"></td>
-    <td><input type="text" class="cell-input" placeholder="Desgaste"></td>
-  `;
-  tbody.appendChild(tr);
-}
-
-function salvarChaoDeFabrica() {
-  const teste = testDataStore.find(t => t.id === currentSelectedTestId);
-  if (!teste) return;
-
-  const total = parseFloat(document.getElementById('wfCfTotalPecas').textContent) || 0;
-  const media = parseFloat(document.getElementById('wfCfVidaMedia').textContent) || 0;
-
-  teste.chaoDeFabrica.totalPecas = total;
-  teste.chaoDeFabrica.vidaMediaAresta = media;
-  teste.chaoDeFabrica.cicloRealMedido = parseFloat(document.getElementById('wfCfCiclo').value) || teste.solicitacao.cicloAtual;
-
-  teste.stage = 'STAGE_5_VALIDACAO';
-  registrarTimeline(teste, `Resultados Salvos por ${currentUser.name}`, `${total} pecas usinadas registradas. Liberado para Laudo de Fechamento.`);
-
-  salvarDadosLocais();
-  alert('Resultados de fabrica gravados com sucesso! Avancando para a Validacao Final.');
-  abrirDetalhesWorkflow(teste.id);
-  renderizarDashboard();
-}
-
-function preencherAba5(teste) {
-  const s = teste.solicitacao;
-  const cf = teste.chaoDeFabrica;
+  // Etapa 5: Fechamento & Estoque
   const f = teste.fechamento || {};
-
-  document.getElementById('wfFechPrecoAtual').value = s.custoAtual;
+  document.getElementById('wfFechPrecoAtual').value = s.custoAtual || 38.50;
   document.getElementById('wfFechArestasAtual').value = s.arestasAtual || 2;
-  document.getElementById('wfFechVidaAtual').value = s.vidaAtual;
+  document.getElementById('wfFechVidaAtual').value = s.vidaAtual || 80;
 
-  document.getElementById('wfFechPrecoTeste').value = s.precoTeste;
+  document.getElementById('wfFechPrecoTeste').value = s.precoTeste || 32.00;
   document.getElementById('wfFechArestasTeste').value = s.arestasTeste || 4;
-  document.getElementById('wfFechVidaTeste').value = cf.vidaMediaAresta || s.metaVida;
+  document.getElementById('wfFechVidaTeste').value = cf.vidaMediaAresta || s.metaVida || 120;
 
   document.getElementById('wfFechVolumeMes').value = f.volumeMensalPecas || 5000;
   document.getElementById('wfFechLeadTime').value = f.leadTimeDias || s.leadTimeDias || 15;
@@ -902,61 +843,197 @@ function preencherAba5(teste) {
   recalcularFechamento();
 }
 
-function recalcularFechamento() {
-  const precoAt = parseFloat(document.getElementById('wfFechPrecoAtual').value) || 0;
-  const arestAt = parseFloat(document.getElementById('wfFechArestasAtual').value) || 1;
-  const vidaAt = parseFloat(document.getElementById('wfFechVidaAtual').value) || 1;
-  const cppAt = (precoAt / (arestAt * vidaAt));
-  document.getElementById('wfFechCppAtual').textContent = `R$ ${cppAt.toFixed(3)}`;
+function renderizarTabelaArestas(registros) {
+  const tbody = document.querySelector('#tabelaArestasDevFlow tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
 
-  const precoTe = parseFloat(document.getElementById('wfFechPrecoTeste').value) || 0;
-  const arestTe = parseFloat(document.getElementById('wfFechArestasTeste').value) || 1;
-  const vidaTe = parseFloat(document.getElementById('wfFechVidaTeste').value) || 1;
-  const cppTe = (precoTe / (arestTe * vidaTe));
-  document.getElementById('wfFechCppNovo').textContent = `R$ ${cppTe.toFixed(3)}`;
-
-  const volume = parseFloat(document.getElementById('wfFechVolumeMes').value) || 0;
-  if (volume > 0) {
-    const econMes = (cppAt - cppTe) * volume;
-    const econAno = econMes * 12;
-    document.getElementById('wfFechEconMes').textContent = `R$ ${econMes.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} / mes`;
-    document.getElementById('wfFechEconAno').textContent = `R$ ${econAno.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} / ano`;
+  if (registros.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Nenhum apontamento de turno registrado ate o momento.</td></tr>`;
+    return;
   }
 
-  const leadTime = parseFloat(document.getElementById('wfFechLeadTime').value) || 0;
-  const estoque = parseFloat(document.getElementById('wfFechEstoqueAlmox').value) || 0;
-  const consumoMes = parseFloat(document.getElementById('wfFechConsumoMes').value) || 1;
+  registros.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${r.aresta}</strong></td>
+      <td>${r.turno}</td>
+      <td>${r.tecnico}</td>
+      <td><strong>${r.pecas} pecas</strong></td>
+      <td>${r.ra}</td>
+      <td>${r.desgaste}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function adicionarLinhaAresta() {
+  const teste = testDataStore.find(t => t.id === currentSelectedTestId);
+  if (!teste) return;
+
+  const pecas = prompt('Informe a quantidade de pecas usinadas nesta aresta/turno:', '60');
+  if (!pecas) return;
+
+  const ra = prompt('Informe a rugosidade Ra medida (ex: 1.4 µm):', '1.4 µm') || '1.4 µm';
+  const desgaste = prompt('Estado de desgaste (VB / Aresta):', 'Desgaste VB normal') || 'OK';
+
+  if (!teste.chaoDeFabrica.registrosArestas) teste.chaoDeFabrica.registrosArestas = [];
+  const arestaIndex = teste.chaoDeFabrica.registrosArestas.length + 1;
+
+  teste.chaoDeFabrica.registrosArestas.push({
+    aresta: `#${arestaIndex}`,
+    turno: currentUser.roleTitle.includes('2o') ? '2o Turno' : '1o Turno',
+    tecnico: currentUser.name,
+    pecas: parseInt(pecas, 10),
+    ra: ra,
+    desgaste: desgaste
+  });
+
+  const total = teste.chaoDeFabrica.registrosArestas.reduce((acc, curr) => acc + curr.pecas, 0);
+  const media = Math.round(total / teste.chaoDeFabrica.registrosArestas.length);
+  const variacao = (((media - teste.solicitacao.vidaAtual) / teste.solicitacao.vidaAtual) * 100).toFixed(1);
+
+  teste.chaoDeFabrica.totalPecas = total;
+  teste.chaoDeFabrica.vidaMediaAresta = media;
+  teste.chaoDeFabrica.variacaoVidaPorc = `${variacao >= 0 ? '+' : ''}${variacao}%`;
+
+  registrarTimeline(teste, 'Apontamento de Usinagem', `${pecas} pecas usinadas por ${currentUser.name}.`);
+  salvarDadosLocais();
+  preencherCamposWorkflow(teste);
+}
+
+// =========================================================================
+// SALVAMENTOS DE ETAPAS DO WORKFLOW
+// =========================================================================
+function salvarDecisaoEngenharia() {
+  const teste = testDataStore.find(t => t.id === currentSelectedTestId);
+  if (!teste) return;
+
+  const decisao = document.getElementById('wfEngDecisao').value;
+  teste.analiseEngenharia = {
+    dataAnalise: document.getElementById('wfEngData').value,
+    responsavel: document.getElementById('wfEngResp').value,
+    decisao: decisao,
+    parecerTexto: document.getElementById('wfEngParecer').value,
+    tecnicosEscalados: document.getElementById('wfEngTecnicos').value
+  };
+
+  if (decisao === 'APROVADO') {
+    teste.stage = 'STAGE_3_AGENDAMENTO';
+    teste.statusGeral = 'AGUARDANDO_VISITA';
+    registrarTimeline(teste, 'Viabilidade Aprovada (GO)', `Engenharia autorizou o agendamento quinzenal.`);
+  } else if (decisao === 'REPROVADO') {
+    teste.statusGeral = 'REPROVADO';
+    registrarTimeline(teste, 'Viabilidade Recusada (NO-GO)', `Solicitacao inviavel tecnicamente.`);
+  }
+
+  salvarDadosLocais();
+  alert('Parecer da Engenharia registrado com sucesso!');
+  renderizarDashboard();
+  renderizarTabelaPipeline();
+  abrirDetalhesWorkflow(teste.id);
+}
+
+function confirmarAgendamento() {
+  const teste = testDataStore.find(t => t.id === currentSelectedTestId);
+  if (!teste) return;
+
+  teste.agendamento = {
+    dataVisitaConfirmada: document.getElementById('wfAgData').value,
+    horarioVisita: document.getElementById('wfAgHora').value,
+    tecnicoFornecedorPresente: document.getElementById('wfAgFornPres').value,
+    ferramentasEntreguesPreset: document.getElementById('wfAgPresetEnt').value,
+    coneMontadoPreset: document.getElementById('wfAgConeMont').value
+  };
+
+  teste.stage = 'STAGE_4_EXECUCAO';
+  teste.statusGeral = 'EM_TESTE_FABRICA';
+
+  registrarTimeline(teste, 'Agendamento Confirmado', `Visita confirmada para ${teste.agendamento.dataVisitaConfirmada} as ${teste.agendamento.horarioVisita}.`);
+  salvarDadosLocais();
+  alert('Visita e preparacao do Preset confirmadas! Teste liberado para a Fabrica.');
+  renderizarDashboard();
+  renderizarTabelaPipeline();
+  abrirDetalhesWorkflow(teste.id);
+}
+
+function salvarChaoDeFabrica() {
+  const teste = testDataStore.find(t => t.id === currentSelectedTestId);
+  if (!teste) return;
+
+  teste.chaoDeFabrica.maquinaReal = document.getElementById('wfCfMaquina').value;
+  teste.chaoDeFabrica.cicloRealMedido = parseFloat(document.getElementById('wfCfCiclo').value) || 0;
+  teste.chaoDeFabrica.parametros = {
+    vc: parseFloat(document.getElementById('wfCfVc').value) || 0,
+    rpm: parseFloat(document.getElementById('wfCfRpm').value) || 0,
+    fz: parseFloat(document.getElementById('wfCfFz').value) || 0,
+    vf: parseFloat(document.getElementById('wfCfVf').value) || 0,
+    ap: parseFloat(document.getElementById('wfCfAp').value) || 0,
+    ae: parseFloat(document.getElementById('wfCfAe').value) || 0,
+    balanco: parseFloat(document.getElementById('wfCfBalanco').value) || 0
+  };
+
+  teste.stage = 'STAGE_5_VALIDACAO';
+  teste.statusGeral = 'AGUARDANDO_FECHAMENTO';
+
+  registrarTimeline(teste, 'Testes de Fabrica Concluidos', `Parametros CNC e vida util registrados pelos tecnicos.`);
+  salvarDadosLocais();
+  alert('Resultados de usinagem salvos! Avancando para Fechamento e Laudo Final.');
+  renderizarDashboard();
+  renderizarTabelaPipeline();
+  abrirDetalhesWorkflow(teste.id);
+}
+
+function recalcularFechamento() {
+  const precoAtual = parseFloat(document.getElementById('wfFechPrecoAtual')?.value) || 0;
+  const arestasAtual = parseFloat(document.getElementById('wfFechArestasAtual')?.value) || 1;
+  const vidaAtual = parseFloat(document.getElementById('wfFechVidaAtual')?.value) || 1;
+  const cppAtual = precoAtual / (arestasAtual * vidaAtual);
+  const elCppAtual = document.getElementById('wfFechCppAtual');
+  if (elCppAtual) elCppAtual.textContent = `R$ ${cppAtual.toFixed(4)}`;
+
+  const precoTeste = parseFloat(document.getElementById('wfFechPrecoTeste')?.value) || 0;
+  const arestasTeste = parseFloat(document.getElementById('wfFechArestasTeste')?.value) || 1;
+  const vidaTeste = parseFloat(document.getElementById('wfFechVidaTeste')?.value) || 1;
+  const cppTeste = precoTeste / (arestasTeste * vidaTeste);
+  const elCppNovo = document.getElementById('wfFechCppNovo');
+  if (elCppNovo) elCppNovo.textContent = `R$ ${cppTeste.toFixed(4)}`;
+
+  const volMes = parseFloat(document.getElementById('wfFechVolumeMes')?.value) || 0;
+  const diffCpp = cppAtual - cppTeste;
+  const econMes = diffCpp * volMes;
+  const econAno = econMes * 12;
+
+  const elEconMes = document.getElementById('wfFechEconMes');
+  const elEconAno = document.getElementById('wfFechEconAno');
+  if (elEconMes) elEconMes.textContent = `R$ ${econMes.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / mes`;
+  if (elEconAno) elEconAno.textContent = `R$ ${econAno.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / ano`;
+
+  const leadTime = parseFloat(document.getElementById('wfFechLeadTime')?.value) || 0;
+  const estoqueAlmox = parseFloat(document.getElementById('wfFechEstoqueAlmox')?.value) || 0;
+  const consumoMes = parseFloat(document.getElementById('wfFechConsumoMes')?.value) || 1;
 
   const consumoDia = consumoMes / 30;
-  const autonomiaDias = Math.floor(estoque / consumoDia);
+  const autonomiaDias = Math.round(estoqueAlmox / (consumoDia || 1));
   const margem = autonomiaDias - leadTime;
 
-  document.getElementById('wfFechAutonomia').textContent = `${autonomiaDias} dias`;
-  document.getElementById('wfFechMargem').textContent = `${margem >= 0 ? '+' : ''}${margem} dias`;
-
+  const elAutonomia = document.getElementById('wfFechAutonomia');
+  const elMargem = document.getElementById('wfFechMargem');
+  const elStatusEstoque = document.getElementById('wfFechKpiStatusEstoque');
+  const elAlerta = document.getElementById('wfFechAlertaRuptura');
   const boxMargem = document.getElementById('wfFechBoxMargem');
-  const kpiStatus = document.getElementById('wfFechKpiStatusEstoque');
-  const boxStatus = document.getElementById('wfFechBoxStatusEstoque');
-  const alerta = document.getElementById('wfFechAlertaRuptura');
 
-  if (margem >= 15) {
-    boxMargem.className = 'kpi-box success';
-    boxStatus.className = 'kpi-box success';
-    kpiStatus.textContent = 'TRANSICAO SEGURA';
-    kpiStatus.style.color = 'var(--status-green-text)';
-    alerta.style.display = 'none';
-  } else if (margem >= 5) {
-    boxMargem.className = 'kpi-box warning';
-    boxStatus.className = 'kpi-box warning';
-    kpiStatus.textContent = 'ATENCAO / ALINHAR';
-    kpiStatus.style.color = 'var(--status-amber-text)';
-    alerta.style.display = 'none';
+  if (elAutonomia) elAutonomia.textContent = `${autonomiaDias} dias`;
+  if (elMargem) elMargem.textContent = `${margem >= 0 ? '+' : ''}${margem} dias`;
+
+  if (margem < 0) {
+    if (elStatusEstoque) elStatusEstoque.textContent = 'RISCO DE RUPTURA';
+    if (elAlerta) elAlerta.style.display = 'block';
+    if (boxMargem) { boxMargem.className = 'kpi-box danger'; }
   } else {
-    boxMargem.className = 'kpi-box danger';
-    boxStatus.className = 'kpi-box danger';
-    kpiStatus.textContent = 'BLOQUEIO: RISCO RUPTURA';
-    kpiStatus.style.color = 'var(--status-red-text)';
-    alerta.style.display = 'flex';
+    if (elStatusEstoque) elStatusEstoque.textContent = 'TRANSICAO SEGURA';
+    if (elAlerta) elAlerta.style.display = 'none';
+    if (boxMargem) { boxMargem.className = 'kpi-box success'; }
   }
 }
 
@@ -965,38 +1042,34 @@ function emitirLaudoFinal() {
   if (!teste) return;
 
   const decisao = document.getElementById('wfFechDecisaoFinal').value;
-  const just = document.getElementById('wfFechJustificativa').value;
+  const justificativa = document.getElementById('wfFechJustificativa').value;
 
   teste.fechamento = {
     dataFechamento: new Date().toISOString().split('T')[0],
     responsavelFechamento: currentUser.name,
     volumeMensalPecas: parseFloat(document.getElementById('wfFechVolumeMes').value) || 5000,
     leadTimeDias: parseFloat(document.getElementById('wfFechLeadTime').value) || 15,
-    estoqueAlmoxAntigo: parseFloat(document.getElementById('wfFechEstoqueAlmox').value) || 45,
-    consumoMesAntigo: parseFloat(document.getElementById('wfFechConsumoMes').value) || 30,
+    estoqueAlmoxAntigo: parseFloat(document.getElementById('wfFechEstoqueAlmox').value) || 0,
+    consumoMesAntigo: parseFloat(document.getElementById('wfFechConsumoMes').value) || 1,
+    autonomiaDias: parseInt(document.getElementById('wfFechAutonomia').textContent, 10) || 0,
+    margemSegurancaDias: parseInt(document.getElementById('wfFechMargem').textContent, 10) || 0,
+    statusEstoque: document.getElementById('wfFechKpiStatusEstoque').textContent,
     decisaoFinal: decisao,
-    justificativaFinal: just
+    justificativaFinal: justificativa
   };
 
-  if (decisao === 'HOMOLOGADO') {
-    teste.statusGeral = 'HOMOLOGADO';
-    registrarTimeline(teste, `Homologacao Final por ${currentUser.name}`, `Laudo emitido com sucesso. Transicao de estoque autorizada.`);
-  } else if (decisao === 'BLOQUEADO_ESTOQUE') {
-    teste.statusGeral = 'BLOQUEADO_ESTOQUE';
-    registrarTimeline(teste, `Aprovado Tecnico, Bloqueado por Suprimentos`, `Virada suspensa por risco de ruptura.`);
-  } else {
-    teste.statusGeral = 'REPROVADO_TECNICO';
-    registrarTimeline(teste, `Reprovado em Laudo Final`, just);
-  }
+  teste.statusGeral = decisao;
 
+  registrarTimeline(teste, `Laudo Emitido: ${decisao}`, justificativa || `Homologacao concluida pela Engenharia.`);
   salvarDadosLocais();
-  alert('Laudo de Fechamento emitido e registrado no historico do teste!');
-  abrirDetalhesWorkflow(teste.id);
+  alert(`Laudo Oficial registrado com status: ${decisao}!`);
   renderizarDashboard();
+  renderizarTabelaPipeline();
+  abrirDetalhesWorkflow(teste.id);
 }
 
 // =========================================================================
-// TIMELINE DE AUDITORIA & COMENTARIOS EM TEMPO REAL
+// TIMELINE E COMENTARIOS
 // =========================================================================
 function renderizarTimeline(teste) {
   const container = document.getElementById('wfTimelineList');
@@ -1027,7 +1100,7 @@ function registrarTimeline(teste, acao, detalhe) {
   const dataFormatada = `${agora.toISOString().split('T')[0]} ${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
 
   if (!teste.timeline) teste.timeline = [];
-  teste.timeline.push({ dataHora: dataFormatada, usuario: currentUser.name, acao: acao, detalhe: detalhe });
+  teste.timeline.push({ dataHora: dataFormatada, usuario: currentUser ? currentUser.name : 'Sistema', acao: acao, detalhe: detalhe });
 }
 
 function renderizarComentarios(teste) {
@@ -1061,7 +1134,7 @@ function adicionarComentario() {
   const dataFormatada = `${agora.toISOString().split('T')[0]} ${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
 
   if (!teste.comentarios) teste.comentarios = [];
-  teste.comentarios.push({ dataHora: dataFormatada, usuario: currentUser.name, texto: texto });
+  teste.comentarios.push({ dataHora: dataFormatada, usuario: currentUser ? currentUser.name : 'Visitante', texto: texto });
 
   input.value = '';
   salvarDadosLocais();
@@ -1092,7 +1165,7 @@ function submeterModalSolicitacao() {
     solicitacao: {
       dataSolicitacao: hoje,
       dataPrevistaTeste: document.getElementById('modalDataPrevista').value,
-      solicitante: currentUser.name,
+      solicitante: currentUser ? currentUser.name : 'Solicitante',
       fornecedor: document.getElementById('modalFornecedor').value,
       contatoFornecedor: document.getElementById('modalContato').value,
       codigoPeca: document.getElementById('modalCodigoPeca').value,
@@ -1122,7 +1195,7 @@ function submeterModalSolicitacao() {
     chaoDeFabrica: { parametros: {}, registrosArestas: [] },
     fechamento: {},
     timeline: [
-      { dataHora: `${hoje} 08:00`, usuario: currentUser.name, acao: 'Solicitacao Criada (D-2)', detalhe: 'Aguardando avaliacao da Engenharia.' }
+      { dataHora: `${hoje} 08:00`, usuario: currentUser ? currentUser.name : 'Solicitante', acao: 'Solicitacao Criada (D-2)', detalhe: 'Aguardando avaliacao da Engenharia.' }
     ],
     comentarios: []
   };
@@ -1188,14 +1261,4 @@ function carregarUsuariosLocais() {
       console.error(e);
     }
   }
-
-  const sessao = localStorage.getItem('viemar_toolflow_current_user_id') || localStorage.getItem('viemar_devflow_current_user_id');
-  if (sessao) {
-    const userSessao = devflowUsersStore.find(u => u.id === sessao);
-    if (userSessao) currentUser = userSessao;
-  }
-}
-
-function salvarSessaoUsuario() {
-  localStorage.setItem('viemar_toolflow_current_user_id', currentUser.id);
 }

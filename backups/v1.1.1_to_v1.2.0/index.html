@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Viemar ToolFlow v1.2.0 | Gestao de Testes de Ferramentas</title>
+  <title>Viemar ToolFlow v1.1.1 | Gestao de Testes de Ferramentas</title>
   
   <!-- CSS ToolFlow & Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,59 +20,7 @@
 </head>
 <body>
 
-  <!-- ========================================================================= -->
-  <!-- TELA DE LOGIN DEDICADA (PADRAO VIEMAR / MOCKUP OFICIAL)                   -->
-  <!-- ========================================================================= -->
-  <div id="screenLogin" class="login-page-screen">
-    <div class="login-card-container">
-      
-      <!-- Cabecalho do Card de Login -->
-      <div class="login-card-header">
-        <div class="login-logo-group">
-          <img src="logo.png" alt="Viemar Automotive" class="login-brand-logo" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 160 40\'><rect width=\'34\' height=\'34\' rx=\'6\' fill=\'%23ff6600\'/><path d=\'M9 10 L17 26 L25 10 Z\' fill=\'white\'/><text x=\'44\' y=\'24\' font-family=\'sans-serif\' font-size=\'18\' font-weight=\'900\' fill=\'%230f172a\'>viemar</text></svg>'">
-        </div>
-        <div class="login-brand-titles">
-          <div class="login-title-row">
-            <span class="login-main-title">ToolFlow</span>
-            <span class="login-version-tag">v1.2.0</span>
-          </div>
-          <span class="login-subtitle">Engenharia de Processos · VMR</span>
-        </div>
-      </div>
-
-      <!-- Formulario de Login -->
-      <form id="formTelaLogin" onsubmit="event.preventDefault(); realizarLoginTela();">
-        <div class="login-form-group">
-          <label class="login-label">E-MAIL</label>
-          <input type="text" id="loginEmailField" class="login-input" placeholder="seuemail@empresa.com" required autocomplete="username">
-        </div>
-
-        <div class="login-form-group">
-          <label class="login-label">SENHA</label>
-          <input type="password" id="loginPasswordField" class="login-input" placeholder="••••••••" autocomplete="current-password">
-        </div>
-
-        <button type="submit" class="login-btn-primary">
-          <span>Entrar</span>
-        </button>
-
-        <button type="button" class="login-btn-visitor" onclick="entrarComoVisitante()">
-          <span>Entrar como visitante</span>
-        </button>
-
-        <div class="login-footer-links">
-          <a href="javascript:void(0)" class="login-link-orange" onclick="esqueciSenha()">Esqueci minha senha</a>
-          <a href="javascript:void(0)" class="login-link-muted" onclick="primeiroAcessoAdmin()">Primeiro acesso (admin)</a>
-        </div>
-      </form>
-
-    </div>
-  </div>
-
-  <!-- ========================================================================= -->
-  <!-- APLICACAO PRINCIPAL (TOOLFLOW SHELL)                                      -->
-  <!-- ========================================================================= -->
-  <div class="app-container" id="appShell" style="display: none;">
+  <div class="app-container">
     
     <!-- ========================================================================= -->
     <!-- TOOLFLOW SIDEBAR LATERAL                                                  -->
@@ -87,7 +35,7 @@
           </div>
         </div>
         <div class="version-badge-container">
-          <span class="version-badge">v1.2.0</span>
+          <span class="version-badge">v1.1.1</span>
           <div class="sync-status-badge" title="Vercel & Cache Local Ativos">
             <span class="sync-dot"></span> Vercel Cloud
           </div>
@@ -114,9 +62,9 @@
 
         <div class="nav-section-label">Configuracao & Governanca</div>
 
-        <button class="sidebar-link" data-view="viewUsuarios" onclick="navegarPara('viewUsuarios', 'Controle de Acessos & Logins')">
+        <button class="sidebar-link" data-view="viewUsuarios" onclick="navegarPara('viewUsuarios', 'Controle de Acessos & Nuvem')">
           <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          <span>Gestao de Logins</span>
+          <span>Usuarios & Nuvem</span>
         </button>
 
         <button class="sidebar-link" data-view="viewAuditoria" onclick="navegarPara('viewAuditoria', 'Logs de Auditoria')">
@@ -126,7 +74,7 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="user-card" title="Usuario atualmente conectado">
+        <div class="user-card" onclick="abrirModalAuth('login')" title="Clique para alternar usuario ou ver detalhes">
           <div class="user-card-left">
             <div class="user-avatar" id="currentUserAvatar">O</div>
             <div class="user-info">
@@ -134,13 +82,12 @@
               <span class="role" id="currentUserRole">Engenharia ADM</span>
             </div>
           </div>
+          <svg style="width: 14px; height: 14px; color: var(--sidebar-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </div>
 
-        <div class="auth-btn-row" style="margin-top: 0.5rem;">
-          <button class="btn-sidebar-auth" style="width: 100%; justify-content: center; background: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3);" onclick="fazerLogout()">
-            <svg style="width: 13px; height: 13px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-            Sair / Trocar Conta
-          </button>
+        <div class="auth-btn-row">
+          <button class="btn-sidebar-auth" onclick="abrirModalAuth('login')">Entrar</button>
+          <button class="btn-sidebar-auth" onclick="abrirModalAuth('signup')">+ Novo Login</button>
         </div>
       </div>
     </aside>
@@ -150,15 +97,6 @@
     <!-- ========================================================================= -->
     <div class="app-main">
       
-      <!-- Banner de Alerta para Modo Visitante -->
-      <div id="bannerModoVisitante" class="visitor-alert-strip no-print" style="display: none;">
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <svg style="width: 16px; height: 16px; color: #d97706;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <span><strong>Modo Visitante (Somente Leitura):</strong> Visualizacao liberada. Formularios e aprovacoes tecnicas requerem login de operador/engenheiro.</span>
-        </div>
-        <button class="btn btn-secondary btn-sm" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="fazerLogout()">Fazer Login</button>
-      </div>
-
       <!-- ToolFlow Topbar -->
       <header class="app-topbar no-print">
         <div class="breadcrumb-container">
@@ -173,7 +111,7 @@
             <input type="text" class="search-input" id="inputBuscaGlobal" placeholder="Buscar peca, maquina, ID..." oninput="document.getElementById('inputBuscaTabela').value = this.value; renderizarTabelaPipeline();">
           </div>
 
-          <button id="btnNovaSolicitacaoTopbar" class="btn btn-primary" onclick="abrirModalNovaSolicitacao()">
+          <button class="btn btn-primary" onclick="abrirModalNovaSolicitacao()">
             <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             Nova Solicitacao (D-2)
           </button>
@@ -276,7 +214,7 @@
               <h2>Pipeline Geral de Testes</h2>
               <p>Pesquisa, filtragem avancada e acompanhamento de todos os testes de ferramentas.</p>
             </div>
-            <button id="btnNovaSolicitacaoPipeline" class="btn btn-primary" onclick="abrirModalNovaSolicitacao()">+ Nova Solicitacao</button>
+            <button class="btn btn-primary" onclick="abrirModalNovaSolicitacao()">+ Nova Solicitacao</button>
           </div>
 
           <div class="card">
@@ -343,7 +281,7 @@
             <img src="logo.png" alt="Viemar" class="print-logo">
             <div style="text-align: right;">
               <h3 style="font-size: 11pt; margin: 0; color: #ff6600;">ENGENHARIA DE USINAGEM</h3>
-              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatorio Oficial ToolFlow v1.2.0</p>
+              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatorio Oficial ToolFlow v1.1.1</p>
             </div>
           </div>
 
@@ -553,7 +491,7 @@
                 </div>
 
                 <div class="no-print" style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
-                  <button type="submit" id="btnSalvarAnaliseEng" class="btn btn-primary">Registrar Parecer e Devolutiva</button>
+                  <button type="submit" class="btn btn-primary">Registrar Parecer e Devolutiva</button>
                 </div>
               </div>
             </form>
@@ -604,7 +542,7 @@
                 </div>
 
                 <div class="no-print" style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
-                  <button type="submit" id="btnSalvarAgendamento" class="btn btn-primary">Confirmar Agendamento e Liberar Fabrica</button>
+                  <button type="submit" class="btn btn-primary">Confirmar Agendamento e Liberar Fabrica</button>
                 </div>
               </div>
             </form>
@@ -686,7 +624,7 @@
                   </table>
                 </div>
 
-                <button type="button" id="btnAdicionarLinhaAresta" class="btn btn-secondary btn-sm no-print" style="margin-top: 0.5rem;" onclick="adicionarLinhaAresta()">
+                <button type="button" class="btn btn-secondary btn-sm no-print" style="margin-top: 0.5rem;" onclick="adicionarLinhaAresta()">
                   + Adicionar Registro de Turno
                 </button>
 
@@ -876,7 +814,7 @@
               </div>
               <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
                 <input type="text" id="inputNovoComentario" class="form-control" placeholder="Adicionar nota técnica ou alinhamento...">
-                <button type="button" id="btnEnviarComentario" class="btn btn-secondary btn-sm" onclick="adicionarComentario()">Enviar</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="adicionarComentario()">Enviar</button>
               </div>
             </div>
           </div>
@@ -889,19 +827,19 @@
         <section id="viewUsuarios" class="app-view">
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Matriz de Acessos & Logins Cadastrados</h2>
-              <p>Governança de acessos: O Administrador cria e gerencia os logins da equipe.</p>
+              <h2>Matriz de Acessos & Conexao Cloud (Vercel & Firebase)</h2>
+              <p>Governança de usuarios e logins cadastrados para acesso multi-maquina.</p>
             </div>
             <div>
-              <button id="btnNovoUsuarioView" class="btn btn-primary btn-sm" onclick="abrirModalCadastroAdmin()">+ Criar Novo Login</button>
+              <button class="btn btn-primary btn-sm" onclick="abrirModalAuth('signup')">+ Cadastrar Novo Usuario</button>
             </div>
           </div>
 
           <div class="grid grid-2">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">Usuarios com Acesso ao ToolFlow</h3>
-                <span class="badge badge-orange">Controle de Logins</span>
+                <h3 class="card-title">Usuarios Cadastrados no Sistema</h3>
+                <span class="badge badge-orange">Multi-Sessao</span>
               </div>
               <div id="listaUsuariosGestao" style="display: flex; flex-direction: column; gap: 0.6rem;">
                 <!-- Preenchido via app.js -->
@@ -910,19 +848,20 @@
 
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">Diretrizes de Governanca de Acesso</h3>
-                <span class="badge badge-green">Seguranca Viemar</span>
+                <h3 class="card-title">Publicacao e Acesso Online via Vercel</h3>
+                <span class="badge badge-green">Online Ready</span>
               </div>
               <p style="font-size: 0.825rem; color: var(--text-secondary); line-height: 1.6;">
-                O controle de perfis garante a integridade dos testes de usinagem e rastreabilidade:
+                O ToolFlow v1.1.1 foi preparado para hospedagem rapida na Vercel com suporte completo para multiplas maquinas e celulares:
               </p>
               <div style="margin-top: 0.75rem; background: #f8fafc; padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 0.8rem;">
-                <ul style="margin-left: 1.15rem; display: flex; flex-direction: column; gap: 0.4rem;">
-                  <li><strong>Engenharia ADM:</strong> Apenas administradores podem avaliar viabilidade (D-2), aprovar laudos finais e gerenciar logins.</li>
-                  <li><strong>Tecnicos 1oT / 2oT:</strong> Registram parametros de usinagem no CNC, arestas e desgastes.</li>
-                  <li><strong>Preset / Gerenciador:</strong> Cadastram novas solicitacoes e acompanham status.</li>
-                  <li><strong>Modo Visitante:</strong> Acesso geral sem necessidade de senha, exclusivamente para visualizacao e consulta.</li>
-                </ul>
+                <strong>Como publicar na Vercel:</strong>
+                <ol style="margin-left: 1.25rem; margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.3rem;">
+                  <li>Suba o projeto para seu repositorio no GitHub.</li>
+                  <li>Na Vercel, clique em <em>Add New Project</em> e selecione o repositorio.</li>
+                  <li>Clique em <strong>Deploy</strong> (o arquivo <code>vercel.json</code> ja esta pronto).</li>
+                  <li>Compartilhe o link gerado (ex: <code>https://viemar-toolflow.vercel.app</code>) com todos da Usinagem!</li>
+                </ol>
               </div>
             </div>
           </div>
@@ -948,11 +887,11 @@
                 <div class="timeline-dot green"></div>
                 <div class="timeline-content">
                   <div class="timeline-header">
-                    <span><strong>Sistema ToolFlow v1.2.0</strong></span>
-                    <span>2026-08-04 20:30</span>
+                    <span><strong>Sistema ToolFlow v1.1.1</strong></span>
+                    <span>2026-08-04 20:05</span>
                   </div>
-                  <div class="timeline-title">Nova Tela de Login Viemar & Modo Visitante</div>
-                  <div class="timeline-body">Tela de login dedicada com visual limpo, entrada direta para Visitante e gestao de acessos pelo Admin.</div>
+                  <div class="timeline-title">Renomeacao Oficial para ToolFlow Viemar</div>
+                  <div class="timeline-body">Identidade renovada para Gestao e Governanca de Ferramentas de Usinagem.</div>
                 </div>
               </div>
             </div>
@@ -964,27 +903,67 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- MODAL: CADASTRO DE NOVO USUARIO (ADMIN ONLY)                              -->
+  <!-- MODAL: AUTENTICACAO & CADASTRO DE USUARIOS (LOGIN / SIGN UP)              -->
   <!-- ========================================================================= -->
-  <div id="modalCadastroAdmin" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalCadastroAdmin()">
+  <div id="modalAuth" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalAuth()">
     <div class="modal-content" style="max-width: 480px;">
       <div class="modal-header">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Cadastrar Novo Usuario / Login</h3>
-        <button onclick="fecharModalCadastroAdmin()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">X</button>
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Acesso ao Viemar ToolFlow</h3>
+        <button onclick="fecharModalAuth()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">X</button>
       </div>
 
-      <form onsubmit="event.preventDefault(); cadastrarNovoUsuarioAdmin();">
+      <!-- Abas de Navegacao: Login vs Cadastro -->
+      <div class="auth-tabs-nav">
+        <button id="authTabLoginBtn" class="auth-tab-btn active" onclick="alternarAbaAuth('login')">Entrar na Conta</button>
+        <button id="authTabSignupBtn" class="auth-tab-btn" onclick="alternarAbaAuth('signup')">Cadastrar Novo Usuario</button>
+      </div>
+
+      <!-- FORMULARIO 1: LOGIN -->
+      <form id="formAuthLogin" onsubmit="event.preventDefault(); realizarLogin();">
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+          Digite seu e-mail corporativo ou selecione um perfil rapido:
+        </p>
+        <div class="form-group">
+          <label>E-mail ou Nome de Usuario <span class="required">*</span></label>
+          <input type="text" id="loginEmail" class="form-control" placeholder="Ex: oscar@viemar.com.br ou filipe_1t" required>
+        </div>
+        <div class="form-group" style="margin-top: 0.75rem;">
+          <label>Senha de Acesso</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••">
+        </div>
+
+        <div style="margin-top: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+          <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 0.4rem;">Ou acesse como um dos membros da equipe:</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="selecionarUsuario('oscar_adm')">Oscar (Eng. ADM)</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="selecionarUsuario('filipe_1t')">Filipe (1o Turno)</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="selecionarUsuario('charles_2t')">Charles (2o Turno)</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="selecionarUsuario('preset_op')">Roberto (Preset)</button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
+          <button type="button" class="btn btn-secondary" onclick="fecharModalAuth()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Entrar no Sistema</button>
+        </div>
+      </form>
+
+      <!-- FORMULARIO 2: CADASTRO NOVO USUARIO -->
+      <form id="formAuthSignup" style="display: none;" onsubmit="event.preventDefault(); cadastrarNovoUsuario();">
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+          Cadastre seu login para acessar o ToolFlow em qualquer computador ou smartphone:
+        </p>
         <div class="form-group">
           <label>Nome Completo <span class="required">*</span></label>
-          <input type="text" id="adminNewUserNome" class="form-control" placeholder="Ex: Filipe Rosa" required>
+          <input type="text" id="signupNome" class="form-control" placeholder="Ex: Lucas Silva" required>
         </div>
         <div class="form-group" style="margin-top: 0.75rem;">
           <label>E-mail Corporativo <span class="required">*</span></label>
-          <input type="email" id="adminNewUserEmail" class="form-control" placeholder="Ex: filipe@viemar.com.br" required>
+          <input type="email" id="signupEmail" class="form-control" placeholder="Ex: lucas@viemar.com.br" required>
         </div>
         <div class="form-group" style="margin-top: 0.75rem;">
           <label>Cargo / Perfil de Acesso <span class="required">*</span></label>
-          <select id="adminNewUserRole" class="form-control" required>
+          <select id="signupRole" class="form-control" required>
             <option value="ADMIN">Engenharia ADM (Avaliacoes, Custos e Travas)</option>
             <option value="TECNICO_1T">Tecnico de Usinagem (1o Turno Diurno)</option>
             <option value="TECNICO_2T">Tecnico de Usinagem (2o Turno Noturno)</option>
@@ -994,13 +973,13 @@
           </select>
         </div>
         <div class="form-group" style="margin-top: 0.75rem;">
-          <label>Senha Provisoria <span class="required">*</span></label>
-          <input type="password" id="adminNewUserPassword" class="form-control" placeholder="Definir senha" required>
+          <label>Senha de Acesso <span class="required">*</span></label>
+          <input type="password" id="signupPassword" class="form-control" placeholder="Criar senha" required>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
-          <button type="button" class="btn btn-secondary" onclick="fecharModalCadastroAdmin()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Cadastrar Usuario</button>
+          <button type="button" class="btn btn-secondary" onclick="fecharModalAuth()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Cadastrar e Conectar</button>
         </div>
       </form>
     </div>

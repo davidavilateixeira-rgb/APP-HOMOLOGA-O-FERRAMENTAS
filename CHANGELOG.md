@@ -4,6 +4,29 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
+## [v1.2.0] - 2026-08-04
+
+### Adicionado
+- **Nova Tela de Login Dedicada no Padrão Viemar Automotive**:
+  - Interface limpa e centralizada com logotipo Viemar, identificador ToolFlow, tag de versão e subtítulo *Engenharia de Processos · VMR*.
+  - Campos de entrada: `E-MAIL` e `SENHA` estilizados.
+  - Botão principal **Entrar** em Laranja Viemar (`#ff6600`).
+  - Botão secundário **Entrar como visitante** (acesso instantâneo sem necessidade de login prévio).
+  - Links de rodapé: **Esqueci minha senha** e **Primeiro acesso (admin)** para autofill rápido do Administrador.
+- **Modo Visitante (Somente Leitura)**:
+  - Banner informativo persistente no topo da tela.
+  - Bloqueio e ocultação automática de botões de edição, criação de solicitações, pareceres da engenharia e apontamentos de fábrica.
+  - Formulários protegidos em modo consulta.
+- **Governança de Usuários e Gestão de Logins pelo Admin**:
+  - Exclusividade do Administrador (Engenharia ADM) para cadastrar e gerenciar novos logins para a equipe (`Filipe 1ºT`, `Charles 2ºT`, `Preset`, `Fornecedores`).
+  - Botão de logout no rodapé da Sidebar para retorno imediato à tela de login.
+
+### Alterado
+- Incremento de versão para `v1.2.0` na Sidebar, Topbar, cabeçalho de login e relatórios técnicos.
+- Backup de segurança criado em `backups/v1.1.1_to_v1.2.0/`.
+
+---
+
 ## [v1.1.1] - 2026-08-04
 
 ### Alterado
