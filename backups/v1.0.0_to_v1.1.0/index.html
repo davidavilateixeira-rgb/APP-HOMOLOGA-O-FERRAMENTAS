@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Viemar DevFlow v1.1.0 | Gestao de Testes de Ferramentas</title>
+  <title>Viemar DevFlow v1.0.0 | Gestao de Testes de Ferramentas</title>
   
   <!-- CSS DevFlow & Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -35,9 +35,9 @@
           </div>
         </div>
         <div class="version-badge-container">
-          <span class="version-badge">v1.1.0</span>
-          <div class="sync-status-badge" title="Vercel & Cache Local Ativos">
-            <span class="sync-dot"></span> Vercel Cloud
+          <span class="version-badge">v1.0.0</span>
+          <div class="sync-status-badge" title="Sincronizacao Ativa">
+            <span class="sync-dot"></span> Online / Cache
           </div>
         </div>
       </div>
@@ -62,9 +62,9 @@
 
         <div class="nav-section-label">Configuracao & Governanca</div>
 
-        <button class="sidebar-link" data-view="viewUsuarios" onclick="navegarPara('viewUsuarios', 'Controle de Acessos & Nuvem')">
+        <button class="sidebar-link" data-view="viewUsuarios" onclick="navegarPara('viewUsuarios', 'Controle de Acessos')">
           <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          <span>Usuarios & Nuvem</span>
+          <span>Usuarios & RBAC</span>
         </button>
 
         <button class="sidebar-link" data-view="viewAuditoria" onclick="navegarPara('viewAuditoria', 'Logs de Auditoria')">
@@ -74,7 +74,7 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="user-card" onclick="abrirModalAuth('login')" title="Clique para alternar usuario ou ver detalhes">
+        <div class="user-card" onclick="trocarUsuarioModal()" title="Clique para alternar o usuario ativo">
           <div class="user-card-left">
             <div class="user-avatar" id="currentUserAvatar">O</div>
             <div class="user-info">
@@ -83,11 +83,6 @@
             </div>
           </div>
           <svg style="width: 14px; height: 14px; color: var(--sidebar-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-        </div>
-
-        <div class="auth-btn-row">
-          <button class="btn-sidebar-auth" onclick="abrirModalAuth('login')">Entrar</button>
-          <button class="btn-sidebar-auth" onclick="abrirModalAuth('signup')">+ Novo Login</button>
         </div>
       </div>
     </aside>
@@ -159,24 +154,24 @@
             </div>
           </div>
 
-          <!-- Graficos Chart.js Sem Sobreposicao -->
+          <!-- Graficos Chart.js -->
           <div class="grid grid-2" style="margin-bottom: 1.25rem;">
-            <div class="card" style="display: flex; flex-direction: column; min-height: 300px;">
+            <div class="card" style="height: 280px; display: flex; flex-direction: column;">
               <div class="card-header">
                 <h3 class="card-title">Distribuicao de Status do Pipeline</h3>
                 <span class="badge badge-blue">Tempo Real</span>
               </div>
-              <div class="chart-box" style="flex: 1; height: 230px;">
+              <div style="flex: 1; position: relative;">
                 <canvas id="chartStatus"></canvas>
               </div>
             </div>
 
-            <div class="card" style="display: flex; flex-direction: column; min-height: 300px;">
+            <div class="card" style="height: 280px; display: flex; flex-direction: column;">
               <div class="card-header">
                 <h3 class="card-title">Economia Anual Projetada por Homologacao</h3>
                 <span class="badge badge-orange">ROI Viemar</span>
               </div>
-              <div class="chart-box" style="flex: 1; height: 230px;">
+              <div style="flex: 1; position: relative;">
                 <canvas id="chartSavings"></canvas>
               </div>
             </div>
@@ -281,7 +276,7 @@
             <img src="logo.png" alt="Viemar" class="print-logo">
             <div style="text-align: right;">
               <h3 style="font-size: 11pt; margin: 0; color: #ff6600;">ENGENHARIA DE USINAGEM</h3>
-              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatorio Oficial DevFlow v1.1.0</p>
+              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatorio Oficial DevFlow v1.0.0</p>
             </div>
           </div>
 
@@ -827,42 +822,61 @@
         <section id="viewUsuarios" class="app-view">
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Matriz de Acessos & Conexao Cloud (Vercel & Firebase)</h2>
-              <p>Governança de usuarios e logins cadastrados para acesso multi-maquina.</p>
-            </div>
-            <div>
-              <button class="btn btn-primary btn-sm" onclick="abrirModalAuth('signup')">+ Cadastrar Novo Usuario</button>
+              <h2>Matriz de Acessos & Conexao Cloud (Firebase)</h2>
+              <p>Governança de usuarios e papeis definidos para a equipe da Usinagem.</p>
             </div>
           </div>
 
           <div class="grid grid-2">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">Usuarios Cadastrados no Sistema</h3>
-                <span class="badge badge-orange">Multi-Sessao</span>
+                <h3 class="card-title">Papeis e Permissoes de Fabrica</h3>
               </div>
-              <div id="listaUsuariosGestao" style="display: flex; flex-direction: column; gap: 0.6rem;">
-                <!-- Preenchido via app.js -->
+              <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                  <div>
+                    <strong>Oscar / Jonathan / Ponto Focal</strong> &nbsp;<span class="badge badge-orange">Admin</span>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Avaliacao de viabilidade, laudos, custos e travas</div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" onclick="selecionarUsuario('oscar_adm')">Entrar como Oscar</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                  <div>
+                    <strong>Filipe (1o Turno)</strong> &nbsp;<span class="badge badge-green">Tecnico</span>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Acompanhamento em maquina no turno diurno</div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" onclick="selecionarUsuario('filipe_1t')">Entrar como Filipe</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                  <div>
+                    <strong>Charles (2o Turno)</strong> &nbsp;<span class="badge badge-green">Tecnico</span>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Acompanhamento em maquina no turno noturno</div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" onclick="selecionarUsuario('charles_2t')">Entrar como Charles</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                  <div>
+                    <strong>Roberto (Preset) / Gerenciador Externo</strong> &nbsp;<span class="badge badge-blue">Solicitante</span>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Abertura D-2 e visualizacao em tempo real</div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" onclick="selecionarUsuario('preset_op')">Entrar como Preset</button>
+                </div>
               </div>
             </div>
 
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">Publicacao e Acesso Online via Vercel</h3>
-                <span class="badge badge-green">Online Ready</span>
+                <h3 class="card-title">Google Firebase Cloud Sincronizacao</h3>
+                <span class="badge badge-blue">Pronto</span>
               </div>
               <p style="font-size: 0.825rem; color: var(--text-secondary); line-height: 1.6;">
-                O DevFlow v1.1.0 foi preparado para hospedagem rapida na Vercel com suporte completo para multiplas maquinas e celulares:
+                O DevFlow v1.0.0 suporta sincronizacao multi-dispositivo (PC, Tablet de Chao de Fabrica e Celulares):
               </p>
-              <div style="margin-top: 0.75rem; background: #f8fafc; padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 0.8rem;">
-                <strong>Como publicar na Vercel:</strong>
-                <ol style="margin-left: 1.25rem; margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.3rem;">
-                  <li>Suba o projeto para seu repositorio no GitHub.</li>
-                  <li>Na Vercel, clique em <em>Add New Project</em> e selecione o repositorio.</li>
-                  <li>Clique em <strong>Deploy</strong> (o arquivo <code>vercel.json</code> ja esta pronto).</li>
-                  <li>Compartilhe o link gerado (ex: <code>https://viemar-devflow.vercel.app</code>) com todos da Usinagem!</li>
-                </ol>
-              </div>
+              <ol style="margin-left: 1.25rem; font-size: 0.825rem; color: var(--text-main); margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                <li>Abra o arquivo <code>firebase-config.js</code>.</li>
+                <li>Insira as chaves do seu projeto Firestore & Auth.</li>
+                <li>Execute <code>firebase deploy</code> para publicar.</li>
+              </ol>
             </div>
           </div>
         </section>
@@ -887,11 +901,11 @@
                 <div class="timeline-dot green"></div>
                 <div class="timeline-content">
                   <div class="timeline-header">
-                    <span><strong>Sistema DevFlow v1.1.0</strong></span>
-                    <span>2026-08-04 19:55</span>
+                    <span><strong>Sistema DevFlow v1.0.0</strong></span>
+                    <span>2026-08-04 19:40</span>
                   </div>
-                  <div class="timeline-title">Atualizacao de Layout e Modulo de Autenticacao Vercel</div>
-                  <div class="timeline-body">Refinamento visual sem sobreposicoes, cadastro multi-usuario e configuracao de deploy na Vercel.</div>
+                  <div class="timeline-title">Inicializacao da Arquitetura DevFlow</div>
+                  <div class="timeline-body">Projeto padronizado com governanca SemVer, RBAC e calculo de ROI e travas.</div>
                 </div>
               </div>
             </div>
@@ -903,96 +917,13 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- MODAL: AUTENTICACAO & CADASTRO DE USUARIOS (LOGIN / SIGN UP)              -->
-  <!-- ========================================================================= -->
-  <div id="modalAuth" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalAuth()">
-    <div class="modal-content" style="max-width: 480px;">
-      <div class="modal-header">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Acesso ao Viemar DevFlow</h3>
-        <button onclick="fecharModalAuth()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">X</button>
-      </div>
-
-      <!-- Abas de Navegacao: Login vs Cadastro -->
-      <div class="auth-tabs-nav">
-        <button id="authTabLoginBtn" class="auth-tab-btn active" onclick="alternarAbaAuth('login')">Entrar na Conta</button>
-        <button id="authTabSignupBtn" class="auth-tab-btn" onclick="alternarAbaAuth('signup')">Cadastrar Novo Usuario</button>
-      </div>
-
-      <!-- FORMULARIO 1: LOGIN -->
-      <form id="formAuthLogin" onsubmit="event.preventDefault(); realizarLogin();">
-        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
-          Digite seu e-mail corporativo ou selecione um perfil rapido:
-        </p>
-        <div class="form-group">
-          <label>E-mail ou Nome de Usuario <span class="required">*</span></label>
-          <input type="text" id="loginEmail" class="form-control" placeholder="Ex: oscar@viemar.com.br ou filipe_1t" required>
-        </div>
-        <div class="form-group" style="margin-top: 0.75rem;">
-          <label>Senha de Acesso</label>
-          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••">
-        </div>
-
-        <div style="margin-top: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
-          <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 0.4rem;">Ou acesse como um dos membros da equipe:</label>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem;">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="selecionarUsuario('oscar_adm')">Oscar (Eng. ADM)</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="selecionarUsuario('filipe_1t')">Filipe (1o Turno)</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="selecionarUsuario('charles_2t')">Charles (2o Turno)</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="selecionarUsuario('preset_op')">Roberto (Preset)</button>
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
-          <button type="button" class="btn btn-secondary" onclick="fecharModalAuth()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Entrar no Sistema</button>
-        </div>
-      </form>
-
-      <!-- FORMULARIO 2: CADASTRO NOVO USUARIO -->
-      <form id="formAuthSignup" style="display: none;" onsubmit="event.preventDefault(); cadastrarNovoUsuario();">
-        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
-          Cadastre seu login para acessar o DevFlow em qualquer computador ou smartphone:
-        </p>
-        <div class="form-group">
-          <label>Nome Completo <span class="required">*</span></label>
-          <input type="text" id="signupNome" class="form-control" placeholder="Ex: Lucas Silva" required>
-        </div>
-        <div class="form-group" style="margin-top: 0.75rem;">
-          <label>E-mail Corporativo <span class="required">*</span></label>
-          <input type="email" id="signupEmail" class="form-control" placeholder="Ex: lucas@viemar.com.br" required>
-        </div>
-        <div class="form-group" style="margin-top: 0.75rem;">
-          <label>Cargo / Perfil de Acesso <span class="required">*</span></label>
-          <select id="signupRole" class="form-control" required>
-            <option value="ADMIN">Engenharia ADM (Avaliacoes, Custos e Travas)</option>
-            <option value="TECNICO_1T">Tecnico de Usinagem (1o Turno Diurno)</option>
-            <option value="TECNICO_2T">Tecnico de Usinagem (2o Turno Noturno)</option>
-            <option value="PRESET">Setor de Preset (Solicitante D-2 e Acompanhamento)</option>
-            <option value="GERENCIADOR">Gerenciador de Ferramentas / Fornecedor</option>
-            <option value="LEITURA">Visitante / Qualidade (Modo Leitura)</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin-top: 0.75rem;">
-          <label>Senha de Acesso <span class="required">*</span></label>
-          <input type="password" id="signupPassword" class="form-control" placeholder="Criar senha" required>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
-          <button type="button" class="btn btn-secondary" onclick="fecharModalAuth()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Cadastrar e Conectar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ========================================================================= -->
   <!-- MODAL: NOVA SOLICITACAO (D-2)                                             -->
   <!-- ========================================================================= -->
   <div id="modalNovaSolicitacao" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalNovaSolicitacao()">
     <div class="modal-content">
       <div class="modal-header">
         <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Nova Solicitacao de Teste (D-2)</h3>
-        <button onclick="fecharModalNovaSolicitacao()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">X</button>
+        <button onclick="fecharModalNovaSolicitacao()" style="background:none; border:none; font-size:1.1rem; cursor:pointer;">X</button>
       </div>
 
       <form onsubmit="event.preventDefault(); submeterModalSolicitacao();">
@@ -1115,6 +1046,42 @@
           <button type="submit" class="btn btn-primary">Cadastrar Solicitacao D-2</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ALTERNAR USUARIO -->
+  <div id="modalUsuarios" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalUsuario()">
+    <div class="modal-content" style="max-width: 450px;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.05rem; font-weight: 800;">Alternar Perfil Ativo</h3>
+        <button onclick="fecharModalUsuario()" style="background:none; border:none; font-size:1.1rem; cursor:pointer;">X</button>
+      </div>
+      <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+        Selecione o usuario para simular as permissoes:
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('oscar_adm')">
+          Oscar (Engenharia ADM)
+        </button>
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('jonathan_adm')">
+          Jonathan (Engenharia ADM)
+        </button>
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('ponto_focal')">
+          Ponto Focal (Coordenador de Testes)
+        </button>
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('filipe_1t')">
+          Filipe (Tecnico 1o Turno)
+        </button>
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('charles_2t')">
+          Charles (Tecnico 2o Turno)
+        </button>
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('preset_op')">
+          Roberto (Setor de Preset)
+        </button>
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('gerenciador_ext')">
+          Gerenciador Externo de Ferramentas
+        </button>
+      </div>
     </div>
   </div>
 

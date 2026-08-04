@@ -4,6 +4,29 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
+## [v1.1.0] - 2026-08-04
+
+### Adicionado
+- **Configuração de Deploy para a Vercel**:
+  - Criação do `vercel.json` para roteamento limpo de Single Page Application.
+  - Criação do `index.html` raiz para redirecionamento transparente.
+  - Criação do guia completo de deploy em [`README.md`](file:///q:/02%20ENGENHARIA%20DE%20USINAGEM/37%20-%20TESTES%20DE%20FERRAMENTAS/README.md).
+- **Módulo Completo de Autenticação e Cadastro Multi-Usuário (Login & Sign Up)**:
+  - Aba de **Entrar** (Login por e-mail ou seleção rápida de membros da equipe).
+  - Aba de **Cadastrar Novo Usuário** (Permite que colaboradores em diferentes máquinas ou celulares criem seus próprios logins).
+  - Seleção de papel/cargo no cadastro (`Engenharia ADM`, `Tecnico 1oT`, `Tecnico 2oT`, `Preset`, `Gerenciador/Fornecedor`, `Leitura`).
+  - Persistência sincronizada de novos usuários e controle de sessão ativa.
+- **Refinamento de Layout & Eliminação de Sobreposições**:
+  - Stepper de 5 etapas com grid responsivo e quebra fluida para evitar achatamento.
+  - Correção de proporções nos gráficos Chart.js com contêineres dimensionados e `destroy()` preventivo ao redesenhar.
+  - Ajuste de margens, paddings e rolagem interna no conteúdo principal (`app-main`) para garantir visualização perfeita em qualquer resolução de tela.
+
+### Alterado
+- Incremento de versão para `v1.1.0` visível na Sidebar e cabeçalhos de relatórios.
+- Backup completo da versão anterior criado em `backups/v1.0.0_to_v1.1.0/`.
+
+---
+
 ## [v1.0.0] - 2026-08-04
 
 ### Adicionado
@@ -23,13 +46,9 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 - **Dashboard com Graficos (Chart.js)**:
   - Grafico de distribuicao de status dos testes.
   - Grafico de economia projetada por fornecedor.
-  - Grafico de ganho percentual de vida util por operacao.
 - **Recursos Interativos**:
   - Tabela filtrável com busca dinamica e paginacao.
   - Linha do tempo / Historico de auditoria em tempo real para cada teste.
   - Aba de comentarios e anotacoes tecnicas por teste.
   - Exportacao para impressao e PDF oficial em folha A4 com cabecalho Viemar.
   - Integracao preparada com Google Firebase (Auth & Firestore) com fallback seguro para cache local.
-- **Governanca e Backups**:
-  - Criacao da pasta de backups (`backups/v1.0.0_initial/`).
-  - Repositorio Git inicializado com commit inicial e tag `v1.0.0`.

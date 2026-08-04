@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR DEVFLOW v1.1.0 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
+// VIEMAR DEVFLOW v1.0.0 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -10,17 +10,16 @@ const DEVFLOW_ROLES = {
   LEITURA: 'LEITURA'      // Visitante / Apenas Consulta Geral
 };
 
-// Base de Usuarios Cadastrados (Persistivel no LocalStorage e Firebase Auth)
-let devflowUsersStore = [
-  { id: 'oscar_adm', name: 'Oscar', email: 'oscar@viemar.com.br', roleTitle: 'Engenharia ADM', role: DEVFLOW_ROLES.ADMIN },
-  { id: 'jonathan_adm', name: 'Jonathan', email: 'jonathan@viemar.com.br', roleTitle: 'Engenharia ADM', role: DEVFLOW_ROLES.ADMIN },
-  { id: 'ponto_focal', name: 'Ponto Focal', email: 'focal@viemar.com.br', roleTitle: 'Coordenador de Testes', role: DEVFLOW_ROLES.ADMIN },
-  { id: 'filipe_1t', name: 'Filipe', email: 'filipe@viemar.com.br', roleTitle: 'Tecnico 1o Turno', role: DEVFLOW_ROLES.TECNICO },
-  { id: 'charles_2t', name: 'Charles', email: 'charles@viemar.com.br', roleTitle: 'Tecnico 2o Turno', role: DEVFLOW_ROLES.TECNICO },
-  { id: 'preset_op', name: 'Roberto (Preset)', email: 'preset@viemar.com.br', roleTitle: 'Setor de Preset', role: DEVFLOW_ROLES.SOLICITANTE },
-  { id: 'gerenciador_ext', name: 'Gerenciador Externo', email: 'gerenciador@ferramentas.com', roleTitle: 'Gestao de Ferramentas', role: DEVFLOW_ROLES.SOLICITANTE },
-  { id: 'fornecedor_ext', name: 'Fornecedor Sandvik', email: 'contato@sandvik.com', roleTitle: 'Representante Tecnico', role: DEVFLOW_ROLES.SOLICITANTE },
-  { id: 'visitante_leitura', name: 'Visitante / Qualidade', email: 'qualidade@viemar.com.br', roleTitle: 'Consulta Geral', role: DEVFLOW_ROLES.LEITURA }
+const DEVFLOW_USERS = [
+  { id: 'oscar_adm', name: 'Oscar', roleTitle: 'Engenharia ADM', role: DEVFLOW_ROLES.ADMIN },
+  { id: 'jonathan_adm', name: 'Jonathan', roleTitle: 'Engenharia ADM', role: DEVFLOW_ROLES.ADMIN },
+  { id: 'ponto_focal', name: 'Ponto Focal', roleTitle: 'Coordenador de Testes', role: DEVFLOW_ROLES.ADMIN },
+  { id: 'filipe_1t', name: 'Filipe', roleTitle: 'Tecnico 1o Turno', role: DEVFLOW_ROLES.TECNICO },
+  { id: 'charles_2t', name: 'Charles', roleTitle: 'Tecnico 2o Turno', role: DEVFLOW_ROLES.TECNICO },
+  { id: 'preset_op', name: 'Roberto (Preset)', roleTitle: 'Setor de Preset', role: DEVFLOW_ROLES.SOLICITANTE },
+  { id: 'gerenciador_ext', name: 'Gerenciador Externo', roleTitle: 'Gestao de Ferramentas', role: DEVFLOW_ROLES.SOLICITANTE },
+  { id: 'fornecedor_ext', name: 'Fornecedor Externo', roleTitle: 'Representante Tecnico', role: DEVFLOW_ROLES.SOLICITANTE },
+  { id: 'visitante_leitura', name: 'Visitante / Qualidade', roleTitle: 'Consulta Geral', role: DEVFLOW_ROLES.LEITURA }
 ];
 
 // Definicao das 5 Etapas do Workflow
@@ -32,12 +31,12 @@ const WORKFLOW_STAGES = {
   STAGE_5_VALIDACAO: { id: 5, key: 'STAGE_5_VALIDACAO', label: '5. Validacao & Estoque', badgeClass: 'badge-green' }
 };
 
-// Banco de Dados de Testes
+// Banco de Dados Inicial (Cache Local / Sincronizavel com Firebase Firestore)
 let testDataStore = [
   {
     id: 'TESTE-001/2026',
     stage: 'STAGE_4_EXECUCAO',
-    statusGeral: 'EM_ANDAMENTO',
+    statusGeral: 'EM_ANDAMENTO', // PENDENTE_ANALISE, APROVADO_ENGENHARIA, REPROVADO_ENGENHARIA, AGENDADO, EM_ANDAMENTO, HOMOLOGADO, BLOQUEADO_ESTOQUE, REPROVADO_TECNICO
     
     solicitacao: {
       dataSolicitacao: '2026-08-01',
@@ -122,7 +121,7 @@ let testDataStore = [
 
     comentarios: [
       { dataHora: '2026-08-02 11:00', usuario: 'Oscar', texto: 'Lote de flanges liberado no Romi D800 para a proxima quinta.' },
-      { dataHora: '2026-08-06 16:30', usuario: 'Filipe', texto: 'Cavaco quebrando perfeito com refrigeracao soluvel padrao.' }
+      { dataHora: '2026-08-06 16:30', usuario: 'Filipe', texto: 'Cavaco quebrando perfeito com refrigeracao solivel padrao.' }
     ]
   },
   {
@@ -215,13 +214,13 @@ let testDataStore = [
   }
 ];
 
-// Estado Global
-let currentUser = devflowUsersStore[0];
+// Estado Global da Aplicacao
+let currentUser = DEVFLOW_USERS[0]; // Oscar (Engenharia ADM)
 let currentSelectedTestId = testDataStore[0].id;
 let currentPage = 1;
 const ITEMS_PER_PAGE = 6;
 
-// Instancias de Graficos
+// Instancias de Graficos Chart.js
 let chartStatusInstance = null;
 let chartSavingsInstance = null;
 
@@ -230,11 +229,9 @@ let chartSavingsInstance = null;
 // =========================================================================
 document.addEventListener('DOMContentLoaded', () => {
   carregarDadosLocais();
-  carregarUsuariosLocais();
   configurarUsuario(currentUser.id);
   renderizarDashboard();
   renderizarTabelaPipeline();
-  renderizarListaUsuariosGestao();
   iniciarGraficos();
 });
 
@@ -251,6 +248,7 @@ function navegarPara(viewId, breadcrumbLabel) {
     activeView.classList.add('active-view');
   }
 
+  // Atualizar Navbar / Sidebar Links
   document.querySelectorAll('.sidebar-link').forEach(link => {
     if (link.getAttribute('data-view') === viewId) {
       link.classList.add('active');
@@ -259,116 +257,31 @@ function navegarPara(viewId, breadcrumbLabel) {
     }
   });
 
+  // Atualizar Breadcrumbs
   if (breadcrumbLabel) {
     document.getElementById('breadcrumbCurrent').textContent = breadcrumbLabel;
   }
 
-  const mainArea = document.querySelector('.app-main');
-  if (mainArea) mainArea.scrollTop = 0;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // =========================================================================
-// AUTENTICACAO & GESTAO DE USUARIOS (LOGIN / SIGN UP / RBAC)
+// CONTROLE DE ACESSO & PERFIS (RBAC)
 // =========================================================================
-function abrirModalAuth(tabInicial = 'login') {
-  alternarAbaAuth(tabInicial);
-  document.getElementById('modalAuth').style.display = 'flex';
+function trocarUsuarioModal() {
+  document.getElementById('modalUsuarios').style.display = 'flex';
 }
 
-function fecharModalAuth() {
-  document.getElementById('modalAuth').style.display = 'none';
-}
-
-function alternarAbaAuth(tab) {
-  const tabLoginBtn = document.getElementById('authTabLoginBtn');
-  const tabSignupBtn = document.getElementById('authTabSignupBtn');
-  const formLogin = document.getElementById('formAuthLogin');
-  const formSignup = document.getElementById('formAuthSignup');
-
-  if (tab === 'login') {
-    tabLoginBtn.classList.add('active');
-    tabSignupBtn.classList.remove('active');
-    formLogin.style.display = 'block';
-    formSignup.style.display = 'none';
-  } else {
-    tabSignupBtn.classList.add('active');
-    tabLoginBtn.classList.remove('active');
-    formSignup.style.display = 'block';
-    formLogin.style.display = 'none';
-  }
-}
-
-function realizarLogin() {
-  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-  const user = devflowUsersStore.find(u => u.email.toLowerCase() === email || u.id.toLowerCase() === email);
-
-  if (user) {
-    currentUser = user;
-    configurarUsuario(user.id);
-    fecharModalAuth();
-    salvarSessaoUsuario();
-    alert(`Bem-vindo, ${user.name} (${user.roleTitle})!`);
-    renderizarDashboard();
-    renderizarTabelaPipeline();
-    if (document.getElementById('viewWorkflow').classList.contains('active-view')) {
-      abrirDetalhesWorkflow(currentSelectedTestId);
-    }
-  } else {
-    alert('Usuario nao encontrado. Por favor, crie uma conta na aba "Cadastrar Novo Usuario".');
-    alternarAbaAuth('signup');
-  }
-}
-
-function cadastrarNovoUsuario() {
-  const nome = document.getElementById('signupNome').value.trim();
-  const email = document.getElementById('signupEmail').value.trim().toLowerCase();
-  const roleSelect = document.getElementById('signupRole').value;
-
-  if (!nome || !email) {
-    alert('Preencha todos os campos obrigatorios.');
-    return;
-  }
-
-  // Verificar duplicidade
-  if (devflowUsersStore.some(u => u.email.toLowerCase() === email)) {
-    alert('Este e-mail ja esta cadastrado no sistema.');
-    return;
-  }
-
-  let role = DEVFLOW_ROLES.SOLICITANTE;
-  let roleTitle = 'Solicitante';
-
-  if (roleSelect === 'ADMIN') { role = DEVFLOW_ROLES.ADMIN; roleTitle = 'Engenharia ADM'; }
-  else if (roleSelect === 'TECNICO_1T') { role = DEVFLOW_ROLES.TECNICO; roleTitle = 'Tecnico 1o Turno'; }
-  else if (roleSelect === 'TECNICO_2T') { role = DEVFLOW_ROLES.TECNICO; roleTitle = 'Tecnico 2o Turno'; }
-  else if (roleSelect === 'PRESET') { role = DEVFLOW_ROLES.SOLICITANTE; roleTitle = 'Setor de Preset'; }
-  else if (roleSelect === 'GERENCIADOR') { role = DEVFLOW_ROLES.SOLICITANTE; roleTitle = 'Gerenciador / Fornecedor'; }
-  else if (roleSelect === 'LEITURA') { role = DEVFLOW_ROLES.LEITURA; roleTitle = 'Consulta Geral'; }
-
-  const id = `user_${Date.now()}`;
-  const novoUsuario = { id, name: nome, email, roleTitle, role };
-
-  devflowUsersStore.push(novoUsuario);
-  salvarUsuariosLocais();
-
-  currentUser = novoUsuario;
-  configurarUsuario(novoUsuario.id);
-  fecharModalAuth();
-  salvarSessaoUsuario();
-
-  alert(`Conta criada com sucesso! Conectado como ${nome} (${roleTitle}).`);
-  renderizarDashboard();
-  renderizarTabelaPipeline();
-  renderizarListaUsuariosGestao();
+function fecharModalUsuario() {
+  document.getElementById('modalUsuarios').style.display = 'none';
 }
 
 function selecionarUsuario(userId) {
-  const user = devflowUsersStore.find(u => u.id === userId);
+  const user = DEVFLOW_USERS.find(u => u.id === userId);
   if (user) {
     currentUser = user;
     configurarUsuario(user.id);
-    fecharModalAuth();
-    salvarSessaoUsuario();
+    fecharModalUsuario();
     renderizarDashboard();
     renderizarTabelaPipeline();
     
@@ -379,34 +292,10 @@ function selecionarUsuario(userId) {
 }
 
 function configurarUsuario(userId) {
-  const user = devflowUsersStore.find(u => u.id === userId) || devflowUsersStore[0];
+  const user = DEVFLOW_USERS.find(u => u.id === userId) || DEVFLOW_USERS[0];
   document.getElementById('currentUserName').textContent = user.name;
   document.getElementById('currentUserRole').textContent = user.roleTitle;
   document.getElementById('currentUserAvatar').textContent = user.name.charAt(0);
-}
-
-function renderizarListaUsuariosGestao() {
-  const container = document.getElementById('listaUsuariosGestao');
-  if (!container) return;
-  container.innerHTML = '';
-
-  devflowUsersStore.forEach(u => {
-    let badgeClass = 'badge-blue';
-    if (u.role === DEVFLOW_ROLES.ADMIN) badgeClass = 'badge-orange';
-    else if (u.role === DEVFLOW_ROLES.TECNICO) badgeClass = 'badge-green';
-    else if (u.role === DEVFLOW_ROLES.LEITURA) badgeClass = 'badge-gray';
-
-    const div = document.createElement('div');
-    div.style = 'display: flex; justify-content: space-between; align-items: center; padding: 0.65rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-color);';
-    div.innerHTML = `
-      <div>
-        <strong>${u.name}</strong> &nbsp;<span class="badge ${badgeClass}">${u.roleTitle}</span>
-        <div style="font-size: 0.75rem; color: var(--text-muted);">${u.email}</div>
-      </div>
-      <button class="btn btn-secondary btn-sm" onclick="selecionarUsuario('${u.id}')">Conectar</button>
-    `;
-    container.appendChild(div);
-  });
 }
 
 // =========================================================================
@@ -433,7 +322,6 @@ function iniciarGraficos() {
   const ctxSavings = document.getElementById('chartSavings');
 
   if (ctxStatus && typeof Chart !== 'undefined') {
-    if (chartStatusInstance) chartStatusInstance.destroy();
     chartStatusInstance = new Chart(ctxStatus, {
       type: 'doughnut',
       data: {
@@ -454,7 +342,6 @@ function iniciarGraficos() {
   }
 
   if (ctxSavings && typeof Chart !== 'undefined') {
-    if (chartSavingsInstance) chartSavingsInstance.destroy();
     chartSavingsInstance = new Chart(ctxSavings, {
       type: 'bar',
       data: {
@@ -492,7 +379,7 @@ function atualizarGraficos() {
 }
 
 // =========================================================================
-// PIPELINE DE TESTES (TABELA FILTRAVEL & PAGINADA)
+// PIPELINE DE TESTES (TABELA FILTRAVEL COM BUSCA E PAGINACAO)
 // =========================================================================
 function renderizarTabelaPipeline() {
   const busca = (document.getElementById('inputBuscaTabela')?.value || '').toLowerCase();
@@ -549,6 +436,7 @@ function renderizarTabelaPipeline() {
     tbody.appendChild(tr);
   });
 
+  // Atualizar Indicador de Paginacao
   const pageIndicator = document.getElementById('pipelinePageIndicator');
   if (pageIndicator) {
     pageIndicator.textContent = `Exibindo ${paginaItens.length} de ${totalFiltrados} testes (Pagina ${currentPage} de ${totalPages})`;
@@ -649,6 +537,7 @@ function aplicarPermissoes(teste) {
     banner.innerHTML = `<span>Perfil Tecnico (${currentUser.name}): Registro de Chao de Fabrica e Passagem de Turno liberados.</span>`;
   }
 
+  // Desabilitar seções que não pertencem ao papel
   const formEng = document.getElementById('formAnaliseEngenharia');
   if (formEng) {
     formEng.querySelectorAll('input, select, textarea, button').forEach(el => {
@@ -675,6 +564,7 @@ function aplicarPermissoes(teste) {
   }
 }
 
+// Preenchimento de Cada Aba
 function preencherAba1(teste) {
   const s = teste.solicitacao;
   document.getElementById('wfSolData').value = s.dataSolicitacao;
@@ -922,6 +812,7 @@ function recalcularFechamento() {
     document.getElementById('wfFechEconAno').textContent = `R$ ${econAno.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} / ano`;
   }
 
+  // Trava de Estoque
   const leadTime = parseFloat(document.getElementById('wfFechLeadTime').value) || 0;
   const estoque = parseFloat(document.getElementById('wfFechEstoqueAlmox').value) || 0;
   const consumoMes = parseFloat(document.getElementById('wfFechConsumoMes').value) || 1;
@@ -1157,7 +1048,7 @@ function copiarWhatsAppWorkflow() {
 }
 
 // =========================================================================
-// PERSISTENCIA LOCAL / USUARIOS / SESSAO
+// PERSISTENCIA LOCAL / FIRESTORE
 // =========================================================================
 function salvarDadosLocais() {
   localStorage.setItem('viemar_devflow_store_v1', JSON.stringify(testDataStore));
@@ -1172,29 +1063,4 @@ function carregarDadosLocais() {
       console.error(e);
     }
   }
-}
-
-function salvarUsuariosLocais() {
-  localStorage.setItem('viemar_devflow_users_v1', JSON.stringify(devflowUsersStore));
-}
-
-function carregarUsuariosLocais() {
-  const salvos = localStorage.getItem('viemar_devflow_users_v1');
-  if (salvos) {
-    try {
-      devflowUsersStore = JSON.parse(salvos);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  const sessao = localStorage.getItem('viemar_devflow_current_user_id');
-  if (sessao) {
-    const userSessao = devflowUsersStore.find(u => u.id === sessao);
-    if (userSessao) currentUser = userSessao;
-  }
-}
-
-function salvarSessaoUsuario() {
-  localStorage.setItem('viemar_devflow_current_user_id', currentUser.id);
 }
