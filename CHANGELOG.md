@@ -1,6 +1,21 @@
-# Changelog - Viemar DevFlow | Gestao de Testes de Usinagem
+# Changelog - Viemar ToolFlow | Gestao de Testes de Usinagem
 
 Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamento SemVer e a governanca do `.agents/AGENTS.md`.
+
+---
+
+## [v1.1.1] - 2026-08-04
+
+### Alterado
+- **Renomeação Oficial do Sistema para ToolFlow Viemar**:
+  - Nova nomenclatura aplicada em toda a interface: **Viemar ToolFlow - Gestão e Governança de Ferramentas**.
+  - Atualização do título da página, Sidebar, Topbar de navegação, cabeçalhos de impressão e modais de autenticação.
+  - Atualização das chaves de persistência no `localStorage` com retrocompatibilidade (`viemar_toolflow_store_v1` e `viemar_toolflow_users_v1`).
+  - Atualização do formato de exportação para compartilhamento WhatsApp (`[VIEMAR TOOLFLOW - STATUS TESTE...]`).
+  - Atualização dos arquivos [`index.html`](file:///q:/02%20ENGENHARIA%20DE%20USINAGEM/37%20-%20TESTES%20DE%20FERRAMENTAS/index.html) raiz e [`README.md`](file:///q:/02%20ENGENHARIA%20DE%20USINAGEM/37%20-%20TESTES%20DE%20FERRAMENTAS/README.md).
+- **Governanca**:
+  - Backup de segurança criado em `backups/v1.1.0_to_v1.1.1/`.
+  - Tag de versão `v1.1.1` criada no Git.
 
 ---
 

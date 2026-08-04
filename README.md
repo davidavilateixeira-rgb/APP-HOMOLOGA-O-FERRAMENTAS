@@ -1,4 +1,4 @@
-# Viemar DevFlow | Gestao e Homologacao de Testes de Usinagem
+# Viemar ToolFlow | Gestao e Homologacao de Testes de Usinagem
 
 Sistema integrado para gestao, acompanhamento e governanca de testes de ferramentas de corte na fabrica da Viemar.
 
@@ -10,9 +10,9 @@ O projeto ja esta 100% configurado para a Vercel atraves do arquivo `vercel.json
 1. Suba este repositorio para o seu GitHub (ou GitLab / Bitbucket).
 2. Acesse [vercel.com](https://vercel.com) e faca login.
 3. Clique em **"Add New..."** > **"Project"**.
-4. Importe o repositorio `37 - TESTES DE FERRAMENTAS`.
+4. Importe o repositorio do ToolFlow.
 5. Clique em **"Deploy"**.
-6. Pronto! A Vercel vai gerar um link como `https://viemar-devflow.vercel.app` para todos na fabrica acessarem do computador ou celular.
+6. Pronto! A Vercel vai gerar um link como `https://viemar-toolflow.vercel.app` para todos na fabrica acessarem do computador ou celular.
 
 ### Opcao 2: Via Vercel CLI (Direto do Terminal)
 1. No terminal do projeto, execute:

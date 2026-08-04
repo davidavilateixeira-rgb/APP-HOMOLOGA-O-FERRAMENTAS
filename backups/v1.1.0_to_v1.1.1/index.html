@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Viemar ToolFlow v1.1.1 | Gestao de Testes de Ferramentas</title>
+  <title>Viemar DevFlow v1.1.0 | Gestao de Testes de Ferramentas</title>
   
-  <!-- CSS ToolFlow & Tailwind CDN -->
+  <!-- CSS DevFlow & Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css">
   
@@ -23,19 +23,19 @@
   <div class="app-container">
     
     <!-- ========================================================================= -->
-    <!-- TOOLFLOW SIDEBAR LATERAL                                                  -->
+    <!-- DEVFLOW SIDEBAR LATERAL                                                   -->
     <!-- ========================================================================= -->
     <aside class="app-sidebar no-print">
       <div class="sidebar-header">
         <div class="sidebar-brand">
           <img src="logo.png" alt="Viemar" class="sidebar-logo" onerror="this.style.display='none'">
           <div class="sidebar-title-group">
-            <h1>ToolFlow Usinagem</h1>
+            <h1>DevFlow Usinagem</h1>
             <p>Engenharia de Processos</p>
           </div>
         </div>
         <div class="version-badge-container">
-          <span class="version-badge">v1.1.1</span>
+          <span class="version-badge">v1.1.0</span>
           <div class="sync-status-badge" title="Vercel & Cache Local Ativos">
             <span class="sync-dot"></span> Vercel Cloud
           </div>
@@ -93,14 +93,14 @@
     </aside>
 
     <!-- ========================================================================= -->
-    <!-- MAIN CONTENT + TOOLFLOW TOPBAR                                            -->
+    <!-- MAIN CONTENT + DEVFLOW TOPBAR                                             -->
     <!-- ========================================================================= -->
     <div class="app-main">
       
-      <!-- ToolFlow Topbar -->
+      <!-- DevFlow Topbar -->
       <header class="app-topbar no-print">
         <div class="breadcrumb-container">
-          <span>Viemar ToolFlow</span>
+          <span>Viemar DevFlow</span>
           <span>/</span>
           <span class="breadcrumb-item active" id="breadcrumbCurrent">Dashboard & Metricas</span>
         </div>
@@ -281,7 +281,7 @@
             <img src="logo.png" alt="Viemar" class="print-logo">
             <div style="text-align: right;">
               <h3 style="font-size: 11pt; margin: 0; color: #ff6600;">ENGENHARIA DE USINAGEM</h3>
-              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatorio Oficial ToolFlow v1.1.1</p>
+              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatorio Oficial DevFlow v1.1.0</p>
             </div>
           </div>
 
@@ -536,7 +536,7 @@
                     <label>Cone / Fixacao Montada e Medida no Preset?</label>
                     <select id="wfAgConeMont" class="form-control">
                       <option value="SIM">SIM (Montado e balanceado)</option>
-                      <option value="NAO">Sera montado no dia</option>
+                      <option value="NAO">NAO (Sera montado no dia)</option>
                     </select>
                   </div>
                 </div>
@@ -852,7 +852,7 @@
                 <span class="badge badge-green">Online Ready</span>
               </div>
               <p style="font-size: 0.825rem; color: var(--text-secondary); line-height: 1.6;">
-                O ToolFlow v1.1.1 foi preparado para hospedagem rapida na Vercel com suporte completo para multiplas maquinas e celulares:
+                O DevFlow v1.1.0 foi preparado para hospedagem rapida na Vercel com suporte completo para multiplas maquinas e celulares:
               </p>
               <div style="margin-top: 0.75rem; background: #f8fafc; padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 0.8rem;">
                 <strong>Como publicar na Vercel:</strong>
@@ -860,7 +860,7 @@
                   <li>Suba o projeto para seu repositorio no GitHub.</li>
                   <li>Na Vercel, clique em <em>Add New Project</em> e selecione o repositorio.</li>
                   <li>Clique em <strong>Deploy</strong> (o arquivo <code>vercel.json</code> ja esta pronto).</li>
-                  <li>Compartilhe o link gerado (ex: <code>https://viemar-toolflow.vercel.app</code>) com todos da Usinagem!</li>
+                  <li>Compartilhe o link gerado (ex: <code>https://viemar-devflow.vercel.app</code>) com todos da Usinagem!</li>
                 </ol>
               </div>
             </div>
@@ -874,7 +874,7 @@
           <div class="view-header">
             <div class="view-title-group">
               <h2>Auditoria Global de Operacoes</h2>
-              <p>Rastreabilidade completa de todas as decisoes e transicoes no ToolFlow.</p>
+              <p>Rastreabilidade completa de todas as decisoes e transicoes no DevFlow.</p>
             </div>
           </div>
 
@@ -887,11 +887,11 @@
                 <div class="timeline-dot green"></div>
                 <div class="timeline-content">
                   <div class="timeline-header">
-                    <span><strong>Sistema ToolFlow v1.1.1</strong></span>
-                    <span>2026-08-04 20:05</span>
+                    <span><strong>Sistema DevFlow v1.1.0</strong></span>
+                    <span>2026-08-04 19:55</span>
                   </div>
-                  <div class="timeline-title">Renomeacao Oficial para ToolFlow Viemar</div>
-                  <div class="timeline-body">Identidade renovada para Gestao e Governanca de Ferramentas de Usinagem.</div>
+                  <div class="timeline-title">Atualizacao de Layout e Modulo de Autenticacao Vercel</div>
+                  <div class="timeline-body">Refinamento visual sem sobreposicoes, cadastro multi-usuario e configuracao de deploy na Vercel.</div>
                 </div>
               </div>
             </div>
@@ -908,7 +908,7 @@
   <div id="modalAuth" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalAuth()">
     <div class="modal-content" style="max-width: 480px;">
       <div class="modal-header">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Acesso ao Viemar ToolFlow</h3>
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Acesso ao Viemar DevFlow</h3>
         <button onclick="fecharModalAuth()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">X</button>
       </div>
 
@@ -951,7 +951,7 @@
       <!-- FORMULARIO 2: CADASTRO NOVO USUARIO -->
       <form id="formAuthSignup" style="display: none;" onsubmit="event.preventDefault(); cadastrarNovoUsuario();">
         <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
-          Cadastre seu login para acessar o ToolFlow em qualquer computador ou smartphone:
+          Cadastre seu login para acessar o DevFlow em qualquer computador ou smartphone:
         </p>
         <div class="form-group">
           <label>Nome Completo <span class="required">*</span></label>

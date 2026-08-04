@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.1.1 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
+// VIEMAR DEVFLOW v1.1.0 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -9,7 +9,6 @@ const DEVFLOW_ROLES = {
   SOLICITANTE: 'SOLICITANTE', // Solicitante (Preset, Gerenciador Externo, Fornecedores) - Abertura e Visualizacao
   LEITURA: 'LEITURA'      // Visitante / Apenas Consulta Geral
 };
-const TOOLFLOW_ROLES = DEVFLOW_ROLES;
 
 // Base de Usuarios Cadastrados (Persistivel no LocalStorage e Firebase Auth)
 let devflowUsersStore = [
@@ -1143,7 +1142,7 @@ function copiarWhatsAppWorkflow() {
   const teste = testDataStore.find(t => t.id === currentSelectedTestId);
   if (!teste) return;
 
-  const texto = `[VIEMAR TOOLFLOW - STATUS TESTE ${teste.id}]\n` +
+  const texto = `[VIEMAR DEVFLOW - STATUS TESTE ${teste.id}]\n` +
                 `* Peca: ${teste.solicitacao.descricaoPeca}\n` +
                 `* Maquina: ${teste.solicitacao.maquina}\n` +
                 `* Fornecedor: ${teste.solicitacao.fornecedor}\n` +
@@ -1161,11 +1160,11 @@ function copiarWhatsAppWorkflow() {
 // PERSISTENCIA LOCAL / USUARIOS / SESSAO
 // =========================================================================
 function salvarDadosLocais() {
-  localStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
+  localStorage.setItem('viemar_devflow_store_v1', JSON.stringify(testDataStore));
 }
 
 function carregarDadosLocais() {
-  const salvos = localStorage.getItem('viemar_toolflow_store_v1') || localStorage.getItem('viemar_devflow_store_v1');
+  const salvos = localStorage.getItem('viemar_devflow_store_v1');
   if (salvos) {
     try {
       testDataStore = JSON.parse(salvos);
@@ -1176,11 +1175,11 @@ function carregarDadosLocais() {
 }
 
 function salvarUsuariosLocais() {
-  localStorage.setItem('viemar_toolflow_users_v1', JSON.stringify(devflowUsersStore));
+  localStorage.setItem('viemar_devflow_users_v1', JSON.stringify(devflowUsersStore));
 }
 
 function carregarUsuariosLocais() {
-  const salvos = localStorage.getItem('viemar_toolflow_users_v1') || localStorage.getItem('viemar_devflow_users_v1');
+  const salvos = localStorage.getItem('viemar_devflow_users_v1');
   if (salvos) {
     try {
       devflowUsersStore = JSON.parse(salvos);
@@ -1189,7 +1188,7 @@ function carregarUsuariosLocais() {
     }
   }
 
-  const sessao = localStorage.getItem('viemar_toolflow_current_user_id') || localStorage.getItem('viemar_devflow_current_user_id');
+  const sessao = localStorage.getItem('viemar_devflow_current_user_id');
   if (sessao) {
     const userSessao = devflowUsersStore.find(u => u.id === sessao);
     if (userSessao) currentUser = userSessao;
@@ -1197,5 +1196,5 @@ function carregarUsuariosLocais() {
 }
 
 function salvarSessaoUsuario() {
-  localStorage.setItem('viemar_toolflow_current_user_id', currentUser.id);
+  localStorage.setItem('viemar_devflow_current_user_id', currentUser.id);
 }
