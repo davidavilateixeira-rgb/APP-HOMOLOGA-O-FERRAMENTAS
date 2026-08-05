@@ -4,18 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.5.4] - 2026-08-05
-
-### Ajustado
-- Fluxograma BPMN reorganizado em grade horizontal proporcional para caber em uma única linha sem quebra e sem scroll.
-- Ajustado o espaçamento geral do dashboard para deixar a página mais harmônica e responsiva.
-- Adicionado espaço vazio após o card de diretrizes/fluxograma.
-- Removidas as numerações dos títulos dos cards e das diretrizes.
-
-### Segurança
-- Backup da versão anterior salvo em `backups/v1.5.3_to_v1.5.4/` antes das alterações.
-
----
 ## [v1.5.3] - 2026-08-05
 
 ### Ajustado

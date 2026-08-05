@@ -1563,7 +1563,7 @@ textarea.form-control {
 /* Dashboard spacing polish v1.5.2                                            */
 /* ========================================================================= */
 .dashboard-charts-grid {
-  margin-bottom: 2.75rem;
+  margin-bottom: 3.25rem;
   align-items: stretch;
 }
 
@@ -1663,107 +1663,48 @@ textarea.form-control {
 }
 
 /* ========================================================================= */
-/* Responsive dashboard harmony v1.5.4                                        */
+/* BPMN single-line polish v1.5.3                                             */
 /* ========================================================================= */
-#viewDashboard {
-  padding-bottom: 3.25rem;
-}
-
-#viewDashboard > .grid.grid-5 {
-  margin-bottom: 1.35rem !important;
-  gap: 1rem;
-}
-
-.dashboard-charts-grid {
-  gap: 1rem;
-  margin-bottom: 3.6rem;
-}
-
 .test-policy-card {
-  margin-bottom: 3.25rem;
+  margin-top: 0.25rem;
 }
 
 .test-policy-card .bpmn-flow {
-  display: grid;
-  grid-template-columns:
-    minmax(78px, 0.72fr) 10px
-    minmax(105px, 1.02fr) 10px
-    minmax(100px, 0.92fr) 10px
-    58px 10px
-    minmax(110px, 1.02fr) 10px
-    minmax(100px, 0.88fr) 10px
-    minmax(112px, 0.98fr) 10px
-    minmax(108px, 0.98fr);
-  align-items: center;
-  column-gap: clamp(0.25rem, 0.55vw, 0.55rem);
-  row-gap: 0;
-  width: 100%;
-  overflow: visible;
-  padding: 0.55rem 0 0.65rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  justify-content: space-between;
+  gap: 0.55rem;
+  padding: 0.35rem 0 0.75rem;
+  scrollbar-width: thin;
+}
+
+.test-policy-card .bpmn-node,
+.test-policy-card .bpmn-arrow {
+  flex: 0 0 auto;
 }
 
 .test-policy-card .bpmn-node {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-  min-height: 54px;
-  padding: 0.55rem 0.45rem;
-  font-size: clamp(0.58rem, 0.66vw, 0.72rem);
-  line-height: 1.12;
+  min-width: 118px;
+  max-width: 158px;
 }
 
 .test-policy-card .bpmn-event {
-  min-width: 0;
+  min-width: 124px;
 }
 
 .test-policy-card .bpmn-gateway {
-  width: 58px;
-  min-width: 58px;
-  height: 58px;
-  justify-self: center;
-}
-
-.test-policy-card .bpmn-gateway::after {
-  font-size: clamp(0.62rem, 0.62vw, 0.74rem);
+  min-width: 72px;
+  width: 72px;
+  height: 72px;
 }
 
 .test-policy-card .bpmn-arrow {
-  justify-self: center;
-  font-size: 0.95rem;
+  line-height: 1;
 }
 
-@media (max-width: 1180px) {
-  .test-policy-card {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
+@media (min-width: 1180px) {
   .test-policy-card .bpmn-flow {
-    column-gap: 0.25rem;
-    grid-template-columns:
-      minmax(64px, 0.65fr) 8px
-      minmax(86px, 0.95fr) 8px
-      minmax(82px, 0.85fr) 8px
-      48px 8px
-      minmax(88px, 0.95fr) 8px
-      minmax(82px, 0.82fr) 8px
-      minmax(90px, 0.9fr) 8px
-      minmax(84px, 0.88fr);
-  }
-
-  .test-policy-card .bpmn-node {
-    min-height: 48px;
-    padding: 0.45rem 0.28rem;
-    font-size: 0.56rem;
-  }
-
-  .test-policy-card .bpmn-gateway {
-    width: 48px;
-    min-width: 48px;
-    height: 48px;
-  }
-
-  .test-policy-card .bpmn-arrow {
-    font-size: 0.82rem;
+    overflow-x: visible;
   }
 }
