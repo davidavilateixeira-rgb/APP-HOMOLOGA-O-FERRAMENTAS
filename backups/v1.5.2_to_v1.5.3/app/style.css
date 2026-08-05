@@ -1563,7 +1563,7 @@ textarea.form-control {
 /* Dashboard spacing polish v1.5.2                                            */
 /* ========================================================================= */
 .dashboard-charts-grid {
-  margin-bottom: 3.25rem;
+  margin-bottom: 1.75rem;
   align-items: stretch;
 }
 
@@ -1659,52 +1659,5 @@ textarea.form-control {
 
   .test-policy-card {
     padding: 1.15rem;
-  }
-}
-
-/* ========================================================================= */
-/* BPMN single-line polish v1.5.3                                             */
-/* ========================================================================= */
-.test-policy-card {
-  margin-top: 0.25rem;
-}
-
-.test-policy-card .bpmn-flow {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-  justify-content: space-between;
-  gap: 0.55rem;
-  padding: 0.35rem 0 0.75rem;
-  scrollbar-width: thin;
-}
-
-.test-policy-card .bpmn-node,
-.test-policy-card .bpmn-arrow {
-  flex: 0 0 auto;
-}
-
-.test-policy-card .bpmn-node {
-  min-width: 118px;
-  max-width: 158px;
-}
-
-.test-policy-card .bpmn-event {
-  min-width: 124px;
-}
-
-.test-policy-card .bpmn-gateway {
-  min-width: 72px;
-  width: 72px;
-  height: 72px;
-}
-
-.test-policy-card .bpmn-arrow {
-  line-height: 1;
-}
-
-@media (min-width: 1180px) {
-  .test-policy-card .bpmn-flow {
-    overflow-x: visible;
   }
 }

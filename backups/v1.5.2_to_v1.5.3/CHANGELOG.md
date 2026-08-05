@@ -4,17 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.5.3] - 2026-08-05
-
-### Ajustado
-- Mantido o fluxograma BPMN em uma única linha, evitando quebra dos blocos para a linha seguinte.
-- Aumentado o espaço branco entre os gráficos do dashboard e o card de diretrizes/fluxograma.
-- Ajustadas larguras mínimas dos nós BPMN para preservar o fluxo em linha sem comprimir excessivamente os textos.
-
-### Segurança
-- Backup da versão anterior salvo em `backups/v1.5.2_to_v1.5.3/` antes das alterações.
-
----
 ## [v1.5.2] - 2026-08-05
 
 ### Ajustado
