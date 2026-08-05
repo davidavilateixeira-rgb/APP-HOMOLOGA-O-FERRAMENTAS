@@ -4,18 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.5.2] - 2026-08-05
-
-### Ajustado
-- Reduzida a altura dos gráficos do dashboard para deixar a primeira visão mais compacta.
-- Melhorados os espaçamentos internos das diretrizes e do fluxograma BPMN.
-- Criadas classes específicas para controlar o layout dos gráficos e do bloco de política sem depender de estilos inline.
-
-### Segurança
-- Backup da versão anterior salvo em `backups/v1.5.1_to_v1.5.2/` antes das alterações.
-
----
-
 ## [v1.5.1] - 2026-08-05
 
 ### Corrigido
