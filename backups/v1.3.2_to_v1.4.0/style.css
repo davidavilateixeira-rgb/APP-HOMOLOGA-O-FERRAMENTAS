@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
   /* Viemar DevFlow Official Color Tokens */
@@ -1481,19 +1481,3 @@ textarea.form-control {
   background: #fef2f2;
 }
 
-
-/* ========================================================================= */
-/* MODAL SOLICITACAO v1.4.0                                                  */
-/* ========================================================================= */
-.modal-content.modal-wide { max-width: 1040px; width: 94%; }
-.form-section { border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.85rem; background: #ffffff; }
-.section-title { font-size: 0.78rem; font-weight: 800; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.65rem; }
-.form-note { display: block; font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; margin-top: 0.25rem; }
-.checkbox-grid { display: grid; gap: 0.45rem; }
-.checkbox-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.checkbox-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.checkbox-grid-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-.checkbox-pill { display: flex; align-items: center; gap: 0.45rem; padding: 0.55rem 0.65rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: #ffffff; font-size: 0.78rem; font-weight: 650; color: var(--text-main); cursor: pointer; }
-.checkbox-pill input { accent-color: var(--viemar-orange); }
-.grid-4 { grid-template-columns: repeat(4, 1fr); }
-@media (max-width: 900px) { .grid-4, .checkbox-grid-2, .checkbox-grid-3, .checkbox-grid-5 { grid-template-columns: 1fr; } }

@@ -4,6 +4,23 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
+## [v1.4.0] - 2026-08-04
+
+### Adicionado
+- **Cadastro inteligente de solicitacao de teste de ferramenta**:
+  - Inclusao de campos para fornecedor, classe de inserto, descricao da ferramenta, perfil/quebra-cavaco e parametros recomendados: avanco, AP, velocidade de corte e RPM.
+  - Inclusao dos dados da ferramenta atual para comparacao: codigo, descricao, parametros atuais, vida util, ciclo e custo.
+  - Selecao multipla para tipo da ferramenta e processo de aplicacao, incluindo opcao "Outra" com descricao livre.
+  - Inclusao de motivo do teste, retorno esperado e indicadores atacados: reducao de custo, padronizacao, melhoria de cavaco, reducao de tempo de ciclo e robustez.
+- **Calendario quinzenal inteligente**:
+  - Data do teste agora e selecionada a partir das proximas quintas-feiras quinzenais validas, respeitando minimo D+2 da solicitacao.
+- **Fluxo de analise tecnica**:
+  - Nova solicitacao entra diretamente como `AGUARDANDO_ANALISE` na etapa de Analise Engenharia.
+  - Parecer tecnico trata aprovado, reprovado e em revisao com devolutiva rastreavel ao solicitante.
+- Backup de seguranca preservado em `backups/v1.3.2_to_v1.4.0/`.
+
+---
+
 ## [v1.3.2] - 2026-08-04
 
 ### Corrigido

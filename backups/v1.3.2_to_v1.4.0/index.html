@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Viemar ToolFlow v1.4.0 | Gestao de Testes de Ferramentas</title>
+  <title>Viemar ToolFlow v1.3.2 | Gestao de Testes de Ferramentas</title>
   
   <!-- CSS ToolFlow & Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,9 +34,9 @@
         <div class="login-brand-titles">
           <div class="login-title-row">
             <span class="login-main-title">ToolFlow</span>
-            <span class="login-version-tag">v1.4.0</span>
+            <span class="login-version-tag">v1.3.2</span>
           </div>
-          <span class="login-subtitle">Engenharia de Processos Â· VMR</span>
+          <span class="login-subtitle">Engenharia de Processos · VMR</span>
         </div>
       </div>
 
@@ -49,7 +49,7 @@
 
         <div class="login-form-group">
           <label class="login-label">SENHA</label>
-          <input type="password" id="loginPasswordField" class="login-input" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required autocomplete="current-password">
+          <input type="password" id="loginPasswordField" class="login-input" placeholder="••••••••" required autocomplete="current-password">
         </div>
 
         <button type="submit" class="login-btn-primary">
@@ -86,7 +86,7 @@
           </div>
         </div>
         <div class="version-badge-container">
-          <span class="version-badge">v1.4.0</span>
+          <span class="version-badge">v1.3.2</span>
           <div class="sync-status-badge" title="Vercel & Cache Local Ativos">
             <span class="sync-dot"></span> Vercel Cloud
           </div>
@@ -113,9 +113,9 @@
 
         <div class="nav-section-label">Configuracao & Governanca</div>
 
-        <button class="sidebar-link" data-view="viewUsuarios" onclick="navegarPara('viewUsuarios', 'GestÃ£o de UsuÃ¡rios')">
+        <button class="sidebar-link" data-view="viewUsuarios" onclick="navegarPara('viewUsuarios', 'Gestão de Usuários')">
           <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          <span>UsuÃ¡rios</span>
+          <span>Usuários</span>
         </button>
 
         <button class="sidebar-link" data-view="viewAuditoria" onclick="navegarPara('viewAuditoria', 'Logs de Auditoria')">
@@ -450,23 +450,12 @@
                 </div>
               </div>
 
-              <div class="grid grid-2" style="margin-top: 1rem;">
-                <div class="form-group">
-                  <label>Processos Selecionados:</label>
-                  <textarea id="wfSolProcessos" class="form-control" rows="2" readonly></textarea>
-                </div>
-                <div class="form-group">
-                  <label>Tipo / Perfil da Ferramenta:</label>
-                  <textarea id="wfSolTipos" class="form-control" rows="2" readonly></textarea>
-                </div>
-              </div>
-
               <div class="grid grid-2" style="margin-top: 1.25rem;">
                 <div style="background: #f8fafc; padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
                   <h4 style="font-size: 0.825rem; color: var(--status-blue-text); margin-bottom: 0.5rem;">Processo Atual (Referencia)</h4>
                   <div class="form-group">
                     <label>Ferramenta Atual:</label>
-                    <input type="text" id="wfSolFerrAtual" class="form-control" readonly><textarea id="wfSolFerrAtualDesc" class="form-control" rows="2" style="margin-top:0.4rem;" readonly></textarea><div class="grid grid-4" style="margin-top:0.4rem;"><input type="text" id="wfSolAtualAvanco" class="form-control" placeholder="Avanco" readonly><input type="text" id="wfSolAtualAp" class="form-control" placeholder="AP" readonly><input type="text" id="wfSolAtualVc" class="form-control" placeholder="Vc" readonly><input type="text" id="wfSolAtualRpm" class="form-control" placeholder="RPM" readonly></div>
+                    <input type="text" id="wfSolFerrAtual" class="form-control" readonly>
                   </div>
                   <div class="grid grid-3" style="margin-top: 0.4rem;">
                     <div class="form-group">
@@ -488,7 +477,7 @@
                   <h4 style="font-size: 0.825rem; color: var(--viemar-orange); margin-bottom: 0.5rem;">Proposta do Fornecedor</h4>
                   <div class="form-group">
                     <label>Nova Ferramenta:</label>
-                    <input type="text" id="wfSolFerrTeste" class="form-control" readonly><div class="grid grid-2" style="margin-top:0.4rem;"><input type="text" id="wfSolClasse" class="form-control" placeholder="Classe" readonly><input type="text" id="wfSolPerfil" class="form-control" placeholder="Perfil / quebra-cavaco" readonly></div><textarea id="wfSolFerrTesteDesc" class="form-control" rows="2" style="margin-top:0.4rem;" readonly></textarea><div class="grid grid-4" style="margin-top:0.4rem;"><input type="text" id="wfSolRecAvanco" class="form-control" placeholder="Avanco rec." readonly><input type="text" id="wfSolRecAp" class="form-control" placeholder="AP rec." readonly><input type="text" id="wfSolRecVc" class="form-control" placeholder="Vc rec." readonly><input type="text" id="wfSolRecRpm" class="form-control" placeholder="RPM rec." readonly></div>
+                    <input type="text" id="wfSolFerrTeste" class="form-control" readonly>
                   </div>
                   <div class="grid grid-3" style="margin-top: 0.4rem;">
                     <div class="form-group">
@@ -520,11 +509,6 @@
                   <div class="kpi-label">Estoque Local no Distribuidor</div>
                   <input type="text" id="wfSolEstoqueLocal" class="form-control" style="text-align:center; font-weight: bold;" readonly>
                 </div>
-              </div>
-
-              <div class="grid grid-2" style="margin-top: 1.25rem;">
-                <div class="form-group"><label>Motivo do Teste:</label><textarea id="wfSolJustificativa" class="form-control" rows="3" readonly></textarea></div>
-                <div class="form-group"><label>Retorno Esperado / Indicadores:</label><textarea id="wfSolRetorno" class="form-control" rows="3" readonly></textarea></div>
               </div>
             </div>
           </div>
@@ -890,7 +874,7 @@
                 <!-- Renderizado Dinamicamente -->
               </div>
               <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
-                <input type="text" id="inputNovoComentario" class="form-control" placeholder="Adicionar nota tÃ©cnica ou alinhamento...">
+                <input type="text" id="inputNovoComentario" class="form-control" placeholder="Adicionar nota técnica ou alinhamento...">
                 <button type="button" id="btnEnviarComentario" class="btn btn-secondary btn-sm" onclick="adicionarComentario()">Enviar</button>
               </div>
             </div>
@@ -904,8 +888,8 @@
         <section id="viewUsuarios" class="app-view">
           <div class="view-header" style="margin-bottom: 1.5rem;">
             <div class="view-title-group">
-              <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a;">UsuÃ¡rios</h2>
-              <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.15rem;">Cadastre os tÃ©cnicos que vÃ£o assumir e movimentar os desenvolvimentos</p>
+              <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a;">Usuários</h2>
+              <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.15rem;">Cadastre os técnicos que vão assumir e movimentar os desenvolvimentos</p>
             </div>
           </div>
 
@@ -913,7 +897,7 @@
             
             <!-- Card Esquerdo: Cadastrar novo usuario -->
             <div class="user-form-card">
-              <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 1.25rem;">Cadastrar novo usuÃ¡rio</h3>
+              <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 1.25rem;">Cadastrar novo usuário</h3>
               
               <form id="formCadastroNovoUsuario" onsubmit="event.preventDefault(); criarNovoUsuarioForm();">
                 <div class="form-group" style="margin-bottom: 1rem;">
@@ -927,15 +911,15 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1rem;">
-                  <label class="user-label">SENHA INICIAL * (MÃN. 6 CARACTERES)</label>
-                  <input type="password" id="novoUserSenha" class="user-input" placeholder="Senha que o tÃ©cnico usarÃ¡ para entrar" required minlength="6">
+                  <label class="user-label">SENHA INICIAL * (MÍN. 6 CARACTERES)</label>
+                  <input type="password" id="novoUserSenha" class="user-input" placeholder="Senha que o técnico usará para entrar" required minlength="6">
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1.25rem;">
                   <label class="user-label">PAPEL</label>
                   <select id="novoUserPapel" class="user-input" required>
-                    <option value="TECNICO_USINAGEM" selected>TÃ©cnico Usinagem</option>
-                    <option value="TECNICO_MONTAGEM">TÃ©cnico Montagem</option>
+                    <option value="TECNICO_USINAGEM" selected>Técnico Usinagem</option>
+                    <option value="TECNICO_MONTAGEM">Técnico Montagem</option>
                     <option value="ENG_PROCESSO">Engenharia de Processos</option>
                     <option value="ENG_PRODUTO">Engenharia de Produto</option>
                     <option value="PRESET">Setor Preset</option>
@@ -946,10 +930,10 @@
                   </select>
                 </div>
 
-                <button type="submit" class="btn-create-user">Criar usuÃ¡rio</button>
+                <button type="submit" class="btn-create-user">Criar usuário</button>
 
                 <p class="user-helper-footer">
-                  O tÃ©cnico entra com esse e-mail/senha e pode trocÃ¡-la depois em "Esqueci minha senha".
+                  O técnico entra com esse e-mail/senha e pode trocá-la depois em "Esqueci minha senha".
                 </p>
               </form>
             </div>
@@ -957,7 +941,7 @@
             <!-- Card Direito: Usuarios cadastrados (N) -->
             <div class="user-list-card">
               <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
-                <span>UsuÃ¡rios cadastrados (<span id="contagemUsuariosCadastrados">0</span>)</span>
+                <span>Usuários cadastrados (<span id="contagemUsuariosCadastrados">0</span>)</span>
               </h3>
 
               <div id="listaUsuariosCadastradosContainer" style="display: flex; flex-direction: column; gap: 0.65rem;">
@@ -991,8 +975,8 @@
                     <span><strong>Sistema ToolFlow v1.3.0</strong></span>
                     <span>2026-08-04 21:00</span>
                   </div>
-                  <div class="timeline-title">GestÃ£o e Cadastro DinÃ¢mico de UsuÃ¡rios</div>
-                  <div class="timeline-body">MÃ³dulo oficial de gestÃ£o de equipe ativo, permitindo cadastro de tÃ©cnicos, preset, fornecedores e administradores.</div>
+                  <div class="timeline-title">Gestão e Cadastro Dinâmico de Usuários</div>
+                  <div class="timeline-body">Módulo oficial de gestão de equipe ativo, permitindo cadastro de técnicos, preset, fornecedores e administradores.</div>
                 </div>
               </div>
             </div>
@@ -1009,8 +993,8 @@
   <div id="modalEditarUsuario" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalEditarUsuario()">
     <div class="modal-content" style="max-width: 460px;">
       <div class="modal-header">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Editar UsuÃ¡rio</h3>
-        <button onclick="fecharModalEditarUsuario()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">âœ•</button>
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Editar Usuário</h3>
+        <button onclick="fecharModalEditarUsuario()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">✕</button>
       </div>
 
       <form onsubmit="event.preventDefault(); salvarEdicaoUsuario();">
@@ -1024,10 +1008,10 @@
           <input type="email" id="editUserEmail" class="user-input" required>
         </div>
         <div class="form-group" style="margin-top: 0.75rem;">
-          <label class="user-label">PAPEL / FUNÃ‡ÃƒO *</label>
+          <label class="user-label">PAPEL / FUNÇÃO *</label>
           <select id="editUserPapel" class="user-input" required>
-            <option value="TECNICO_USINAGEM">TÃ©cnico Usinagem</option>
-            <option value="TECNICO_MONTAGEM">TÃ©cnico Montagem</option>
+            <option value="TECNICO_USINAGEM">Técnico Usinagem</option>
+            <option value="TECNICO_MONTAGEM">Técnico Montagem</option>
             <option value="ENG_PROCESSO">Engenharia de Processos</option>
             <option value="ENG_PRODUTO">Engenharia de Produto</option>
             <option value="PRESET">Setor Preset</option>
@@ -1040,7 +1024,7 @@
 
         <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
           <button type="button" class="btn btn-secondary" onclick="fecharModalEditarUsuario()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Salvar AlteraÃ§Ãµes</button>
+          <button type="submit" class="btn btn-primary">Salvar Alterações</button>
         </div>
       </form>
     </div>
@@ -1052,8 +1036,8 @@
   <div id="modalAlterarSenhaUsuario" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalAlterarSenha()">
     <div class="modal-content" style="max-width: 420px;">
       <div class="modal-header">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Alterar Senha do UsuÃ¡rio</h3>
-        <button onclick="fecharModalAlterarSenha()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">âœ•</button>
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Alterar Senha do Usuário</h3>
+        <button onclick="fecharModalAlterarSenha()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">✕</button>
       </div>
 
       <form onsubmit="event.preventDefault(); salvarNovaSenhaUsuario();">
@@ -1062,7 +1046,7 @@
           Definindo nova senha para: <strong id="senhaUserName" style="color: #0f172a;"></strong>
         </div>
         <div class="form-group">
-          <label class="user-label">NOVA SENHA (MÃN. 6 CARACTERES) *</label>
+          <label class="user-label">NOVA SENHA (MÍN. 6 CARACTERES) *</label>
           <input type="password" id="novaSenhaInput" class="user-input" placeholder="Nova senha segura" required minlength="6">
         </div>
 
@@ -1078,7 +1062,7 @@
   <!-- MODAL: NOVA SOLICITACAO (D-2)                                             -->
   <!-- ========================================================================= -->
   <div id="modalNovaSolicitacao" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalNovaSolicitacao()">
-    <div class="modal-content modal-wide">
+    <div class="modal-content">
       <div class="modal-header">
         <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Nova Solicitacao de Teste (D-2)</h3>
         <button onclick="fecharModalNovaSolicitacao()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">X</button>
@@ -1088,7 +1072,7 @@
         <div class="grid grid-3">
           <div class="form-group">
             <label>Data Prevista (Quinta-feira) <span class="required">*</span></label>
-            <select id="modalDataPrevista" class="form-control" required></select><small class="form-note">Somente proximas quintas-feiras quinzenais, respeitando D+2.</small>
+            <input type="date" id="modalDataPrevista" class="form-control" required>
           </div>
           <div class="form-group">
             <label>Fornecedor <span class="required">*</span></label>
@@ -1097,43 +1081,6 @@
           <div class="form-group">
             <label>Contato / Tel</label>
             <input type="text" id="modalContato" class="form-control" placeholder="Ex: (51) 99888-7766">
-          </div>
-        </div>
-
-        <div class="form-section" style="margin-top: 1rem;">
-          <div class="section-title">Processo e tipo da ferramenta</div>
-          <div class="form-group">
-            <label>Para qual processo? <span class="required">*</span></label>
-            <div class="checkbox-grid checkbox-grid-3">
-              <label class="checkbox-pill"><input type="checkbox" name="modalProcessos" value="USI Caixa"> USI Caixa</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalProcessos" value="USI Pino"> USI Pino</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalProcessos" value="FR Equiptop"> FR Equiptop</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalProcessos" value="FR Torno"> FR Torno</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalProcessos" value="USI Esfera"> USI Esfera</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalProcessos" value="USI Esfera + Canal"> USI Esfera + Canal</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalProcessos" value="USI Canal"> USI Canal</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalProcessos" value="USI Copo Axial"> USI Copo Axial</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalProcessos" value="USI Copo Pivo"> USI Copo Pivo</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalProcessos" value="USI Pre-Forma"> USI Pre-Forma</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalProcessos" value="USI Copo Pivo 1LD"> USI Copo Pivo 1LD</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalProcessos" value="USI Copo Pivo 2LD"> USI Copo Pivo 2LD</label>
-            </div>
-          </div>
-          <div class="grid grid-2" style="margin-top: 0.75rem;">
-            <div class="form-group">
-              <label>Tipo da ferramenta <span class="required">*</span></label>
-              <div class="checkbox-grid checkbox-grid-5">
-                <label class="checkbox-pill"><input type="checkbox" name="modalTiposFerramenta" value="Inserto"> Inserto</label>
-                <label class="checkbox-pill"><input type="checkbox" name="modalTiposFerramenta" value="Suporte"> Suporte</label>
-                <label class="checkbox-pill"><input type="checkbox" name="modalTiposFerramenta" value="Broca"> Broca</label>
-                <label class="checkbox-pill"><input type="checkbox" name="modalTiposFerramenta" value="Macho"> Macho</label>
-                <label class="checkbox-pill"><input type="checkbox" name="modalTiposFerramenta" value="Outra"> Outra</label>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Se outra, qual?</label>
-              <input type="text" id="modalTipoOutra" class="form-control" placeholder="Ex: alargador, fresa especial">
-            </div>
           </div>
         </div>
 
@@ -1179,16 +1126,6 @@
               <label>Codigo Atual:</label>
               <input type="text" id="modalFerrAtual" class="form-control" placeholder="Ex: APMT1604" required>
             </div>
-            <div class="form-group" style="margin-top: 0.35rem;">
-              <label>Descricao da Ferramenta Atual:</label>
-              <textarea id="modalFerrAtualDesc" class="form-control" rows="2" placeholder="Descreva a ferramenta atual"></textarea>
-            </div>
-            <div class="grid grid-4" style="margin-top: 0.35rem;">
-              <div class="form-group"><label>Avanco:</label><input type="number" step="0.001" id="modalAtualAvanco" class="form-control" placeholder="0.20"></div>
-              <div class="form-group"><label>AP (mm):</label><input type="number" step="0.01" id="modalAtualAp" class="form-control" placeholder="2.0"></div>
-              <div class="form-group"><label>Vc (m/min):</label><input type="number" step="0.1" id="modalAtualVc" class="form-control" placeholder="180"></div>
-              <div class="form-group"><label>RPM:</label><input type="number" step="1" id="modalAtualRpm" class="form-control" placeholder="1200"></div>
-            </div>
             <div class="grid grid-3" style="margin-top: 0.35rem;">
               <div class="form-group">
                 <label>Vida:</label>
@@ -1208,22 +1145,8 @@
           <div style="background: var(--viemar-orange-light); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--viemar-orange-border);">
             <h4 style="font-size: 0.75rem; color: var(--viemar-orange); margin-bottom: 0.4rem; font-weight: 700;">Nova Ferramenta</h4>
             <div class="form-group">
-              <label>Codigo da Ferramenta:</label>
+              <label>Codigo Proposto:</label>
               <input type="text" id="modalFerrTeste" class="form-control" placeholder="Ex: ANHX1607" required>
-            </div>
-            <div class="grid grid-2" style="margin-top: 0.35rem;">
-              <div class="form-group"><label>Classe (insertos):</label><input type="text" id="modalClasseFerramenta" class="form-control" placeholder="Ex: IC907, GC4330"></div>
-              <div class="form-group"><label>Perfil / Quebra-cavaco:</label><input type="text" id="modalPerfilQuebraCavaco" class="form-control" placeholder="Ex: PM, MF, chipbreaker"></div>
-            </div>
-            <div class="form-group" style="margin-top: 0.35rem;">
-              <label>Descricao da Ferramenta:</label>
-              <textarea id="modalFerrTesteDesc" class="form-control" rows="2" placeholder="Descreva a nova ferramenta proposta"></textarea>
-            </div>
-            <div class="grid grid-4" style="margin-top: 0.35rem;">
-              <div class="form-group"><label>Avanco rec.:</label><input type="number" step="0.001" id="modalRecAvanco" class="form-control" placeholder="0.25"></div>
-              <div class="form-group"><label>AP rec. (mm):</label><input type="number" step="0.01" id="modalRecAp" class="form-control" placeholder="2.5"></div>
-              <div class="form-group"><label>Vc rec.:</label><input type="number" step="0.1" id="modalRecVc" class="form-control" placeholder="220"></div>
-              <div class="form-group"><label>RPM rec.:</label><input type="number" step="1" id="modalRecRpm" class="form-control" placeholder="1400"></div>
             </div>
             <div class="grid grid-3" style="margin-top: 0.35rem;">
               <div class="form-group">
@@ -1255,31 +1178,14 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Retorno Esperado</label>
-            <input type="text" id="modalRetornoEsperado" class="form-control" placeholder="Ex: menor CPP e vida util maior">
-          </div>
-        </div>
-
-        <div class="grid grid-2" style="margin-top: 0.75rem;">
-          <div class="form-group">
-            <label>Motivo do Teste <span class="required">*</span></label>
-            <textarea id="modalJustificativa" class="form-control" rows="3" placeholder="Descreva por que o teste deve ser feito" required></textarea>
-          </div>
-          <div class="form-group">
-            <label>Indicador que pretende atacar <span class="required">*</span></label>
-            <div class="checkbox-grid checkbox-grid-2">
-              <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Reducao de Custo"> Reducao de Custo</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Padronizacao"> Padronizacao</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Melhoria de Cavaco"> Melhoria de Cavaco</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Reducao de Tempo de Ciclo"> Reducao de Tempo de Ciclo</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Robustez"> Robustez</label>
-            </div>
+            <label>Objetivo</label>
+            <input type="text" id="modalJustificativa" class="form-control" placeholder="Reducao de custo">
           </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem;">
           <button type="button" class="btn btn-secondary" onclick="fecharModalNovaSolicitacao()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Enviar para Analise Tecnica</button>
+          <button type="submit" class="btn btn-primary">Cadastrar Solicitacao D-2</button>
         </div>
       </form>
     </div>

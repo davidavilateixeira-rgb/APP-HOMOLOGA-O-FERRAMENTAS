@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fechamento, Validação & Transição de Estoque | Engenharia de Usinagem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand-wrapper">
+        <div class="brand-icon" style="background: linear-gradient(135deg, var(--accent-purple), #6d28d9);">📊</div>
+        <div class="brand-info">
+          <h1>ENGENHARIA DE USINAGEM</h1>
+          <p>Laudo Técnico de Fechamento, Análise de ROI & Trava de Abastecimento</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary no-print" onclick="window.location.href='index.html'">⬅️ Portal Hub</button>
+        <button class="btn btn-primary no-print" onclick="window.print()">🖨️ Gerar PDF do Fechamento</button>
+      </div>
+    </header>
+
+    <form id="formFechamento" onsubmit="event.preventDefault();">
+      
+      <!-- Card 1: Identificação do Teste -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">1. Dados do Teste Finalizado</h2>
+          <span class="badge badge-purple">Laudo Técnico</span>
+        </div>
+        
+        <div class="grid grid-4">
+          <div class="form-group">
+            <label for="numLaudo">Nº do Teste / Laudo:</label>
+            <input type="text" id="numLaudo" class="form-control" placeholder="TESTE-015/2026" required>
+          </div>
+          <div class="form-group">
+            <label for="dataFechamento">Data de Conclusão:</label>
+            <input type="date" id="dataFechamento" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="pontoFocal">Ponto Focal (Engenharia):</label>
+            <input type="text" id="pontoFocal" class="form-control" placeholder="Responsável Técnico" required>
+          </div>
+          <div class="form-group">
+            <label for="fornecedorTestado">Fornecedor / Marca:</label>
+            <input type="text" id="fornecedorTestado" class="form-control" placeholder="Ex: Walter / Sandvik" required>
+          </div>
+        </div>
+
+        <div class="grid grid-3" style="margin-top: 1rem;">
+          <div class="form-group">
+            <label for="pecaLaudo">Peça / Operação:</label>
+            <input type="text" id="pecaLaudo" class="form-control" placeholder="Flange 120 / Desbaste Face" required>
+          </div>
+          <div class="form-group">
+            <label for="ferrAtualLaudo">Ferramenta Atual (Linha):</label>
+            <input type="text" id="ferrAtualLaudo" class="form-control" placeholder="Código Atual" required>
+          </div>
+          <div class="form-group">
+            <label for="ferrTesteLaudo">Ferramenta Testada:</label>
+            <input type="text" id="ferrTesteLaudo" class="form-control" placeholder="Código Novo" required>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 2: Comparativo Técnico & Econômico (CPP) -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">2. Resultados Técnicos & Custo por Peça (CPP)</h2>
+          <span class="badge badge-emerald">Cálculo Automático</span>
+        </div>
+
+        <div class="grid grid-2">
+          <!-- Baseline Atual -->
+          <div style="background: rgba(31, 41, 55, 0.5); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <h3 style="color: #93c5fd; font-size: 0.95rem; margin-bottom: 0.75rem;">🔵 Ferramenta Atual</h3>
+            
+            <div class="form-group">
+              <label for="precoAtual">Preço Unitário da Ferramenta/Inserto (R$):</label>
+              <input type="number" step="0.01" id="precoAtual" class="form-control" placeholder="Ex: 40.00" oninput="calcularCPP()" required>
+            </div>
+            <div class="grid grid-2" style="margin-top: 0.5rem;">
+              <div class="form-group">
+                <label for="arestasAtual">Nº Arestas Úteis:</label>
+                <input type="number" id="arestasAtual" class="form-control" value="4" oninput="calcularCPP()" required>
+              </div>
+              <div class="form-group">
+                <label for="vidaRealAtual">Peças por Aresta:</label>
+                <input type="number" id="vidaRealAtual" class="form-control" placeholder="Ex: 80" oninput="calcularCPP()" required>
+              </div>
+            </div>
+            <div style="margin-top: 0.75rem; padding: 0.5rem; background: #111827; border-radius: 4px;">
+              <div style="font-size: 0.75rem; color: #9ca3af;">CPP Atual (Custo/Peça):</div>
+              <div style="font-size: 1.2rem; font-weight: bold; color: #f9fafb;" id="cppAtualDisplay">R$ 0,000</div>
+            </div>
+          </div>
+
+          <!-- Nova Ferramenta -->
+          <div style="background: rgba(31, 41, 55, 0.5); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid rgba(59, 130, 246, 0.3);">
+            <h3 style="color: #60a5fa; font-size: 0.95rem; margin-bottom: 0.75rem;">🟡 Nova Ferramenta Testada</h3>
+            
+            <div class="form-group">
+              <label for="precoTeste">Preço Unitário Proposto (R$):</label>
+              <input type="number" step="0.01" id="precoTeste" class="form-control" placeholder="Ex: 35.00" oninput="calcularCPP()" required>
+            </div>
+            <div class="grid grid-2" style="margin-top: 0.5rem;">
+              <div class="form-group">
+                <label for="arestasTeste">Nº Arestas Úteis:</label>
+                <input type="number" id="arestasTeste" class="form-control" value="4" oninput="calcularCPP()" required>
+              </div>
+              <div class="form-group">
+                <label for="vidaRealTeste">Peças Reais Obtidas/Aresta:</label>
+                <input type="number" id="vidaRealTeste" class="form-control" placeholder="Ex: 130" oninput="calcularCPP()" required>
+              </div>
+            </div>
+            <div style="margin-top: 0.75rem; padding: 0.5rem; background: #111827; border-radius: 4px;">
+              <div style="font-size: 0.75rem; color: #9ca3af;">CPP Novo (Custo/Peça):</div>
+              <div style="font-size: 1.2rem; font-weight: bold; color: #34d399;" id="cppNovoDisplay">R$ 0,000</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Volume de Produção & Ganhos Anuais -->
+        <div class="grid grid-3" style="margin-top: 1.25rem;">
+          <div class="form-group">
+            <label for="volumeMensalPecas">Volume Mensal de Produção (peças/mês):</label>
+            <input type="number" id="volumeMensalPecas" class="form-control" placeholder="Ex: 5000" oninput="calcularCPP()" required>
+          </div>
+          <div class="form-group">
+            <label>Economia Estimada por Mês:</label>
+            <div id="economiaMensalDisplay" class="form-control" style="background: #111827; font-weight: bold; color: #34d399;">R$ 0,00 / mês</div>
+          </div>
+          <div class="form-group">
+            <label>Economia Estimada por Ano:</label>
+            <div id="economiaAnualDisplay" class="form-control" style="background: #111827; font-weight: bold; color: #34d399; font-size: 1.05rem;">R$ 0,00 / ano</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 3: TRAVA CRÍTICA DE ABASTECIMENTO & LEAD TIME -->
+      <section class="card" style="border: 2px solid var(--accent-amber);">
+        <div class="card-header">
+          <h2 class="card-title" style="color: #fbbf24;">
+            ⚠️ 3. Trava Crítica de Abastecimento, Lead Time & Transição de Estoque
+          </h2>
+          <span class="badge badge-amber">Segurança de Fábrica</span>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Esta análise impede a homologação precipitada de ferramentas sem garantia de fornecimento contínuo, prevenindo paradas de fábrica por falta de ferramentas.
+        </p>
+
+        <div class="grid grid-3">
+          <div class="form-group">
+            <label for="leadTimeDias">Lead Time do Novo Fornecedor (Dias):</label>
+            <input type="number" id="leadTimeDias" class="form-control" placeholder="Ex: 20 dias" oninput="calcularRiscoEstoque()" required>
+          </div>
+          <div class="form-group">
+            <label for="estoqueAtualAlmox">Saldo Atual em Estoque da Ferramenta Antiga (Qtd):</label>
+            <input type="number" id="estoqueAtualAlmox" class="form-control" placeholder="Ex: 45 insertos" oninput="calcularRiscoEstoque()" required>
+          </div>
+          <div class="form-group">
+            <label for="consumoMensalInsertos">Consumo Mensal Médio (Insertos/Mês):</label>
+            <input type="number" id="consumoMensalInsertos" class="form-control" placeholder="Ex: 30 insertos" oninput="calcularRiscoEstoque()" required>
+          </div>
+        </div>
+
+        <!-- Indicador Visual de Risco e Margem -->
+        <div class="kpi-container" style="margin-top: 1.25rem;">
+          <div class="kpi-box">
+            <div class="kpi-label">Autonomia do Estoque Antigo</div>
+            <div class="kpi-value" id="kpiAutonomiaDias">0 dias</div>
+            <div class="kpi-subtext">Tempo até o estoque antigo zerar</div>
+          </div>
+          <div class="kpi-box" id="boxMargemSeguranca">
+            <div class="kpi-label">Margem de Segurança para Chegada</div>
+            <div class="kpi-value" id="kpiMargemDias">0 dias</div>
+            <div class="kpi-subtext">(Autonomia - Lead Time)</div>
+          </div>
+          <div class="kpi-box" id="boxStatusRisco" style="grid-column: span 1;">
+            <div class="kpi-label">Status da Transição</div>
+            <div class="kpi-value" id="kpiStatusRisco" style="font-size: 1.1rem; padding-top: 0.25rem;">Em Análise</div>
+          </div>
+        </div>
+
+        <!-- Alerta Dinâmico de Risco -->
+        <div id="alertaRuptura" class="alert alert-danger" style="display: none; margin-top: 1rem; margin-bottom: 0;">
+          <div class="alert-icon">🚫</div>
+          <div>
+            <strong>ALERTA DE RUPTURA DE ESTOQUE:</strong> O Lead Time do novo fornecedor é maior que o estoque antigo existente na fábrica! 
+            <strong>A virada de linha é BLOQUEADA</strong> até que o fornecedor garanta um lote emergencial para cobrir a transição.
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 4: Matriz de Decisão & Parecer Final -->
+      <section class="card" style="border-left: 4px solid var(--accent-purple);">
+        <div class="card-header">
+          <h2 class="card-title">4. Parecer Final & Homologação da Engenharia</h2>
+          <span class="badge badge-purple">Decisão Oficial</span>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label for="decisaoFinal">Decisão Oficial da Engenharia de Usinagem:</label>
+            <select id="decisaoFinal" class="form-control" style="font-size: 1rem; font-weight: bold;">
+              <option value="HOMOLOGADO">🟢 HOMOLOGADO INTEGRALMENTE (Técnico + Econômico + Estoque Seguro)</option>
+              <option value="BLOQUEADO_SUPRIMENTOS">🟡 APROVADO TECNICAMENTE, MAS BLOQUEADO POR SUPRIMENTOS (Risco de Estoque)</option>
+              <option value="REPROVADO">🔴 REPROVADO (Não atingiu critérios técnicos)</option>
+              <option value="RETESTE">🔵 RETESTE NECESSÁRIO (Teste Inconclusivo)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="obsParecer">Justificativa Técnica do Laudo:</label>
+            <textarea id="obsParecer" class="form-control" placeholder="Descreva os ganhos comprovados, estabilidade do processo e autorização de compra..."></textarea>
+          </div>
+        </div>
+
+        <!-- Checklist de Ações de Transição -->
+        <div style="margin-top: 1.25rem; background: rgba(31, 41, 55, 0.4); padding: 1rem; border-radius: var(--radius-md);">
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">
+            Checklist de Implantação (Se Homologado):
+          </label>
+          <div class="choice-group">
+            <label class="choice-label"><input type="checkbox"> Código cadastrado no Gerenciador de Ferramentas / ERP</label>
+            <label class="choice-label"><input type="checkbox"> Ficha de montagem atualizada no Preset</label>
+            <label class="choice-label"><input type="checkbox"> Programa CNC ajustado com parâmetros validados</label>
+            <label class="choice-label"><input type="checkbox"> 1º Pedido de compra emitido</label>
+            <label class="choice-label"><input type="checkbox"> Bloqueio de novas compras do item antigo</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Bar Action Buttons -->
+      <div class="no-print" style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; margin-bottom: 3rem;">
+        <button type="button" class="btn btn-secondary" onclick="copiarLaudoWhatsApp()">📱 Copiar Parecer p/ WhatsApp</button>
+        <button type="button" class="btn btn-success" onclick="salvarLaudo()">💾 Salvar Laudo</button>
+        <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Gerar PDF do Fechamento</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('dataFechamento').value = hoje;
+      carregarLaudo();
+    });
+
+    function calcularCPP() {
+      // Ferramenta Atual
+      const precoAtual = parseFloat(document.getElementById('precoAtual').value) || 0;
+      const arestasAtual = parseFloat(document.getElementById('arestasAtual').value) || 1;
+      const vidaAtual = parseFloat(document.getElementById('vidaRealAtual').value) || 0;
+      
+      const cppAtual = (vidaAtual > 0 && arestasAtual > 0) ? (precoAtual / (arestasAtual * vidaAtual)) : 0;
+      document.getElementById('cppAtualDisplay').textContent = `R$ ${cppAtual.toFixed(3)}`;
+
+      // Ferramenta Teste
+      const precoTeste = parseFloat(document.getElementById('precoTeste').value) || 0;
+      const arestasTeste = parseFloat(document.getElementById('arestasTeste').value) || 1;
+      const vidaTeste = parseFloat(document.getElementById('vidaRealTeste').value) || 0;
+
+      const cppTeste = (vidaTeste > 0 && arestasTeste > 0) ? (precoTeste / (arestasTeste * vidaTeste)) : 0;
+      document.getElementById('cppNovoDisplay').textContent = `R$ ${cppTeste.toFixed(3)}`;
+
+      // Volume & Economia
+      const volume = parseFloat(document.getElementById('volumeMensalPecas').value) || 0;
+      if (volume > 0 && cppAtual > 0 && cppTeste > 0) {
+        const economUnit = cppAtual - cppTeste;
+        const econMensal = economUnit * volume;
+        const econAnual = econMensal * 12;
+
+        document.getElementById('economiaMensalDisplay').textContent = `R$ ${econMensal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} / mês`;
+        document.getElementById('economiaAnualDisplay').textContent = `R$ ${econAnual.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} / ano`;
+      }
+    }
+
+    function calcularRiscoEstoque() {
+      const leadTime = parseFloat(document.getElementById('leadTimeDias').value) || 0;
+      const estoque = parseFloat(document.getElementById('estoqueAtualAlmox').value) || 0;
+      const consumoMes = parseFloat(document.getElementById('consumoMensalInsertos').value) || 0;
+
+      const kpiAutonomia = document.getElementById('kpiAutonomiaDias');
+      const kpiMargem = document.getElementById('kpiMargemDias');
+      const boxMargem = document.getElementById('boxMargemSeguranca');
+      const kpiStatus = document.getElementById('kpiStatusRisco');
+      const boxStatus = document.getElementById('boxStatusRisco');
+      const alerta = document.getElementById('alertaRuptura');
+
+      if (consumoMes > 0 && estoque >= 0) {
+        const consumoDia = consumoMes / 30;
+        const autonomiaDias = Math.floor(estoque / consumoDia);
+        kpiAutonomia.textContent = `${autonomiaDias} dias`;
+
+        const margem = autonomiaDias - leadTime;
+        kpiMargem.textContent = `${margem >= 0 ? '+' : ''}${margem} dias`;
+
+        if (margem >= 15) {
+          boxMargem.className = 'kpi-box success';
+          boxStatus.className = 'kpi-box success';
+          kpiStatus.textContent = '🟢 TRANSIÇÃO SEGURA';
+          kpiStatus.style.color = '#34d399';
+          alerta.style.display = 'none';
+        } else if (margem >= 5) {
+          boxMargem.className = 'kpi-box warning';
+          boxStatus.className = 'kpi-box warning';
+          kpiStatus.textContent = '🟡 ATENÇÃO / ALINHAR';
+          kpiStatus.style.color = '#fbbf24';
+          alerta.style.display = 'none';
+        } else {
+          boxMargem.className = 'kpi-box danger';
+          boxStatus.className = 'kpi-box danger';
+          kpiStatus.textContent = '🔴 BLOQUEIO: RISCO RUPTURA';
+          kpiStatus.style.color = '#f87171';
+          alerta.style.display = 'flex';
+        }
+      }
+    }
+
+    function copiarLaudoWhatsApp() {
+      const num = document.getElementById('numLaudo').value || 'S/N';
+      const peca = document.getElementById('pecaLaudo').value || 'Peça';
+      const ferr = document.getElementById('ferrTesteLaudo').value || 'Nova Ferramenta';
+      const decisao = document.getElementById('decisaoFinal').options[document.getElementById('decisaoFinal').selectedIndex].text;
+      const econAnual = document.getElementById('economiaAnualDisplay').textContent;
+      const statusEstoque = document.getElementById('kpiStatusRisco').textContent;
+
+      const texto = `🏁 *[LAUDO FINAL DE TESTE] - ${num}*\n` +
+                    `• *Peça / Aplicação:* ${peca}\n` +
+                    `• *Ferramenta:* ${ferr}\n` +
+                    `• *Decisão Engenharia:* ${decisao}\n` +
+                    `• *Economia Projetada:* ${econAnual}\n` +
+                    `• *Transição de Estoque:* ${statusEstoque}\n` +
+                    `_Laudo técnico completo emitido pela Engenharia de Usinagem._`;
+
+      navigator.clipboard.writeText(texto).then(() => {
+        alert('Resumo do Laudo copiado para o WhatsApp!');
+      });
+    }
+
+    function salvarLaudo() {
+      alert('Laudo Técnico salvo com sucesso!');
+    }
+
+    function carregarLaudo() {
+      calcularCPP();
+      calcularRiscoEstoque();
+    }
+  </script>
+</body>
+</html>
