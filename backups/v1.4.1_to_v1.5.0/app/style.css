@@ -1485,7 +1485,7 @@ textarea.form-control {
 /* ========================================================================= */
 /* MODAL SOLICITACAO v1.4.0                                                  */
 /* ========================================================================= */
-.modal-content.modal-wide { max-width: min(1040px, calc(100vw - 2rem)); width: 94%; }
+.modal-content.modal-wide { max-width: 1040px; width: 94%; }
 .form-section { border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.85rem; background: #ffffff; }
 .section-title { font-size: 0.78rem; font-weight: 800; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.65rem; }
 .form-note { display: block; font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; margin-top: 0.25rem; }
@@ -1499,7 +1499,7 @@ textarea.form-control {
 @media (max-width: 900px) { .grid-4, .checkbox-grid-2, .checkbox-grid-3, .checkbox-grid-5 { grid-template-columns: 1fr; } }
 
 /* ========================================================================= */
-/* MODAL AJUSTES v1.5.0 - sem scroll horizontal                              */
+/* MODAL AJUSTES v1.4.1 - sem scroll horizontal                              */
 /* ========================================================================= */
 .modal-content,
 .modal-content.modal-wide {
@@ -1529,7 +1529,7 @@ textarea.form-control {
 .modal-wide .grid-4,
 .modal-wide .grid-5,
 .modal-wide .modal-form-grid {
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
 }
 
 .modal-wide .checkbox-grid-2,
@@ -1542,20 +1542,3 @@ textarea.form-control {
   min-width: 0;
   overflow-wrap: anywhere;
 }
-/* ========================================================================= */
-/* BPMN FLOW v1.5.0                                                           */
-/* ========================================================================= */
-.process-flow-card { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
-.process-flow-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.85rem; }
-.process-flow-header h4 { margin: 0; font-size: 0.92rem; font-weight: 800; color: var(--text-main); }
-.process-flow-header p { margin: 0.2rem 0 0; font-size: 0.76rem; color: var(--text-muted); }
-.bpmn-flow { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-.bpmn-node { min-height: 54px; min-width: 116px; max-width: 160px; padding: 0.55rem 0.65rem; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2; font-size: 0.73rem; font-weight: 800; color: var(--text-main); background: #ffffff; border: 1.5px solid #cbd5e1; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08); }
-.bpmn-event { border-radius: 999px; border-color: var(--viemar-orange); color: var(--viemar-orange); }
-.bpmn-event.end { border-width: 3px; }
-.bpmn-task { border-radius: 0.55rem; }
-.bpmn-gateway { min-width: 70px; width: 70px; height: 70px; transform: rotate(45deg); border-color: var(--viemar-orange); background: var(--viemar-orange-light); font-size: 0; }
-.bpmn-gateway::after { content: "GO?"; transform: rotate(-45deg); font-size: 0.78rem; font-weight: 900; }
-.bpmn-arrow { color: var(--viemar-orange); font-weight: 900; font-size: 1.1rem; }
-.bpmn-branches { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; font-size: 0.74rem; color: var(--text-secondary); }
-.bpmn-branches span { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 999px; padding: 0.35rem 0.6rem; }

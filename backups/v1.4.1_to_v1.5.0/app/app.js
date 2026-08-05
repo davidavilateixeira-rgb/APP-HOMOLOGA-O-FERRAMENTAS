@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.5.0 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.4.1 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -32,13 +32,13 @@ const USER_ROLES_CONFIG = {
     avatarBg: '#64748b'
   },
   TECNICO_USINAGEM: {
-    label: 'Técnico Usinagem',
+    label: 'TÃƒÂ©cnico Usinagem',
     role: TOOLFLOW_ROLES.TECNICO,
     badgeStyle: 'background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd;',
     avatarBg: '#64748b'
   },
   TECNICO_MONTAGEM: {
-    label: 'Técnico Montagem',
+    label: 'TÃƒÂ©cnico Montagem',
     role: TOOLFLOW_ROLES.TECNICO,
     badgeStyle: 'background: #fffbeb; color: #d97706; border: 1px solid #fde68a;',
     avatarBg: '#64748b'
@@ -87,11 +87,11 @@ let devflowUsersStore = [...INITIAL_USERS_STORE];
 
 // Definicao das 5 Etapas do Workflow
 const WORKFLOW_STAGES = {
-  STAGE_1_SOLICITACAO: { id: 1, key: 'STAGE_1_SOLICITACAO', label: '1. Solicitação (D-2)', badgeClass: 'badge-blue' },
-  STAGE_2_ANALISE: { id: 2, key: 'STAGE_2_ANALISE', label: '2. An\u00E1lise Engenharia', badgeClass: 'badge-orange' },
+  STAGE_1_SOLICITACAO: { id: 1, key: 'STAGE_1_SOLICITACAO', label: '1. Solicitacao (D-2)', badgeClass: 'badge-blue' },
+  STAGE_2_ANALISE: { id: 2, key: 'STAGE_2_ANALISE', label: '2. Analise Engenharia', badgeClass: 'badge-orange' },
   STAGE_3_AGENDAMENTO: { id: 3, key: 'STAGE_3_AGENDAMENTO', label: '3. Agendamento Visita', badgeClass: 'badge-amber' },
-  STAGE_4_EXECUCAO: { id: 4, key: 'STAGE_4_EXECUCAO', label: '4. Teste em M\u00E1quina', badgeClass: 'badge-blue' },
-  STAGE_5_VALIDACAO: { id: 5, key: 'STAGE_5_VALIDACAO', label: '5. Valida\u00E7\u00E3o & Estoque', badgeClass: 'badge-green' }
+  STAGE_4_EXECUCAO: { id: 4, key: 'STAGE_4_EXECUCAO', label: '4. Teste em Maquina', badgeClass: 'badge-blue' },
+  STAGE_5_VALIDACAO: { id: 5, key: 'STAGE_5_VALIDACAO', label: '5. Validacao & Estoque', badgeClass: 'badge-green' }
 };
 
 // Banco de Dados de Testes
@@ -134,7 +134,7 @@ let testDataStore = [
       dataAnalise: '2026-08-02',
       responsavel: 'Oscar (Engenharia ADM)',
       decisao: 'APROVADO',
-      parecerTexto: 'Aprovado para a quinta-feira quinzenal. Lote de 500 pe\u00E7as confirmado com PCP.',
+      parecerTexto: 'Aprovado para a quinta-feira quinzenal. Lote de 500 pecas confirmado com PCP.',
       tecnicosEscalados: 'Filipe (1o Turno) e Charles (2o Turno)'
     },
 
@@ -152,8 +152,8 @@ let testDataStore = [
       cicloRealMedido: 132,
       parametros: { vc: 220, rpm: 1400, fz: 0.18, vf: 1260, ap: 2.5, ae: 40.0, balanco: 85 },
       registrosArestas: [
-        { aresta: '#1', turno: '1o Turno', tecnico: 'Filipe', pecas: 65, ra: '1.4 µm', desgaste: 'Desgaste VB normal ~0.15mm' },
-        { aresta: '#1 (Cont.)', turno: '2o Turno', tecnico: 'Charles', pecas: 60, ra: '1.5 µm', desgaste: 'Fim de vida VB=0.30mm sem quebras' }
+        { aresta: '#1', turno: '1o Turno', tecnico: 'Filipe', pecas: 65, ra: '1.4 Ã‚Âµm', desgaste: 'Desgaste VB normal ~0.15mm' },
+        { aresta: '#1 (Cont.)', turno: '2o Turno', tecnico: 'Charles', pecas: 60, ra: '1.5 Ã‚Âµm', desgaste: 'Fim de vida VB=0.30mm sem quebras' }
       ],
       totalPecas: 125,
       vidaMediaAresta: 125,
@@ -175,17 +175,17 @@ let testDataStore = [
     },
 
     timeline: [
-      { dataHora: '2026-08-01 14:20', usuario: 'Roberto (Preset)', acao: 'Solicitação Criada (D-2)', detalhe: 'Proposta submetida para análise.' },
+      { dataHora: '2026-08-01 14:20', usuario: 'Roberto (Preset)', acao: 'Solicitacao Criada (D-2)', detalhe: 'Proposta submetida para analise.' },
       { dataHora: '2026-08-02 10:15', usuario: 'Oscar (Engenharia ADM)', acao: 'Viabilidade Aprovada (GO)', detalhe: 'Liberado para agendamento quinzenal.' },
       { dataHora: '2026-08-03 09:00', usuario: 'Roberto (Preset)', acao: 'Visita Agendada', detalhe: 'Agendado para 06/08 as 08:30 no Preset.' },
-      { dataHora: '2026-08-06 08:30', usuario: 'Filipe (Técnico 1ºT)', acao: 'Início em Máquina', detalhe: '65 peças usinadas no 1º turno.' },
-      { dataHora: '2026-08-06 17:40', usuario: 'Charles (T\u00E9cnico 2\u00BAT)', acao: 'Conclus\u00E3o 2\u00BA Turno', detalhe: 'Total de 125 pe\u00E7as conclu\u00EDdo com sucesso.' }
+      { dataHora: '2026-08-06 08:30', usuario: 'Filipe (Tecnico 1oT)', acao: 'Inicio em Maquina', detalhe: '65 pecas usinadas no 1o turno.' },
+      { dataHora: '2026-08-06 17:40', usuario: 'Charles (Tecnico 2oT)', acao: 'Conclusao 2o Turno', detalhe: 'Total de 125 pecas concluido com sucesso.' }
     ],
 
     comentarios: [
-      { dataHora: '2026-08-01 14:25', usuario: 'Roberto (Preset)', texto: 'Fornecedor enviar\u00E1 10 pastilhas e 1 corpo bonificado.' },
-      { dataHora: '2026-08-02 10:30', usuario: 'Oscar (Engenharia ADM)', texto: 'Agendamento alinhado para a primeira quinta do m\u00EAs.' },
-      { dataHora: '2026-08-06 14:00', usuario: 'Filipe (Técnico 1ºT)', texto: 'Acabamento superficial ficou excelente (Ra 1.4).' }
+      { dataHora: '2026-08-01 14:25', usuario: 'Roberto (Preset)', texto: 'Fornecedor enviara 10 pastilhas e 1 corpo bonificado.' },
+      { dataHora: '2026-08-02 10:30', usuario: 'Oscar (Engenharia ADM)', texto: 'Agendamento alinhado para a primeira quinta do mes.' },
+      { dataHora: '2026-08-06 14:00', usuario: 'Filipe (Tecnico 1oT)', texto: 'Acabamento superficial ficou excelente (Ra 1.4).' }
     ]
   },
   {
@@ -229,7 +229,7 @@ let testDataStore = [
     chaoDeFabrica: { parametros: {}, registrosArestas: [] },
     fechamento: {},
     timeline: [
-      { dataHora: '2026-08-03 16:40', usuario: 'Gerenciador', acao: 'Solicitação Criada (D-2)', detalhe: 'Aguardando parecer da Engenharia.' }
+      { dataHora: '2026-08-03 16:40', usuario: 'Gerenciador', acao: 'Solicitacao Criada (D-2)', detalhe: 'Aguardando parecer da Engenharia.' }
     ],
     comentarios: []
   },
@@ -283,7 +283,7 @@ let testDataStore = [
       cicloRealMedido: 58,
       parametros: { vc: 260, rpm: 1800, fz: 0.15, vf: 270, ap: 1.0, ae: 1.0, balanco: 50 },
       registrosArestas: [
-        { aresta: '#1', turno: '1o Turno', tecnico: 'Filipe', pecas: 165, ra: '0.8 µm', desgaste: 'Excelente' }
+        { aresta: '#1', turno: '1o Turno', tecnico: 'Filipe', pecas: 165, ra: '0.8 Ã‚Âµm', desgaste: 'Excelente' }
       ],
       totalPecas: 165,
       vidaMediaAresta: 165,
@@ -300,16 +300,16 @@ let testDataStore = [
       margemSegurancaDias: -34,
       statusEstoque: 'BLOQUEADO_RUPTURA',
       decisaoFinal: 'BLOQUEADO_ESTOQUE',
-      justificativaFinal: 'Aprovado tecnicamente com ganho de 50%, por\u00E9m bloqueado por suprimentos devido a lead time de 45 dias contra 11 dias de estoque antigo. Virada suspensa at\u00E9 lote de seguran\u00E7a.'
+      justificativaFinal: 'Aprovado tecnicamente com ganho de 50%, porem bloqueado por suprimentos devido a lead time de 45 dias contra 11 dias de estoque antigo. Virada suspensa ate lote de seguranca.'
     },
     timeline: [
-      { dataHora: '2026-07-28 09:00', usuario: 'Jonathan', acao: 'Solicitação Criada', detalhe: 'Torneamento acabamento eixo 8620.' },
+      { dataHora: '2026-07-28 09:00', usuario: 'Jonathan', acao: 'Solicitacao Criada', detalhe: 'Torneamento acabamento eixo 8620.' },
       { dataHora: '2026-07-29 14:00', usuario: 'Oscar', acao: 'Viabilidade Aprovada', detalhe: 'Liberado para teste.' },
-      { dataHora: '2026-07-30 16:00', usuario: 'Filipe', acao: 'Execução Concluída', detalhe: '165 peças usinadas com Ra 0.8.' },
+      { dataHora: '2026-07-30 16:00', usuario: 'Filipe', acao: 'Execucao Concluida', detalhe: '165 pecas usinadas com Ra 0.8.' },
       { dataHora: '2026-08-01 10:00', usuario: 'Jonathan', acao: 'Bloqueio por Suprimentos', detalhe: 'Lead time de 45 dias gera risco critico de ruptura.' }
     ],
     comentarios: [
-      { dataHora: '2026-08-01 10:30', usuario: 'Jonathan', texto: 'Solicitado ao fornecedor remessa a\u00E9rea de 30 pe\u00E7as para cobrir o lead time.' }
+      { dataHora: '2026-08-01 10:30', usuario: 'Jonathan', texto: 'Solicitado ao fornecedor remessa aerea de 30 pecas para cobrir o lead time.' }
     ]
   }
 ];
@@ -386,7 +386,7 @@ function realizarLoginTela() {
 
     entrarNoApp(user);
   } else {
-    alert('Usuário não encontrado na base. Solicite seu cadastro ao Administrador (David) ou acesse como Visitante.');
+    alert('UsuÃƒÂ¡rio nÃƒÂ£o encontrado na base. Solicite seu cadastro ao Administrador (David) ou acesse como Visitante.');
   }
 }
 
@@ -485,13 +485,13 @@ function aplicarPermissoesUI() {
       wfBanner.innerHTML = '<span>Perfil Visitante / Qualidade: Modo de visualizacao e consulta (somente leitura).</span>';
     } else if (isAdmin) {
       wfBanner.className = 'role-banner role-banner-editor no-print';
-      wfBanner.innerHTML = '<span>Perfil Engenharia ADM: Acesso total a avalia\u00E7\u00F5es, agendamentos, custos e laudos.</span>';
+      wfBanner.innerHTML = '<span>Perfil Engenharia ADM: Acesso total a avaliacoes, agendamentos, custos e laudos.</span>';
     } else if (isTecnico) {
       wfBanner.className = 'role-banner role-banner-editor no-print';
-      wfBanner.innerHTML = '<span>Perfil T\u00E9cnico de F\u00E1brica: Acompanhamento de usinagem e apontamento de arestas/desgastes.</span>';
+      wfBanner.innerHTML = '<span>Perfil Tecnico de Fabrica: Acompanhamento de usinagem e apontamento de arestas/desgastes.</span>';
     } else {
       wfBanner.className = 'role-banner role-banner-editor no-print';
-      wfBanner.innerHTML = '<span>Perfil Solicitante / Fornecedor: Abertura de solicitação e consulta do workflow em tempo real.</span>';
+      wfBanner.innerHTML = '<span>Perfil Solicitante / Fornecedor: Abertura de solicitacao e consulta do workflow em tempo real.</span>';
     }
   }
 }
@@ -511,17 +511,17 @@ function criarNovoUsuarioForm() {
   const papelKey = papelSelect.value;
 
   if (!nome || !email || !senha) {
-    alert('Por favor, preencha todos os campos obrigatórios.');
+    alert('Por favor, preencha todos os campos obrigatÃƒÂ³rios.');
     return;
   }
 
   if (senha.length < 6) {
-    alert('A senha deve possuir no mínimo 6 caracteres.');
+    alert('A senha deve possuir no mÃƒÂ­nimo 6 caracteres.');
     return;
   }
 
   if (devflowUsersStore.some(u => u.email.toLowerCase() === email)) {
-    alert('Este e-mail já está cadastrado no sistema.');
+    alert('Este e-mail jÃƒÂ¡ estÃƒÂ¡ cadastrado no sistema.');
     return;
   }
 
@@ -541,14 +541,14 @@ function criarNovoUsuarioForm() {
   devflowUsersStore.push(novoUsuario);
   salvarUsuariosLocais();
 
-  // Limpar formulário
+  // Limpar formulÃƒÂ¡rio
   nomeInput.value = '';
   emailInput.value = '';
   senhaInput.value = '';
   papelSelect.value = 'TECNICO_USINAGEM';
 
   renderizarListaUsuariosCadastrados();
-  alert(`Usuário "${nome}" (${roleConfig.label}) cadastrado com sucesso!`);
+  alert(`UsuÃƒÂ¡rio "${nome}" (${roleConfig.label}) cadastrado com sucesso!`);
 }
 
 function renderizarListaUsuariosCadastrados() {
@@ -564,7 +564,7 @@ function renderizarListaUsuariosCadastrados() {
 
   devflowUsersStore.forEach(u => {
     const roleConfig = USER_ROLES_CONFIG[u.roleKey] || USER_ROLES_CONFIG[u.role] || {
-      label: u.roleTitle || 'Usuário',
+      label: u.roleTitle || 'UsuÃƒÂ¡rio',
       badgeStyle: 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;',
       avatarBg: u.avatarBg || '#64748b'
     };
@@ -582,7 +582,7 @@ function renderizarListaUsuariosCadastrados() {
         <div class="user-info-text">
           <div class="user-name-title">
             <span>${u.name}</span>
-            ${isCurrent ? '<span class="badge-voce">(você)</span>' : ''}
+            ${isCurrent ? '<span class="badge-voce">(vocÃƒÂª)</span>' : ''}
           </div>
           <div class="user-email-subtitle">${u.email}</div>
         </div>
@@ -591,13 +591,13 @@ function renderizarListaUsuariosCadastrados() {
       <div style="display: flex; align-items: center; gap: 0.5rem;">
         <span class="user-role-badge" style="${roleConfig.badgeStyle}">${roleConfig.label}</span>
         <div class="user-actions-group">
-          <button type="button" class="btn-icon-user" title="Editar Usuário" onclick="abrirModalEditarUsuario('${u.id}')">
+          <button type="button" class="btn-icon-user" title="Editar UsuÃƒÂ¡rio" onclick="abrirModalEditarUsuario('${u.id}')">
             <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
           </button>
           <button type="button" class="btn-icon-user" title="Alterar Senha" onclick="abrirModalAlterarSenha('${u.id}')">
             <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
           </button>
-          <button type="button" class="btn-desativar-user" title="Desativar Usuário" onclick="desativarUsuario('${u.id}')">
+          <button type="button" class="btn-desativar-user" title="Desativar UsuÃƒÂ¡rio" onclick="desativarUsuario('${u.id}')">
             Desativar
           </button>
         </div>
@@ -654,7 +654,7 @@ function salvarEdicaoUsuario() {
     document.getElementById('currentUserAvatar').textContent = user.name.charAt(0).toUpperCase();
   }
 
-  alert(`Usuário "${nome}" atualizado com sucesso!`);
+  alert(`UsuÃƒÂ¡rio "${nome}" atualizado com sucesso!`);
 }
 
 function abrirModalAlterarSenha(userId) {
@@ -677,7 +677,7 @@ function salvarNovaSenhaUsuario() {
   const novaSenha = document.getElementById('novaSenhaInput').value;
 
   if (!novaSenha || novaSenha.length < 6) {
-    alert('A nova senha deve ter no mínimo 6 caracteres.');
+    alert('A nova senha deve ter no mÃƒÂ­nimo 6 caracteres.');
     return;
   }
 
@@ -696,15 +696,15 @@ function desativarUsuario(userId) {
   if (!user) return;
 
   if (currentUser && (currentUser.id === user.id || currentUser.email === user.email)) {
-    alert('Você não pode desativar seu próprio usuário em uso.');
+    alert('VocÃƒÂª nÃƒÂ£o pode desativar seu prÃƒÂ³prio usuÃƒÂ¡rio em uso.');
     return;
   }
 
-  if (confirm(`Tem certeza que deseja desativar o usuário "${user.name}" (${user.email})?`)) {
+  if (confirm(`Tem certeza que deseja desativar o usuÃƒÂ¡rio "${user.name}" (${user.email})?`)) {
     devflowUsersStore = devflowUsersStore.filter(u => u.id !== userId);
     salvarUsuariosLocais();
     renderizarListaUsuariosCadastrados();
-    alert(`Usuário "${user.name}" desativado com sucesso.`);
+    alert(`UsuÃƒÂ¡rio "${user.name}" desativado com sucesso.`);
   }
 }
 
@@ -976,7 +976,7 @@ function preencherCamposWorkflow(teste) {
   document.getElementById('wfSolAtualAp').value = parametroWorkflow(parametrosAtuais.ap, 'mm');
   document.getElementById('wfSolAtualVc').value = parametroWorkflow(parametrosAtuais.vc, 'm/min');
   document.getElementById('wfSolAtualRpm').value = parametroWorkflow(parametrosAtuais.rpm, 'rpm');
-  document.getElementById('wfSolVidaAtual').value = `${s.vidaAtual} pe\u00E7as`;
+  document.getElementById('wfSolVidaAtual').value = `${s.vidaAtual} pecas`;
   document.getElementById('wfSolCicloAtual').value = `${s.cicloAtual} s`;
   document.getElementById('wfSolCustoAtual').value = `R$ ${parseFloat(s.custoAtual || 0).toFixed(2)}`;
 
@@ -988,7 +988,7 @@ function preencherCamposWorkflow(teste) {
   document.getElementById('wfSolRecAp').value = parametroWorkflow(parametrosRecomendados.ap, 'mm');
   document.getElementById('wfSolRecVc').value = parametroWorkflow(parametrosRecomendados.vc, 'm/min');
   document.getElementById('wfSolRecRpm').value = parametroWorkflow(parametrosRecomendados.rpm, 'rpm');
-  document.getElementById('wfSolMetaVida').value = `${s.metaVida} pe\u00E7as`;
+  document.getElementById('wfSolMetaVida').value = `${s.metaVida} pecas`;
   document.getElementById('wfSolAmostras').value = `${s.amostrasBonificadas} un`;
   document.getElementById('wfSolPrecoTeste').value = `R$ ${parseFloat(s.precoTeste || 0).toFixed(2)}`;
 
@@ -1071,7 +1071,7 @@ function renderizarTabelaArestas(registros) {
       <td><strong>${r.aresta}</strong></td>
       <td>${r.turno}</td>
       <td>${r.tecnico}</td>
-      <td><strong>${r.pecas} pe\u00E7as</strong></td>
+      <td><strong>${r.pecas} pecas</strong></td>
       <td>${r.ra}</td>
       <td>${r.desgaste}</td>
     `;
@@ -1083,10 +1083,10 @@ function adicionarLinhaAresta() {
   const teste = testDataStore.find(t => t.id === currentSelectedTestId);
   if (!teste) return;
 
-  const pecas = prompt('Informe a quantidade de peças usinadas nesta aresta/turno:', '60');
+  const pecas = prompt('Informe a quantidade de pecas usinadas nesta aresta/turno:', '60');
   if (!pecas) return;
 
-  const ra = prompt('Informe a rugosidade Ra medida (ex: 1.4 µm):', '1.4 µm') || '1.4 µm';
+  const ra = prompt('Informe a rugosidade Ra medida (ex: 1.4 Ã‚Âµm):', '1.4 Ã‚Âµm') || '1.4 Ã‚Âµm';
   const desgaste = prompt('Estado de desgaste (VB / Aresta):', 'Desgaste VB normal') || 'OK';
 
   if (!teste.chaoDeFabrica.registrosArestas) teste.chaoDeFabrica.registrosArestas = [];
@@ -1109,7 +1109,7 @@ function adicionarLinhaAresta() {
   teste.chaoDeFabrica.vidaMediaAresta = media;
   teste.chaoDeFabrica.variacaoVidaPorc = `${variacao >= 0 ? '+' : ''}${variacao}%`;
 
-  registrarTimeline(teste, 'Apontamento de Usinagem', `${pecas} peças usinadas por ${currentUser.name}.`);
+  registrarTimeline(teste, 'Apontamento de Usinagem', `${pecas} pecas usinadas por ${currentUser.name}.`);
   salvarDadosLocais();
   preencherCamposWorkflow(teste);
 }
@@ -1137,11 +1137,11 @@ function salvarDecisaoEngenharia() {
   } else if (decisao === 'REPROVADO') {
     teste.stage = 'STAGE_2_ANALISE';
     teste.statusGeral = 'REPROVADO';
-    registrarTimeline(teste, 'Viabilidade Recusada (NO-GO)', `Solicitação inviável tecnicamente. Parecer disponível ao solicitante.`);
+    registrarTimeline(teste, 'Viabilidade Recusada (NO-GO)', `Solicitacao inviavel tecnicamente. Parecer disponivel ao solicitante.`);
   } else {
     teste.stage = 'STAGE_2_ANALISE';
     teste.statusGeral = 'EM_REVISAO';
-    registrarTimeline(teste, 'Solicitação em Revisão', `Engenharia solicitou complemento de dados ao solicitante.`);
+    registrarTimeline(teste, 'Solicitacao em Revisao', `Engenharia solicitou complemento de dados ao solicitante.`);
   }
 
   salvarDadosLocais();
@@ -1193,9 +1193,9 @@ function salvarChaoDeFabrica() {
   teste.stage = 'STAGE_5_VALIDACAO';
   teste.statusGeral = 'AGUARDANDO_FECHAMENTO';
 
-  registrarTimeline(teste, 'Testes de F\u00E1brica Conclu\u00EDdos', `Par\u00E2metros CNC e vida \u00FAtil registrados pelos t\u00E9cnicos.`);
+  registrarTimeline(teste, 'Testes de Fabrica Concluidos', `Parametros CNC e vida util registrados pelos tecnicos.`);
   salvarDadosLocais();
-  alert('Resultados de usinagem salvos! Avan\u00E7ando para Fechamento e Laudo Final.');
+  alert('Resultados de usinagem salvos! Avancando para Fechamento e Laudo Final.');
   renderizarDashboard();
   renderizarTabelaPipeline();
   abrirDetalhesWorkflow(teste.id);
@@ -1277,7 +1277,7 @@ function emitirLaudoFinal() {
 
   teste.statusGeral = decisao;
 
-  registrarTimeline(teste, `Laudo Emitido: ${decisao}`, justificativa || `Homologação concluída pela Engenharia.`);
+  registrarTimeline(teste, `Laudo Emitido: ${decisao}`, justificativa || `Homologacao concluida pela Engenharia.`);
   salvarDadosLocais();
   alert(`Laudo Oficial registrado com status: ${decisao}!`);
   renderizarDashboard();
@@ -1286,7 +1286,7 @@ function emitirLaudoFinal() {
 }
 
 // =========================================================================
-// TIMELINE E COMENTÁRIOS
+// TIMELINE E COMENTARIOS
 // =========================================================================
 function renderizarTimeline(teste) {
   const container = document.getElementById('wfTimelineList');
@@ -1359,7 +1359,7 @@ function adicionarComentario() {
 }
 
 // =========================================================================
-// MODAL DE NOVA SOLICITAÇÃO (D-2)
+// MODAL DE NOVA SOLICITACAO (D-2)
 // =========================================================================
 const TOOLFLOW_QUINZENA_BASE_ISO = '2026-08-06';
 
@@ -1422,7 +1422,7 @@ function coletarValoresMarcados(nome) {
 function abrirModalNovaSolicitacao() {
   preencherDatasPrevistasTeste();
   const solicitante = document.getElementById('modalSolicitanteNome');
-  if (solicitante) solicitante.value = '';
+  if (solicitante) solicitante.value = currentUser ? currentUser.name : 'Solicitante';
   document.getElementById('modalNovaSolicitacao').style.display = 'flex';
 }
 
@@ -1430,13 +1430,6 @@ function fecharModalNovaSolicitacao() {
   document.getElementById('modalNovaSolicitacao').style.display = 'none';
 }
 
-function textoCadastroMaiusculo(id) {
-  const elemento = document.getElementById(id);
-  if (!elemento) return '';
-  const valor = (elemento.value || '').trim().toLocaleUpperCase('pt-BR');
-  elemento.value = valor;
-  return valor;
-}
 function submeterModalSolicitacao() {
   const idNovo = `TESTE-00${testDataStore.length + 1}/2026`;
   const hoje = new Date().toISOString().split('T')[0];
@@ -1444,7 +1437,7 @@ function submeterModalSolicitacao() {
   const processos = coletarValoresMarcados('modalProcessos');
   const tiposFerramenta = coletarValoresMarcados('modalTiposFerramenta');
   const indicadoresAtacados = coletarValoresMarcados('modalIndicadores');
-  const tipoOutra = textoCadastroMaiusculo('modalTipoOutra');
+  const tipoOutra = document.getElementById('modalTipoOutra').value.trim();
 
   if (!ehQuintaQuinzenalValida(dataPrevistaTeste)) { alert('Selecione uma quinta-feira quinzenal valida, com pelo menos D+2.'); return; }
   if (processos.length === 0) { alert('Selecione pelo menos um processo.'); return; }
@@ -1452,8 +1445,7 @@ function submeterModalSolicitacao() {
   if (tiposFerramenta.includes('Outra') && !tipoOutra) { alert('Informe qual e o outro tipo de ferramenta.'); return; }
   if (indicadoresAtacados.length === 0) { alert('Selecione pelo menos um indicador.'); return; }
 
-  const codigoFerramenta = textoCadastroMaiusculo('modalFerrTeste');
-  const solicitanteNome = textoCadastroMaiusculo('modalSolicitanteNome') || 'SOLICITANTE';
+  const codigoFerramenta = document.getElementById('modalFerrTeste').value.trim();
   const descricaoAplicacao = `Teste de ${codigoFerramenta} em ${processos.join(', ')}`;
 
   const novoTeste = {
@@ -1463,10 +1455,10 @@ function submeterModalSolicitacao() {
     solicitacao: {
       dataSolicitacao: hoje,
       dataPrevistaTeste: dataPrevistaTeste,
-      calendarioTeste: 'QUINTA-FEIRA QUINZENAL, M\u00CDNIMO D+2 DA SOLICITA\u00C7\u00C3O',
-      solicitante: solicitanteNome,
-      fornecedor: textoCadastroMaiusculo('modalFornecedor'),
-      contatoFornecedor: '',
+      calendarioTeste: 'Quinta-feira quinzenal, mÃ­nimo D+2 da solicitaÃ§Ã£o',
+      solicitante: currentUser ? currentUser.name : 'Solicitante',
+      fornecedor: document.getElementById('modalFornecedor').value,
+      contatoFornecedor: document.getElementById('modalContato').value,
       processos: processos,
       tiposFerramenta: tiposFerramenta,
       tipoFerramentaOutra: tipoOutra,
@@ -1477,8 +1469,8 @@ function submeterModalSolicitacao() {
       operacao: processos.join(', '),
       refrigeracao: '',
       
-      ferramentaAtual: textoCadastroMaiusculo('modalFerrAtual'),
-      ferramentaAtualDescricao: textoCadastroMaiusculo('modalFerrAtualDesc'),
+      ferramentaAtual: document.getElementById('modalFerrAtual').value,
+      ferramentaAtualDescricao: document.getElementById('modalFerrAtualDesc').value,
       parametrosAtuais: {
         avanco: parseFloat(document.getElementById('modalAtualAvanco').value) || '',
         ap: parseFloat(document.getElementById('modalAtualAp').value) || '',
@@ -1491,9 +1483,9 @@ function submeterModalSolicitacao() {
       arestasAtual: 2,
       
       ferramentaTeste: codigoFerramenta,
-      classeFerramenta: textoCadastroMaiusculo('modalClasseFerramenta'),
-      ferramentaTesteDescricao: textoCadastroMaiusculo('modalFerrTesteDesc'),
-      perfilQuebraCavaco: textoCadastroMaiusculo('modalPerfilQuebraCavaco'),
+      classeFerramenta: document.getElementById('modalClasseFerramenta').value,
+      ferramentaTesteDescricao: document.getElementById('modalFerrTesteDesc').value,
+      perfilQuebraCavaco: document.getElementById('modalPerfilQuebraCavaco').value,
       parametrosRecomendados: {
         avanco: parseFloat(document.getElementById('modalRecAvanco').value) || '',
         ap: parseFloat(document.getElementById('modalRecAp').value) || '',
@@ -1508,8 +1500,8 @@ function submeterModalSolicitacao() {
       estoqueLocal: document.getElementById('modalEstoqueLocal').value,
       quantidadeEstoque: parseFloat(document.getElementById('modalQtdEstoque').value) || 0,
       giroMensal: parseFloat(document.getElementById('modalGiroMensal').value) || 0,
-      justificativa: textoCadastroMaiusculo('modalJustificativa'),
-      retornoEsperado: textoCadastroMaiusculo('modalRetornoEsperado'),
+      justificativa: document.getElementById('modalJustificativa').value,
+      retornoEsperado: document.getElementById('modalRetornoEsperado').value,
       indicadoresAtacados: indicadoresAtacados
     },
     analiseEngenharia: {},
@@ -1517,7 +1509,7 @@ function submeterModalSolicitacao() {
     chaoDeFabrica: { parametros: {}, registrosArestas: [] },
     fechamento: {},
     timeline: [
-      { dataHora: `${hoje} 08:00`, usuario: solicitanteNome, acao: 'Solicita\u00E7\u00E3o Criada (D-2)', detalhe: 'Aguardando avalia\u00E7\u00E3o da Engenharia.' }
+      { dataHora: `${hoje} 08:00`, usuario: currentUser ? currentUser.name : 'Solicitante', acao: 'Solicitacao Criada (D-2)', detalhe: 'Aguardando avaliacao da Engenharia.' }
     ],
     comentarios: []
   };
@@ -1525,7 +1517,7 @@ function submeterModalSolicitacao() {
   testDataStore.unshift(novoTeste);
   salvarDadosLocais();
   fecharModalNovaSolicitacao();
-  alert(`Solicita\u00E7\u00E3o ${idNovo} cadastrada com sucesso!`);
+  alert(`Solicitacao ${idNovo} cadastrada com sucesso!`);
   renderizarDashboard();
   renderizarTabelaPipeline();
   abrirDetalhesWorkflow(idNovo);
@@ -1539,8 +1531,8 @@ function copiarWhatsAppWorkflow() {
   if (!teste) return;
 
   const texto = `[VIEMAR TOOLFLOW - STATUS TESTE ${teste.id}]\n` +
-                `* Peça: ${teste.solicitacao.descricaoPeca}\n` +
-                `* Máquina: ${teste.solicitacao.maquina}\n` +
+                `* Peca: ${teste.solicitacao.descricaoPeca}\n` +
+                `* Maquina: ${teste.solicitacao.maquina}\n` +
                 `* Fornecedor: ${teste.solicitacao.fornecedor}\n` +
                 `* Ferramenta Proposta: ${teste.solicitacao.ferramentaTeste}\n` +
                 `* Etapa Atual: ${WORKFLOW_STAGES[teste.stage].label}\n` +

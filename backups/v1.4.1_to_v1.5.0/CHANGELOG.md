@@ -4,21 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.5.0] - 2026-08-05
-
-### Ajustado
-- Removido o campo "Contato / telefone" do cadastro de nova solicitação.
-- Campo "Solicitante" passou a ser preenchido manualmente, sem preenchimento automático pelo login.
-- Campos textuais do cadastro agora são normalizados automaticamente para maiúsculas ao concluir a solicitação.
-- Revisada a acentuação de textos visíveis no painel, menu, workflow, usuários, alertas e mensagens do sistema.
-- Configurado favicon oficial do app (`favicon.png`) no aplicativo e na página raiz.
-- Adicionado fluxograma estilo BPMN abaixo das diretrizes da política de testes.
-
-### Segurança
-- Backup da versão anterior salvo em `backups/v1.4.1_to_v1.5.0/` antes das alterações.
-
----
-
 ## [v1.4.1] - 2026-08-05
 
 ### Corrigido
