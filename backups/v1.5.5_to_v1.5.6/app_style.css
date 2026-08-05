@@ -478,7 +478,7 @@ html, body {
 .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.grid-5 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 
 @media (max-width: 1100px) {
   .grid-5 { grid-template-columns: repeat(3, 1fr); }
@@ -1493,7 +1493,7 @@ textarea.form-control {
 .checkbox-grid { display: grid; gap: 0.45rem; }
 .checkbox-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .checkbox-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.checkbox-grid-5 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.checkbox-grid-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .checkbox-pill { display: flex; align-items: center; gap: 0.45rem; padding: 0.55rem 0.65rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: #ffffff; font-size: 0.78rem; font-weight: 650; color: var(--text-main); cursor: pointer; }
 .checkbox-pill input { accent-color: var(--viemar-orange); }
 .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -1812,7 +1812,7 @@ textarea.form-control {
 }
 
 .workflow-stepper {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.55rem;
 }
 
@@ -1892,43 +1892,4 @@ textarea.form-control {
   .workflow-tool-card .grid-2 {
     grid-template-columns: 1fr;
   }
-}
-
-/* Status visual de conclusao das etapas v1.5.6 */
-.step-card.completed {
-  border-color: var(--status-green-border);
-  background: linear-gradient(135deg, #ffffff 0%, var(--status-green-bg) 100%);
-  box-shadow: 0 0 0 1px rgba(5, 150, 105, 0.08);
-}
-
-.step-card.completed::after {
-  content: "OK";
-  position: absolute;
-  top: 0.55rem;
-  right: 0.55rem;
-  min-width: 1.75rem;
-  height: 1.25rem;
-  padding: 0 0.35rem;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--status-green-text);
-  color: #ffffff;
-  font-size: 0.62rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-}
-
-.step-card.completed .step-title {
-  color: var(--status-green-text);
-}
-
-.step-card.completed .step-status-tag {
-  color: var(--status-green-text) !important;
-}
-
-.step-card.completed .step-status-tag::before {
-  content: "✓ ";
-  font-weight: 900;
 }

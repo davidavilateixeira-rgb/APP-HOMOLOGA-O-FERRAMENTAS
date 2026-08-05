@@ -4,18 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.5.6] - 2026-08-05
-
-### Alterado
-- Removida a tela/aba de Agendamento de Visita do workflow, pois após o aceite da Engenharia o solicitante passa a ser responsável pelo agendamento e conferência.
-- Parecer GO da Engenharia agora libera diretamente o teste para a etapa de Teste em Máquina.
-- Renumeradas as etapas visíveis do workflow para 4 etapas: Solicitação, Análise Engenharia, Teste em Máquina e Validação & Estoque.
-- Adicionada sinalização visual `OK` nos cards das etapas já concluídas.
-- Removida a opção `Agendamento Visita` do filtro de status do Pipeline.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.5.5_to_v1.5.6/` antes das alterações.
-
 ## [v1.5.5] - 2026-08-05
 
 ### Ajustado

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
-  <title>Viemar ToolFlow v1.5.6 | Gestão de Testes de Ferramentas</title>
+  <title>Viemar ToolFlow v1.5.5 | Gestão de Testes de Ferramentas</title>
   
   <!-- CSS ToolFlow & Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -36,7 +36,7 @@
         <div class="login-brand-titles">
           <div class="login-title-row">
             <span class="login-main-title">ToolFlow</span>
-            <span class="login-version-tag">v1.5.6</span>
+            <span class="login-version-tag">v1.5.5</span>
           </div>
           <span class="login-subtitle">Engenharia de Processos · VMR</span>
         </div>
@@ -88,7 +88,7 @@
           </div>
         </div>
         <div class="version-badge-container">
-          <span class="version-badge">v1.5.6</span>
+          <span class="version-badge">v1.5.5</span>
           <div class="sync-status-badge" title="Vercel & Cache Local Ativos">
             <span class="sync-dot"></span> Vercel Cloud
           </div>
@@ -320,8 +320,9 @@
                   <option value="TODOS">Todos os Status</option>
                   <option value="STAGE_1_SOLICITACAO">1. Solicitação (D-2)</option>
                   <option value="STAGE_2_ANALISE">2. Análise Engenharia</option>
-                  <option value="STAGE_4_EXECUCAO">3. Teste em Máquina</option>
-                  <option value="STAGE_5_VALIDACAO">4. Validação Final</option>
+                  <option value="STAGE_3_AGENDAMENTO">3. Agendamento Visita</option>
+                  <option value="STAGE_4_EXECUCAO">4. Teste em Máquina</option>
+                  <option value="STAGE_5_VALIDACAO">5. Validação Final</option>
                   <option value="HOMOLOGADO">Homologados</option>
                   <option value="BLOQUEADO_ESTOQUE">Bloqueados Estoque</option>
                 </select>
@@ -393,7 +394,7 @@
             <span>Perfil Engenharia ADM: Acesso Total.</span>
           </div>
 
-          <!-- Stepper de 4 Etapas -->
+          <!-- Stepper de 5 Etapas -->
           <div class="workflow-stepper no-print">
             <div class="step-card active" id="wfStep_1" onclick="alternarAbaWorkflow(1)">
               <div class="step-number">Etapa 1</div>
@@ -405,14 +406,19 @@
               <div class="step-title">2. Análise Engenharia</div>
               <span class="step-status-tag" style="color: var(--viemar-orange);">Parecer GO / NO-GO</span>
             </div>
-            <div class="step-card" id="wfStep_4" onclick="alternarAbaWorkflow(4)">
+            <div class="step-card" id="wfStep_3" onclick="alternarAbaWorkflow(3)">
               <div class="step-number">Etapa 3</div>
-              <div class="step-title">3. Teste em Máquina</div>
-              <span class="step-status-tag" style="color: var(--status-blue-text);">Teste liberado</span>
+              <div class="step-title">3. Agendamento Visita</div>
+              <span class="step-status-tag" style="color: var(--status-amber-text);">Quinta Quinzenal</span>
+            </div>
+            <div class="step-card" id="wfStep_4" onclick="alternarAbaWorkflow(4)">
+              <div class="step-number">Etapa 4</div>
+              <div class="step-title">4. Teste em Máquina</div>
+              <span class="step-status-tag" style="color: var(--status-blue-text);">1oT Filipe / 2oT Charles</span>
             </div>
             <div class="step-card" id="wfStep_5" onclick="alternarAbaWorkflow(5)">
-              <div class="step-number">Etapa 4</div>
-              <div class="step-title">4. Validacao & Estoque</div>
+              <div class="step-number">Etapa 5</div>
+              <div class="step-title">5. Validacao & Estoque</div>
               <span class="step-status-tag" style="color: var(--status-green-text);">Laudo & Trava Segura</span>
             </div>
           </div>
@@ -546,7 +552,7 @@
                   <div class="form-group">
                     <label>Devolutiva / Parecer:</label>
                     <select id="wfEngDecisao" class="form-control" style="font-weight: 700;">
-                      <option value="APROVADO">APROVADO (GO - Liberar para Teste em Máquina)</option>
+                      <option value="APROVADO">APROVADO (GO - Liberar para Agendamento)</option>
                       <option value="REPROVADO">REPROVADO (NO-GO - Inviavel Tecnicamente)</option>
                       <option value="REVISAO">EM REVISÃO (Aguardando Dados)</option>
                     </select>
@@ -570,13 +576,63 @@
             </form>
           </div>
 
+          <!-- ABA 3: AGENDAMENTO VISITA -->
+          <div id="wfTabContent_3" class="workflow-tab-content" style="display: none;">
+            <form id="formAgendamentoVisita" onsubmit="event.preventDefault(); confirmarAgendamento();">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Etapa 3: Agendamento da Visita & Preparacao do Preset</h3>
+                  <span class="badge badge-amber">Quinta Quinzenal</span>
+                </div>
 
-          <!-- ABA 3: TESTE EM M&Aacute;QUINA / CH&Atilde;O DE F&Aacute;BRICA -->
+                <div class="grid grid-3">
+                  <div class="form-group">
+                    <label>Data Confirmada da Visita:</label>
+                    <input type="date" id="wfAgData" class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Horario Previsto de Inicio:</label>
+                    <input type="time" id="wfAgHora" class="form-control" value="08:30" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Presença do Técnico Fornecedor:</label>
+                    <select id="wfAgFornPres" class="form-control">
+                      <option value="SIM">SIM (Acompanhamento Presencial)</option>
+                      <option value="NAO">NAO (Teste Interno)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-2" style="margin-top: 1rem;">
+                  <div class="form-group">
+                    <label>Ferramentas & Amostras Entregues no Preset?</label>
+                    <select id="wfAgPresetEnt" class="form-control">
+                      <option value="SIM">SIM (Conferidas no Preset)</option>
+                      <option value="NAO">NAO (Pendente)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Cone / Fixacao Montada e Medida no Preset?</label>
+                    <select id="wfAgConeMont" class="form-control">
+                      <option value="SIM">SIM (Montado e balanceado)</option>
+                      <option value="NAO">Sera montado no dia</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="no-print" style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+                  <button type="submit" id="btnSalvarAgendamento" class="btn btn-primary">Confirmar Agendamento e Liberar Fabrica</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- ABA 4: TESTE EM M&Aacute;QUINA / CH&Atilde;O DE F&Aacute;BRICA -->
           <div id="wfTabContent_4" class="workflow-tab-content" style="display: none;">
             <form id="formChaoDeFabrica" onsubmit="event.preventDefault(); salvarChaoDeFabrica();">
               <div class="card">
                 <div class="card-header">
-                  <h3 class="card-title">Etapa 3: Resultados em Fabrica (1oT Filipe & 2oT Charles)</h3>
+                  <h3 class="card-title">Etapa 4: Resultados em Fabrica (1oT Filipe & 2oT Charles)</h3>
                   <span class="badge badge-blue">Chao de Fabrica</span>
                 </div>
 
@@ -674,12 +730,12 @@
             </form>
           </div>
 
-          <!-- ABA 4: VALIDACAO, FECHAMENTO & TRAVA ESTOQUE -->
+          <!-- ABA 5: VALIDACAO, FECHAMENTO & TRAVA ESTOQUE -->
           <div id="wfTabContent_5" class="workflow-tab-content" style="display: none;">
             <form id="formFechamentoEstoque" onsubmit="event.preventDefault(); emitirLaudoFinal();">
               <div class="card">
                 <div class="card-header">
-                  <h3 class="card-title">Etapa 4: Fechamento, Calculo de CPP & Trava de Abastecimento</h3>
+                  <h3 class="card-title">Etapa 5: Fechamento, Calculo de CPP & Trava de Abastecimento</h3>
                   <span class="badge badge-orange">Laudo Oficial</span>
                 </div>
 

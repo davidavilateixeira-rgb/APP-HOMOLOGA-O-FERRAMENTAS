@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.5.6 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.5.5 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -85,17 +85,14 @@ const INITIAL_USERS_STORE = [
 
 let devflowUsersStore = [...INITIAL_USERS_STORE];
 
-// Definicao das 4 etapas visiveis do Workflow
+// Definicao das 5 Etapas do Workflow
 const WORKFLOW_STAGES = {
   STAGE_1_SOLICITACAO: { id: 1, key: 'STAGE_1_SOLICITACAO', label: '1. Solicitação (D-2)', badgeClass: 'badge-blue' },
-  STAGE_2_ANALISE: { id: 2, key: 'STAGE_2_ANALISE', label: '2. Análise Engenharia', badgeClass: 'badge-orange' },
-  // Compatibilidade para solicitações antigas: a etapa de agendamento foi removida da interface.
-  STAGE_3_AGENDAMENTO: { id: 4, key: 'STAGE_3_AGENDAMENTO', label: '3. Teste em Máquina', badgeClass: 'badge-blue' },
-  STAGE_4_EXECUCAO: { id: 4, key: 'STAGE_4_EXECUCAO', label: '3. Teste em Máquina', badgeClass: 'badge-blue' },
-  STAGE_5_VALIDACAO: { id: 5, key: 'STAGE_5_VALIDACAO', label: '4. Validação & Estoque', badgeClass: 'badge-green' }
+  STAGE_2_ANALISE: { id: 2, key: 'STAGE_2_ANALISE', label: '2. An\u00E1lise Engenharia', badgeClass: 'badge-orange' },
+  STAGE_3_AGENDAMENTO: { id: 3, key: 'STAGE_3_AGENDAMENTO', label: '3. Agendamento Visita', badgeClass: 'badge-amber' },
+  STAGE_4_EXECUCAO: { id: 4, key: 'STAGE_4_EXECUCAO', label: '4. Teste em M\u00E1quina', badgeClass: 'badge-blue' },
+  STAGE_5_VALIDACAO: { id: 5, key: 'STAGE_5_VALIDACAO', label: '5. Valida\u00E7\u00E3o & Estoque', badgeClass: 'badge-green' }
 };
-
-const WORKFLOW_VISIBLE_STEPS = [1, 2, 4, 5];
 
 // Banco de Dados de Testes
 let testDataStore = [
@@ -179,8 +176,8 @@ let testDataStore = [
 
     timeline: [
       { dataHora: '2026-08-01 14:20', usuario: 'Roberto (Preset)', acao: 'Solicitação Criada (D-2)', detalhe: 'Proposta submetida para análise.' },
-      { dataHora: '2026-08-02 10:15', usuario: 'Oscar (Engenharia ADM)', acao: 'Viabilidade Aprovada (GO)', detalhe: 'Solicitante responsável pelo agendamento/conferência. Teste liberado para fábrica.' },
-      { dataHora: '2026-08-03 09:00', usuario: 'Roberto (Preset)', acao: 'Agendamento pelo Solicitante', detalhe: 'Solicitante assumiu agendamento e conferência antes do teste.' },
+      { dataHora: '2026-08-02 10:15', usuario: 'Oscar (Engenharia ADM)', acao: 'Viabilidade Aprovada (GO)', detalhe: 'Liberado para agendamento quinzenal.' },
+      { dataHora: '2026-08-03 09:00', usuario: 'Roberto (Preset)', acao: 'Visita Agendada', detalhe: 'Agendado para 06/08 as 08:30 no Preset.' },
       { dataHora: '2026-08-06 08:30', usuario: 'Filipe (Técnico 1ºT)', acao: 'Início em Máquina', detalhe: '65 peças usinadas no 1º turno.' },
       { dataHora: '2026-08-06 17:40', usuario: 'Charles (T\u00E9cnico 2\u00BAT)', acao: 'Conclus\u00E3o 2\u00BA Turno', detalhe: 'Total de 125 pe\u00E7as conclu\u00EDdo com sucesso.' }
     ],
@@ -467,12 +464,14 @@ function aplicarPermissoesUI() {
 
   // Botoes do Workflow
   const btnAnalise = document.getElementById('btnSalvarAnaliseEng');
+  const btnAgend = document.getElementById('btnSalvarAgendamento');
   const btnChao = document.getElementById('btnSalvarChaoFabrica');
   const btnAresta = document.getElementById('btnAdicionarLinhaAresta');
   const btnFech = document.getElementById('btnSalvarFechamento');
   const btnComent = document.getElementById('btnEnviarComentario');
 
   if (btnAnalise) btnAnalise.style.display = isAdmin ? 'block' : 'none';
+  if (btnAgend) btnAgend.style.display = (isAdmin || isSolicitante) ? 'block' : 'none';
   if (btnChao) btnChao.style.display = (isAdmin || isTecnico) ? 'block' : 'none';
   if (btnAresta) btnAresta.style.display = (isAdmin || isTecnico) ? 'inline-block' : 'none';
   if (btnFech) btnFech.style.display = isAdmin ? 'block' : 'none';
@@ -932,26 +931,16 @@ function abrirDetalhesWorkflow(testeId) {
   navegarPara('viewWorkflow', `Workflow ${teste.id}`);
 }
 
-function normalizarEtapaVisualWorkflow(etapaNum) {
-  return etapaNum === 3 ? 4 : etapaNum;
-}
-
 function alternarAbaWorkflow(etapaNum) {
-  const etapaVisual = normalizarEtapaVisualWorkflow(etapaNum);
-  const activeIndex = WORKFLOW_VISIBLE_STEPS.indexOf(etapaVisual);
-
   for (let i = 1; i <= 5; i++) {
     const tab = document.getElementById(`wfTabContent_${i}`);
-    if (tab) tab.style.display = (i === etapaVisual) ? 'block' : 'none';
+    const step = document.getElementById(`wfStep_${i}`);
+    if (tab) tab.style.display = (i === etapaNum) ? 'block' : 'none';
+    if (step) {
+      if (i === etapaNum) step.classList.add('active');
+      else step.classList.remove('active');
+    }
   }
-
-  WORKFLOW_VISIBLE_STEPS.forEach((stepNum, index) => {
-    const step = document.getElementById(`wfStep_${stepNum}`);
-    if (!step) return;
-
-    step.classList.toggle('active', stepNum === etapaVisual);
-    step.classList.toggle('completed', activeIndex > -1 && index < activeIndex);
-  });
 }
 
 function normalizarListaWorkflow(valor) {
@@ -1012,7 +1001,15 @@ function preencherCamposWorkflow(teste) {
   document.getElementById('wfEngParecer').value = eng.parecerTexto || '';
   document.getElementById('wfEngTecnicos').value = eng.tecnicosEscalados || 'Filipe (1o Turno) e Charles (2o Turno)';
 
-  // Etapa 3: Chao de Fabrica
+  // Etapa 3: Agendamento
+  const ag = teste.agendamento || {};
+  document.getElementById('wfAgData').value = ag.dataVisitaConfirmada || s.dataPrevistaTeste || '';
+  document.getElementById('wfAgHora').value = ag.horarioVisita || '08:30';
+  document.getElementById('wfAgFornPres').value = ag.tecnicoFornecedorPresente || 'SIM';
+  document.getElementById('wfAgPresetEnt').value = ag.ferramentasEntreguesPreset || 'SIM';
+  document.getElementById('wfAgConeMont').value = ag.coneMontadoPreset || 'SIM';
+
+  // Etapa 4: Chao de Fabrica
   const cf = teste.chaoDeFabrica || {};
   document.getElementById('wfCfMaquina').value = cf.maquinaReal || s.maquina || '';
   document.getElementById('wfCfCiclo').value = cf.cicloRealMedido || s.cicloAtual || 0;
@@ -1031,7 +1028,7 @@ function preencherCamposWorkflow(teste) {
   document.getElementById('wfCfVidaMedia').textContent = cf.vidaMediaAresta || 0;
   document.getElementById('wfCfVariacao').textContent = cf.variacaoVidaPorc || '+0.0%';
 
-  // Etapa 4: Fechamento & Estoque
+  // Etapa 5: Fechamento & Estoque
   const f = teste.fechamento || {};
   document.getElementById('wfFechPrecoAtual').value = s.custoAtual || 38.50;
   document.getElementById('wfFechArestasAtual').value = s.arestasAtual || 2;
@@ -1128,9 +1125,9 @@ function salvarDecisaoEngenharia() {
   };
 
   if (decisao === 'APROVADO') {
-    teste.stage = 'STAGE_4_EXECUCAO';
-    teste.statusGeral = 'EM_TESTE_FABRICA';
-    registrarTimeline(teste, 'Viabilidade Aprovada (GO)', `Engenharia deu aceite. Solicitante responsável por agendar/conferir e teste liberado para fábrica.`);
+    teste.stage = 'STAGE_3_AGENDAMENTO';
+    teste.statusGeral = 'AGUARDANDO_VISITA';
+    registrarTimeline(teste, 'Viabilidade Aprovada (GO)', `Engenharia autorizou o agendamento quinzenal.`);
   } else if (decisao === 'REPROVADO') {
     teste.stage = 'STAGE_2_ANALISE';
     teste.statusGeral = 'REPROVADO';
@@ -1143,6 +1140,29 @@ function salvarDecisaoEngenharia() {
 
   salvarDadosLocais();
   alert('Parecer da Engenharia registrado com sucesso!');
+  renderizarDashboard();
+  renderizarTabelaPipeline();
+  abrirDetalhesWorkflow(teste.id);
+}
+
+function confirmarAgendamento() {
+  const teste = testDataStore.find(t => t.id === currentSelectedTestId);
+  if (!teste) return;
+
+  teste.agendamento = {
+    dataVisitaConfirmada: document.getElementById('wfAgData').value,
+    horarioVisita: document.getElementById('wfAgHora').value,
+    tecnicoFornecedorPresente: document.getElementById('wfAgFornPres').value,
+    ferramentasEntreguesPreset: document.getElementById('wfAgPresetEnt').value,
+    coneMontadoPreset: document.getElementById('wfAgConeMont').value
+  };
+
+  teste.stage = 'STAGE_4_EXECUCAO';
+  teste.statusGeral = 'EM_TESTE_FABRICA';
+
+  registrarTimeline(teste, 'Agendamento Confirmado', `Visita confirmada para ${teste.agendamento.dataVisitaConfirmada} as ${teste.agendamento.horarioVisita}.`);
+  salvarDadosLocais();
+  alert('Visita e prepara\u00E7\u00E3o do Preset confirmadas! Teste liberado para a F\u00E1brica.');
   renderizarDashboard();
   renderizarTabelaPipeline();
   abrirDetalhesWorkflow(teste.id);
