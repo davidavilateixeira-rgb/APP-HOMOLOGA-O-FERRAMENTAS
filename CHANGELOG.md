@@ -4,6 +4,17 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
+## [v1.3.2] - 2026-08-04
+
+### Corrigido
+- **Credenciais do Administrador Master**:
+  - E-mail alterado de `davidavillateixeira@gmail.com` para `dteixeira@viemar.com.br` (e-mail corporativo correto).
+  - Nome atualizado para `David Teixeira`.
+  - Migração do armazenamento local para chave `viemar_toolflow_users_v3` para forçar reset em navegadores com dados antigos.
+- Backup de segurança criado em `backups/v1.3.1_to_v1.3.2/`.
+
+---
+
 ## [v1.3.1] - 2026-08-04
 
 ### Segurança & Autenticação

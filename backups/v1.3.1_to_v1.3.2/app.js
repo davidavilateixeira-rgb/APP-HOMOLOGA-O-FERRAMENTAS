@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.3.2 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.3.1 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -73,8 +73,8 @@ const USER_ROLES_CONFIG = {
 const INITIAL_USERS_STORE = [
   {
     id: 'user_david_admin',
-    name: 'David Teixeira',
-    email: 'dteixeira@viemar.com.br',
+    name: 'David',
+    email: 'davidavillateixeira@gmail.com',
     password: 'admin',
     roleKey: 'ADMIN',
     roleTitle: 'Administrador',
@@ -1433,14 +1433,11 @@ function carregarDadosLocais() {
 }
 
 function salvarUsuariosLocais() {
-  localStorage.setItem('viemar_toolflow_users_v3', JSON.stringify(devflowUsersStore));
+  localStorage.setItem('viemar_toolflow_users_v2', JSON.stringify(devflowUsersStore));
 }
 
 function carregarUsuariosLocais() {
-  // Limpar chave antiga v2 para forcar migracao
-  localStorage.removeItem('viemar_toolflow_users_v2');
-
-  const salvos = localStorage.getItem('viemar_toolflow_users_v3');
+  const salvos = localStorage.getItem('viemar_toolflow_users_v2');
   if (salvos) {
     try {
       devflowUsersStore = JSON.parse(salvos);
