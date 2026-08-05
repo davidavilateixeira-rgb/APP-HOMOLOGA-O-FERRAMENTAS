@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.6.2 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.6.1 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -910,7 +910,7 @@ function renderizarTabelaPipeline() {
         <td>${t.solicitacao.fornecedor}</td>
         <td>${t.solicitacao.maquina}</td>
         <td><span class="badge ${WORKFLOW_STAGES[t.stage]?.badgeClass || 'badge-gray'}">${WORKFLOW_STAGES[t.stage]?.label || t.stage}</span></td>
-        <td><span class="badge ${badgeStatusClass}">${formatarStatusVisual(t.statusGeral)}</span></td>
+        <td><span class="badge ${badgeStatusClass}">${t.statusGeral}</span></td>
         <td style="text-align: right;">
           <div class="table-action-row">
             <button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${t.id}')">Acessar</button>
@@ -967,7 +967,7 @@ function criarCardKanban(teste) {
       <div class="kanban-card-meta">${teste.solicitacao.codigoPeca || '-'} · ${teste.solicitacao.fornecedor}</div>
       <div class="kanban-card-meta">${teste.solicitacao.maquina || '-'}</div>
       <div class="kanban-card-footer">
-        <span class="badge ${badgeStatusClass}">${formatarStatusVisual(teste.statusGeral)}</span>
+        <span class="badge ${badgeStatusClass}">${teste.statusGeral}</span>
         <div class="kanban-card-actions">
           <button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${teste.id}')">Acessar</button>
           ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" onclick="excluirTeste('${teste.id}')">Excluir</button>` : ''}
@@ -1109,13 +1109,6 @@ function alternarAbaWorkflow(etapaNum) {
   aplicarBloqueioSomenteLeitura();
 }
 
-function formatarStatusVisual(valor) {
-  return (valor || '')
-    .toString()
-    .replace(/_/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
 function normalizarListaWorkflow(valor) {
   if (Array.isArray(valor)) return valor.filter(Boolean).join(', ');
   return valor || '';
@@ -1686,7 +1679,7 @@ function copiarWhatsAppWorkflow() {
                 `* Fornecedor: ${teste.solicitacao.fornecedor}\n` +
                 `* Ferramenta Proposta: ${teste.solicitacao.ferramentaTeste}\n` +
                 `* Etapa Atual: ${WORKFLOW_STAGES[teste.stage].label}\n` +
-                `* Status Geral: ${formatarStatusVisual(teste.statusGeral)}\n` +
+                `* Status Geral: ${teste.statusGeral}\n` +
                 `Acompanhamento no Portal de Testes Viemar.`;
 
   navigator.clipboard.writeText(texto).then(() => {

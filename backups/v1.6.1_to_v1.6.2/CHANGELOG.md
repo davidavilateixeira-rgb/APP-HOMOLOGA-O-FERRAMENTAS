@@ -4,15 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.6.2] - 2026-08-05
-
-### Corrigido
-- Removidos underscores dos status exibidos na interface, trocando valores como `AGUARDANDO_ANALISE` por `AGUARDANDO ANALISE`.
-- Aplicada a formatação visual dos status no Pipeline, Kanban e resumo copiado do workflow.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.6.1_to_v1.6.2/` antes das alterações.
-
 ## [v1.6.1] - 2026-08-05
 
 ### Corrigido
