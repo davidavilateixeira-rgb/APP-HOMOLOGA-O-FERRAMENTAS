@@ -4,23 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.6.0] - 2026-08-05
-
-### Adicionado
-- Criada nova aba `Kanban por Etapas` no menu lateral, com colunas por etapa do fluxo de homologação.
-- Adicionado recurso de exclusão de cadastro de teste para perfil Administrador no Pipeline e no Kanban, com confirmação antes da remoção.
-
-### Corrigido
-- O selo `OK` das etapas do workflow agora fica permanente conforme o estado real salvo do teste, e não apenas conforme a aba navegada.
-- Perfil Visitante agora fica efetivamente somente leitura, com campos bloqueados e salvamentos protegidos nas funções de alteração.
-
-### Alterado
-- Atualizada versão visível do sistema para `v1.6.0`.
-- Atualizados renderizadores de Pipeline/Kanban após alterações, exclusões e mudanças de etapa.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.5.6_to_v1.6.0/` antes das alterações.
-
 ## [v1.5.6] - 2026-08-05
 
 ### Alterado

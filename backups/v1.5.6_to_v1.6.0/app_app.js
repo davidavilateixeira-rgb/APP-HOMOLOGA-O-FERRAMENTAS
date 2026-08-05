@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.6.0 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.5.6 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -447,29 +447,6 @@ function esqueciSenha() {
 // =========================================================================
 // GOVERNANCA E REGRAS DE PERMISSOES (RBAC)
 // =========================================================================
-function usuarioSomenteLeitura() {
-  return !currentUser || currentUser.role === TOOLFLOW_ROLES.LEITURA;
-}
-
-function usuarioAdmin() {
-  return currentUser && currentUser.role === TOOLFLOW_ROLES.ADMIN;
-}
-
-function bloquearMutacaoVisitante() {
-  if (!usuarioSomenteLeitura()) return false;
-  alert('Perfil Visitante é somente leitura. Faça login com um perfil autorizado para alterar dados.');
-  return true;
-}
-
-function aplicarBloqueioSomenteLeitura() {
-  const isLeitura = usuarioSomenteLeitura();
-  document.querySelectorAll('#viewWorkflow input, #viewWorkflow select, #viewWorkflow textarea, #viewUsuarios input, #viewUsuarios select, #viewUsuarios textarea').forEach(el => {
-    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.readOnly = isLeitura || el.hasAttribute('readonly');
-    if (el.tagName === 'SELECT') el.disabled = isLeitura;
-    if (isLeitura) el.classList.add('readonly-locked');
-    else el.classList.remove('readonly-locked');
-  });
-}
 function aplicarPermissoesUI() {
   const isLeitura = (currentUser.role === TOOLFLOW_ROLES.LEITURA);
   const isAdmin = (currentUser.role === TOOLFLOW_ROLES.ADMIN);
@@ -501,12 +478,6 @@ function aplicarPermissoesUI() {
   if (btnFech) btnFech.style.display = isAdmin ? 'block' : 'none';
   if (btnComent) btnComent.style.display = isLeitura ? 'none' : 'block';
 
-  document.querySelectorAll('.btn-admin-delete').forEach(btn => {
-    btn.style.display = isAdmin ? 'inline-flex' : 'none';
-  });
-
-  aplicarBloqueioSomenteLeitura();
-
   // Banner descritivo de perfil no Workflow
   const wfBanner = document.getElementById('wfRoleBanner');
   if (wfBanner) {
@@ -530,7 +501,6 @@ function aplicarPermissoesUI() {
 // GESTAO E CADASTRO DINAMICO DE USUARIOS (MOCKUP OFICIAL)
 // =========================================================================
 function criarNovoUsuarioForm() {
-  if (bloquearMutacaoVisitante()) return;
   const nomeInput = document.getElementById('novoUserNome');
   const emailInput = document.getElementById('novoUserEmail');
   const senhaInput = document.getElementById('novoUserSenha');
@@ -764,9 +734,6 @@ function navegarPara(viewId, breadcrumbLabel) {
     document.getElementById('breadcrumbCurrent').textContent = breadcrumbLabel;
   }
 
-  if (viewId === 'viewKanban') renderizarKanban();
-  aplicarPermissoesUI();
-
   const mainArea = document.querySelector('.app-main');
   if (mainArea) mainArea.scrollTop = 0;
 }
@@ -912,10 +879,7 @@ function renderizarTabelaPipeline() {
         <td><span class="badge ${WORKFLOW_STAGES[t.stage]?.badgeClass || 'badge-gray'}">${WORKFLOW_STAGES[t.stage]?.label || t.stage}</span></td>
         <td><span class="badge ${badgeStatusClass}">${t.statusGeral}</span></td>
         <td style="text-align: right;">
-          <div class="table-action-row">
-            <button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${t.id}')">Acessar</button>
-            ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" onclick="excluirTeste('${t.id}')">Excluir</button>` : ''}
-          </div>
+          <button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${t.id}')">Acessar</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -944,103 +908,8 @@ function proximaPagina() {
   }
 }
 
-function obterColunaKanban(teste) {
-  if (teste.stage === 'STAGE_1_SOLICITACAO') return 'kanbanColSolicitacao';
-  if (teste.stage === 'STAGE_2_ANALISE') return 'kanbanColAnalise';
-  if (teste.stage === 'STAGE_3_AGENDAMENTO' || teste.stage === 'STAGE_4_EXECUCAO') return 'kanbanColFabrica';
-  return 'kanbanColValidacao';
-}
-
-function criarCardKanban(teste) {
-  const stage = WORKFLOW_STAGES[teste.stage] || { label: teste.stage, badgeClass: 'badge-gray' };
-  const badgeStatusClass = teste.statusGeral === 'HOMOLOGADO' ? 'badge-green' :
-    teste.statusGeral === 'BLOQUEADO_ESTOQUE' ? 'badge-amber' :
-    teste.statusGeral === 'REPROVADO' ? 'badge-red' : 'badge-blue';
-
-  return `
-    <div class="kanban-card">
-      <div class="kanban-card-top">
-        <strong>${teste.id}</strong>
-        <span class="badge ${stage.badgeClass}">${stage.label}</span>
-      </div>
-      <div class="kanban-card-title">${teste.solicitacao.descricaoPeca}</div>
-      <div class="kanban-card-meta">${teste.solicitacao.codigoPeca || '-'} · ${teste.solicitacao.fornecedor}</div>
-      <div class="kanban-card-meta">${teste.solicitacao.maquina || '-'}</div>
-      <div class="kanban-card-footer">
-        <span class="badge ${badgeStatusClass}">${teste.statusGeral}</span>
-        <div class="kanban-card-actions">
-          <button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${teste.id}')">Acessar</button>
-          ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" onclick="excluirTeste('${teste.id}')">Excluir</button>` : ''}
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function renderizarKanban() {
-  const colunas = {
-    kanbanColSolicitacao: [],
-    kanbanColAnalise: [],
-    kanbanColFabrica: [],
-    kanbanColValidacao: []
-  };
-
-  testDataStore.forEach(teste => {
-    const coluna = obterColunaKanban(teste);
-    colunas[coluna].push(teste);
-  });
-
-  Object.entries(colunas).forEach(([idColuna, itens]) => {
-    const el = document.getElementById(idColuna);
-    if (!el) return;
-    el.innerHTML = itens.length
-      ? itens.map(criarCardKanban).join('')
-      : '<div class="kanban-empty">Nenhum teste nesta etapa.</div>';
-  });
-
-  const contadores = {
-    kanbanCountSolicitacao: colunas.kanbanColSolicitacao.length,
-    kanbanCountAnalise: colunas.kanbanColAnalise.length,
-    kanbanCountFabrica: colunas.kanbanColFabrica.length,
-    kanbanCountValidacao: colunas.kanbanColValidacao.length
-  };
-
-  Object.entries(contadores).forEach(([id, valor]) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = valor;
-  });
-
-  aplicarPermissoesUI();
-}
-
-function excluirTeste(testeId) {
-  if (!usuarioAdmin()) {
-    alert('Apenas Administrador pode apagar cadastros de teste.');
-    return;
-  }
-
-  const teste = testDataStore.find(t => t.id === testeId);
-  if (!teste) return;
-
-  const descricao = `${teste.id} - ${teste.solicitacao.descricaoPeca}`;
-  if (!confirm(`Confirmar exclusão definitiva do cadastro de teste?\n\n${descricao}\n\nEssa ação remove o teste do pipeline local deste aplicativo.`)) return;
-
-  testDataStore = testDataStore.filter(t => t.id !== testeId);
-  if (currentSelectedTestId === testeId) currentSelectedTestId = null;
-
-  salvarDadosLocais();
-  renderizarDashboard();
-  renderizarTabelaPipeline();
-  renderizarKanban();
-
-  if (document.getElementById('viewWorkflow')?.classList.contains('active-view')) {
-    navegarPara('viewPipeline', 'Pipeline de Testes');
-  }
-
-  alert(`Cadastro ${teste.id} apagado com sucesso.`);
-}
 // =========================================================================
-// WORKFLOW DE 4 ETAPAS (DETALHES E EDICAO)
+// WORKFLOW DE 5 ETAPAS (DETALHES E EDICAO)
 // =========================================================================
 function abrirDetalhesWorkflow(testeId) {
   currentSelectedTestId = testeId;
@@ -1063,50 +932,26 @@ function abrirDetalhesWorkflow(testeId) {
   navegarPara('viewWorkflow', `Workflow ${teste.id}`);
 }
 
-function obterEtapasConcluidasWorkflow(teste) {
-  const concluidas = new Set();
-  if (!teste) return concluidas;
-
-  if (teste.solicitacao) concluidas.add(1);
-
-  const decisaoEngenharia = teste.analiseEngenharia?.decisao;
-  if (decisaoEngenharia === 'APROVADO' || decisaoEngenharia === 'REPROVADO') concluidas.add(2);
-
-  if (teste.stage === 'STAGE_5_VALIDACAO' || ['HOMOLOGADO', 'BLOQUEADO_ESTOQUE'].includes(teste.statusGeral)) {
-    concluidas.add(2);
-    concluidas.add(4);
-  }
-
-  if (['HOMOLOGADO', 'BLOQUEADO_ESTOQUE', 'REPROVADO'].includes(teste.statusGeral) && teste.fechamento?.dataFechamento) {
-    concluidas.add(5);
-  }
-
-  return concluidas;
-}
-
 function normalizarEtapaVisualWorkflow(etapaNum) {
   return etapaNum === 3 ? 4 : etapaNum;
 }
 
 function alternarAbaWorkflow(etapaNum) {
   const etapaVisual = normalizarEtapaVisualWorkflow(etapaNum);
-  const testeAtual = testDataStore.find(t => t.id === currentSelectedTestId);
-  const etapasConcluidas = obterEtapasConcluidasWorkflow(testeAtual);
+  const activeIndex = WORKFLOW_VISIBLE_STEPS.indexOf(etapaVisual);
 
   for (let i = 1; i <= 5; i++) {
     const tab = document.getElementById(`wfTabContent_${i}`);
     if (tab) tab.style.display = (i === etapaVisual) ? 'block' : 'none';
   }
 
-  WORKFLOW_VISIBLE_STEPS.forEach(stepNum => {
+  WORKFLOW_VISIBLE_STEPS.forEach((stepNum, index) => {
     const step = document.getElementById(`wfStep_${stepNum}`);
     if (!step) return;
 
     step.classList.toggle('active', stepNum === etapaVisual);
-    step.classList.toggle('completed', etapasConcluidas.has(stepNum));
+    step.classList.toggle('completed', activeIndex > -1 && index < activeIndex);
   });
-
-  aplicarBloqueioSomenteLeitura();
 }
 
 function normalizarListaWorkflow(valor) {
@@ -1232,7 +1077,6 @@ function renderizarTabelaArestas(registros) {
 }
 
 function adicionarLinhaAresta() {
-  if (bloquearMutacaoVisitante()) return;
   const teste = testDataStore.find(t => t.id === currentSelectedTestId);
   if (!teste) return;
 
@@ -1271,7 +1115,6 @@ function adicionarLinhaAresta() {
 // SALVAMENTOS DE ETAPAS DO WORKFLOW
 // =========================================================================
 function salvarDecisaoEngenharia() {
-  if (bloquearMutacaoVisitante()) return;
   const teste = testDataStore.find(t => t.id === currentSelectedTestId);
   if (!teste) return;
 
@@ -1306,7 +1149,6 @@ function salvarDecisaoEngenharia() {
 }
 
 function salvarChaoDeFabrica() {
-  if (bloquearMutacaoVisitante()) return;
   const teste = testDataStore.find(t => t.id === currentSelectedTestId);
   if (!teste) return;
 
@@ -1387,7 +1229,6 @@ function recalcularFechamento() {
 }
 
 function emitirLaudoFinal() {
-  if (bloquearMutacaoVisitante()) return;
   const teste = testDataStore.find(t => t.id === currentSelectedTestId);
   if (!teste) return;
 
@@ -1473,7 +1314,6 @@ function renderizarComentarios(teste) {
 }
 
 function adicionarComentario() {
-  if (bloquearMutacaoVisitante()) return;
   const input = document.getElementById('inputNovoComentario');
   const texto = input.value.trim();
   if (!texto) return;
@@ -1554,7 +1394,6 @@ function coletarValoresMarcados(nome) {
   return Array.from(document.querySelectorAll(`input[name="${nome}"]:checked`)).map(input => input.value);
 }
 function abrirModalNovaSolicitacao() {
-  if (bloquearMutacaoVisitante()) return;
   preencherDatasPrevistasTeste();
   const solicitante = document.getElementById('modalSolicitanteNome');
   if (solicitante) solicitante.value = '';

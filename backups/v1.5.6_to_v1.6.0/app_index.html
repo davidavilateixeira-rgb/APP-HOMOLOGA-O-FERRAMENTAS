@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
-  <title>Viemar ToolFlow v1.6.0 | Gestão de Testes de Ferramentas</title>
+  <title>Viemar ToolFlow v1.5.6 | Gestão de Testes de Ferramentas</title>
   
   <!-- CSS ToolFlow & Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -36,7 +36,7 @@
         <div class="login-brand-titles">
           <div class="login-title-row">
             <span class="login-main-title">ToolFlow</span>
-            <span class="login-version-tag">v1.6.0</span>
+            <span class="login-version-tag">v1.5.6</span>
           </div>
           <span class="login-subtitle">Engenharia de Processos · VMR</span>
         </div>
@@ -88,7 +88,7 @@
           </div>
         </div>
         <div class="version-badge-container">
-          <span class="version-badge">v1.6.0</span>
+          <span class="version-badge">v1.5.6</span>
           <div class="sync-status-badge" title="Vercel & Cache Local Ativos">
             <span class="sync-dot"></span> Vercel Cloud
           </div>
@@ -108,10 +108,6 @@
           <span>Pipeline de Testes</span>
         </button>
 
-        <button class="sidebar-link" data-view="viewKanban" onclick="navegarPara('viewKanban', 'Kanban por Etapas')">
-          <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
-          <span>Kanban por Etapas</span>
-        </button>
         <button class="sidebar-link" data-view="viewWorkflow" onclick="navegarPara('viewWorkflow', 'Workflow de Homologação')">
           <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
           <span>Workflow Ativo</span>
@@ -347,7 +343,7 @@
                     <th>Máquina CNC</th>
                     <th>Etapa Workflow</th>
                     <th>Status Geral</th>
-                    <th style="text-align: right; width: 190px;">Ações</th>
+                    <th style="text-align: right; width: 140px;">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -366,57 +362,18 @@
             </div>
           </div>
         </section>
-<!-- ===================================================================== -->
-        <!-- VIEW 3: KANBAN POR ETAPAS                                             -->
-        <!-- ===================================================================== -->
-        <section id="viewKanban" class="app-view">
-          <div class="view-header">
-            <div class="view-title-group">
-              <h2>Kanban por Etapas</h2>
-              <p>Visualização rápida dos testes em cada etapa do fluxo de homologação.</p>
-            </div>
-            <button class="btn btn-secondary" onclick="renderizarKanban()">Atualizar Kanban</button>
-          </div>
 
-          <div class="kanban-board" id="kanbanBoard">
-            <div class="kanban-column" data-stage="STAGE_1_SOLICITACAO">
-              <div class="kanban-column-header">
-                <h3>Solicitação</h3>
-                <span class="kanban-count" id="kanbanCountSolicitacao">0</span>
-              </div>
-              <div class="kanban-column-body" id="kanbanColSolicitacao"></div>
-            </div>
-            <div class="kanban-column" data-stage="STAGE_2_ANALISE">
-              <div class="kanban-column-header">
-                <h3>Análise Engenharia</h3>
-                <span class="kanban-count" id="kanbanCountAnalise">0</span>
-              </div>
-              <div class="kanban-column-body" id="kanbanColAnalise"></div>
-            </div>
-            <div class="kanban-column" data-stage="STAGE_4_EXECUCAO">
-              <div class="kanban-column-header">
-                <h3>Teste em Máquina</h3>
-                <span class="kanban-count" id="kanbanCountFabrica">0</span>
-              </div>
-              <div class="kanban-column-body" id="kanbanColFabrica"></div>
-            </div>
-            <div class="kanban-column" data-stage="STAGE_5_VALIDACAO">
-              <div class="kanban-column-header">
-                <h3>Validação & Estoque</h3>
-                <span class="kanban-count" id="kanbanCountValidacao">0</span>
-              </div>
-              <div class="kanban-column-body" id="kanbanColValidacao"></div>
-            </div>
-          </div>
-        </section>
-        <!-- ===================================================================== -->`r`n        <!-- VIEW 4: WORKFLOW DE HOMOLOGAÇÃO                                      -->`r`n        <!-- ===================================================================== -->`r`n        <section id="viewWorkflow" class="app-view">
+        <!-- ===================================================================== -->
+        <!-- VIEW 3: WORKFLOW DE HOMOLOGAÇÃO (5 ETAPAS + TIMELINE + COMENTÁRIOS)   -->
+        <!-- ===================================================================== -->
+        <section id="viewWorkflow" class="app-view">
           
           <!-- Cabecalho de Impressao Oficial -->
           <div class="print-header">
             <img src="logo.png" alt="Viemar" class="print-logo">
             <div style="text-align: right;">
               <h3 style="font-size: 11pt; margin: 0; color: #ff6600;">ENGENHARIA DE USINAGEM</h3>
-              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatório Oficial ToolFlow v1.6.0</p>
+              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatório Oficial ToolFlow v1.2.0</p>
             </div>
           </div>
 
@@ -888,7 +845,7 @@
         </section>
 
         <!-- ===================================================================== -->
-        <!-- VIEW 5: GESTÃO DE USUÁRIOS (RBAC - PADRÃO DEVFLOW / VIEMAR)           -->
+        <!-- VIEW 4: GESTÃO DE USUÁRIOS (RBAC - PADRÃO DEVFLOW / VIEMAR)           -->
         <!-- ===================================================================== -->
         <section id="viewUsuarios" class="app-view">
           <div class="view-header" style="margin-bottom: 1.5rem;">
@@ -958,7 +915,7 @@
         </section>
 
         <!-- ===================================================================== -->
-        <!-- VIEW 6: AUDITORIA GLOBAL                                              -->
+        <!-- VIEW 5: AUDITORIA GLOBAL                                              -->
         <!-- ===================================================================== -->
         <section id="viewAuditoria" class="app-view">
           <div class="view-header">
