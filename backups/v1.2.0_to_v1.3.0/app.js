@@ -1,89 +1,27 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.3.0 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.2.0 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
 const DEVFLOW_ROLES = {
-  ADMIN: 'ADMIN',             // Administrador & Engenharia - Acesso Total
-  TECNICO: 'TECNICO',         // Tecnicos de Usinagem / Montagem - Registros de Chao de Fabrica
-  SOLICITANTE: 'SOLICITANTE', // Preset, Gerenciador, Fornecedor - Abertura e Acompanhamento
-  LEITURA: 'LEITURA'          // Visitante - Somente Visualizacao
+  ADMIN: 'ADMIN',             // Engenharia ADM (Oscar, Jonathan, Ponto Focal) - Acesso Total
+  TECNICO: 'TECNICO',         // Tecnicos de Chao de Fabrica (Filipe 1T, Charles 2T) - Acompanhamento e Registro
+  SOLICITANTE: 'SOLICITANTE', // Solicitante (Preset, Gerenciador Externo, Fornecedores) - Abertura e Visualizacao
+  LEITURA: 'LEITURA'          // Visitante / Apenas Consulta Geral
 };
 const TOOLFLOW_ROLES = DEVFLOW_ROLES;
 
-// Configuracao de Papeis e Badges Visuais (Padrao Oficial DevFlow / Viemar)
-const USER_ROLES_CONFIG = {
-  ADMIN: {
-    label: 'Administrador',
-    role: TOOLFLOW_ROLES.ADMIN,
-    badgeStyle: 'background: #fff7ed; color: #ff6600; border: 1px solid #fed7aa;',
-    avatarBg: '#ea580c'
-  },
-  ENG_PROCESSO: {
-    label: 'Engenharia de Processos',
-    role: TOOLFLOW_ROLES.ADMIN,
-    badgeStyle: 'background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe;',
-    avatarBg: '#7c3aed'
-  },
-  ENG_PRODUTO: {
-    label: 'Engenharia de Produto',
-    role: TOOLFLOW_ROLES.ADMIN,
-    badgeStyle: 'background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe;',
-    avatarBg: '#64748b'
-  },
-  TECNICO_USINAGEM: {
-    label: 'Técnico Usinagem',
-    role: TOOLFLOW_ROLES.TECNICO,
-    badgeStyle: 'background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd;',
-    avatarBg: '#64748b'
-  },
-  TECNICO_MONTAGEM: {
-    label: 'Técnico Montagem',
-    role: TOOLFLOW_ROLES.TECNICO,
-    badgeStyle: 'background: #fffbeb; color: #d97706; border: 1px solid #fde68a;',
-    avatarBg: '#64748b'
-  },
-  PRESET: {
-    label: 'Setor Preset',
-    role: TOOLFLOW_ROLES.SOLICITANTE,
-    badgeStyle: 'background: #f0fdfa; color: #0d9488; border: 1px solid #99f6e4;',
-    avatarBg: '#0d9488'
-  },
-  GERENCIADOR: {
-    label: 'Gerenciador de Ferramentas',
-    role: TOOLFLOW_ROLES.SOLICITANTE,
-    badgeStyle: 'background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe;',
-    avatarBg: '#4f46e5'
-  },
-  FORNECEDOR: {
-    label: 'Fornecedor Externo',
-    role: TOOLFLOW_ROLES.SOLICITANTE,
-    badgeStyle: 'background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8;',
-    avatarBg: '#db2777'
-  },
-  VISITANTE: {
-    label: 'Visitante',
-    role: TOOLFLOW_ROLES.LEITURA,
-    badgeStyle: 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;',
-    avatarBg: '#94a3b8'
-  }
-};
-
-// Base de Usuarios Cadastrados (Inicia limpa com David como Administrador)
-const INITIAL_USERS_STORE = [
-  {
-    id: 'user_david_admin',
-    name: 'David',
-    email: 'davidavillateixeira@gmail.com',
-    password: 'admin',
-    roleKey: 'ADMIN',
-    roleTitle: 'Administrador',
-    role: TOOLFLOW_ROLES.ADMIN,
-    avatarBg: '#ea580c'
-  }
+// Base de Usuarios Cadastrados (Persistivel no LocalStorage e Firebase Auth)
+let devflowUsersStore = [
+  { id: 'oscar_adm', name: 'Oscar', email: 'oscar@viemar.com.br', password: 'admin', roleTitle: 'Engenharia ADM', role: TOOLFLOW_ROLES.ADMIN },
+  { id: 'jonathan_adm', name: 'Jonathan', email: 'jonathan@viemar.com.br', password: 'admin', roleTitle: 'Engenharia ADM', role: TOOLFLOW_ROLES.ADMIN },
+  { id: 'ponto_focal', name: 'Ponto Focal', email: 'focal@viemar.com.br', password: 'admin', roleTitle: 'Coordenador de Testes', role: TOOLFLOW_ROLES.ADMIN },
+  { id: 'filipe_1t', name: 'Filipe (1oT)', email: 'filipe@viemar.com.br', password: '123', roleTitle: 'Tecnico 1o Turno', role: TOOLFLOW_ROLES.TECNICO },
+  { id: 'charles_2t', name: 'Charles (2oT)', email: 'charles@viemar.com.br', password: '123', roleTitle: 'Tecnico 2o Turno', role: TOOLFLOW_ROLES.TECNICO },
+  { id: 'preset_op', name: 'Roberto (Preset)', email: 'preset@viemar.com.br', password: '123', roleTitle: 'Setor de Preset', role: TOOLFLOW_ROLES.SOLICITANTE },
+  { id: 'gerenciador_ext', name: 'Gerenciador Externo', email: 'gerenciador@ferramentas.com', password: '123', roleTitle: 'Gestao de Ferramentas', role: TOOLFLOW_ROLES.SOLICITANTE },
+  { id: 'fornecedor_ext', name: 'Fornecedor Sandvik', email: 'contato@sandvik.com', password: '123', roleTitle: 'Representante Tecnico', role: TOOLFLOW_ROLES.SOLICITANTE }
 ];
-
-let devflowUsersStore = [...INITIAL_USERS_STORE];
 
 // Definicao das 5 Etapas do Workflow
 const WORKFLOW_STAGES = {
@@ -369,8 +307,8 @@ function realizarLoginTela() {
   // Buscar usuario no banco de dados local/nuvem
   const user = devflowUsersStore.find(u => 
     u.email.toLowerCase() === emailInput || 
-    (u.id && u.id.toLowerCase() === emailInput) ||
-    (u.name && u.name.toLowerCase() === emailInput)
+    u.id.toLowerCase() === emailInput ||
+    u.name.toLowerCase() === emailInput
   );
 
   if (user) {
@@ -381,7 +319,8 @@ function realizarLoginTela() {
 
     entrarNoApp(user);
   } else {
-    alert('Usuário não encontrado na base. Solicite seu cadastro ao Administrador (David) ou acesse como Visitante.');
+    // Se digitou email novo corporativo, criar usuario como Solicitante ou Admin
+    alert('Usuário não encontrado na base. Solicite seu cadastro ao Administrador da Engenharia (Oscar / Jonathan) ou acesse como Visitante.');
   }
 }
 
@@ -390,10 +329,8 @@ function entrarComoVisitante() {
     id: 'visitante',
     name: 'Visitante',
     email: 'visitante@viemar.com.br',
-    roleKey: 'VISITANTE',
     roleTitle: 'Modo Leitura / Consulta',
-    role: TOOLFLOW_ROLES.LEITURA,
-    avatarBg: '#94a3b8'
+    role: TOOLFLOW_ROLES.LEITURA
   };
 
   entrarNoApp(visitanteUser);
@@ -418,7 +355,7 @@ function entrarNoApp(user) {
   // Renderizar componentes
   renderizarDashboard();
   renderizarTabelaPipeline();
-  renderizarListaUsuariosCadastrados();
+  renderizarListaUsuariosGestao();
   iniciarGraficos();
 }
 
@@ -433,13 +370,13 @@ function fazerLogout() {
 }
 
 function primeiroAcessoAdmin() {
-  document.getElementById('loginEmailField').value = 'davidavillateixeira@gmail.com';
+  document.getElementById('loginEmailField').value = 'oscar@viemar.com.br';
   document.getElementById('loginPasswordField').value = 'admin';
-  alert('Credenciais do Administrador (David) preenchidas. Clique em "Entrar" para acessar e cadastrar os membros da sua equipe.');
+  alert('Credenciais do Administrador da Engenharia (Oscar) preenchidas. Clique em "Entrar" para acessar e gerenciar os logins.');
 }
 
 function esqueciSenha() {
-  alert('Para redefinir sua senha, entre em contato com o Administrador do ToolFlow (David) ou entre como Visitante.');
+  alert('Para redefinir sua senha, entre em contato com o Administrador da Engenharia de Processos (Oscar / Jonathan) ou clique em "Entrar como visitante" para acessar em modo somente leitura.');
 }
 
 // =========================================================================
@@ -462,6 +399,10 @@ function aplicarPermissoesUI() {
   const btnPipe = document.getElementById('btnNovaSolicitacaoPipeline');
   if (btnTop) btnTop.style.display = isLeitura ? 'none' : 'flex';
   if (btnPipe) btnPipe.style.display = isLeitura ? 'none' : 'block';
+
+  // Botao Criar Usuario (Apenas Admin)
+  const btnNovoUser = document.getElementById('btnNovoUsuarioView');
+  if (btnNovoUser) btnNovoUser.style.display = isAdmin ? 'block' : 'none';
 
   // Botoes do Workflow
   const btnAnalise = document.getElementById('btnSalvarAnaliseEng');
@@ -498,214 +439,88 @@ function aplicarPermissoesUI() {
 }
 
 // =========================================================================
-// GESTAO E CADASTRO DINAMICO DE USUARIOS (MOCKUP OFICIAL)
+// GESTAO DE USUARIOS PELO ADMIN
 // =========================================================================
-function criarNovoUsuarioForm() {
-  const nomeInput = document.getElementById('novoUserNome');
-  const emailInput = document.getElementById('novoUserEmail');
-  const senhaInput = document.getElementById('novoUserSenha');
-  const papelSelect = document.getElementById('novoUserPapel');
-
-  const nome = nomeInput.value.trim();
-  const email = emailInput.value.trim().toLowerCase();
-  const senha = senhaInput.value;
-  const papelKey = papelSelect.value;
-
-  if (!nome || !email || !senha) {
-    alert('Por favor, preencha todos os campos obrigatórios.');
+function abrirModalCadastroAdmin() {
+  if (currentUser.role !== TOOLFLOW_ROLES.ADMIN) {
+    alert('Apenas administradores podem cadastrar novos logins.');
     return;
   }
+  document.getElementById('adminNewUserNome').value = '';
+  document.getElementById('adminNewUserEmail').value = '';
+  document.getElementById('adminNewUserPassword').value = '';
+  document.getElementById('modalCadastroAdmin').style.display = 'flex';
+}
 
-  if (senha.length < 6) {
-    alert('A senha deve possuir no mínimo 6 caracteres.');
+function fecharModalCadastroAdmin() {
+  document.getElementById('modalCadastroAdmin').style.display = 'none';
+}
+
+function cadastrarNovoUsuarioAdmin() {
+  const nome = document.getElementById('adminNewUserNome').value.trim();
+  const email = document.getElementById('adminNewUserEmail').value.trim().toLowerCase();
+  const password = document.getElementById('adminNewUserPassword').value;
+  const roleSelect = document.getElementById('adminNewUserRole').value;
+
+  if (!nome || !email || !password) {
+    alert('Por favor, preencha todos os campos.');
     return;
   }
 
   if (devflowUsersStore.some(u => u.email.toLowerCase() === email)) {
-    alert('Este e-mail já está cadastrado no sistema.');
+    alert('Este e-mail ja esta cadastrado no sistema.');
     return;
   }
 
-  const roleConfig = USER_ROLES_CONFIG[papelKey] || USER_ROLES_CONFIG.TECNICO_USINAGEM;
+  let role = TOOLFLOW_ROLES.SOLICITANTE;
+  let roleTitle = 'Solicitante';
 
-  const novoUsuario = {
-    id: `user_${Date.now()}`,
-    name: nome,
-    email: email,
-    password: senha,
-    roleKey: papelKey,
-    roleTitle: roleConfig.label,
-    role: roleConfig.role,
-    avatarBg: roleConfig.avatarBg
-  };
+  if (roleSelect === 'ADMIN') { role = TOOLFLOW_ROLES.ADMIN; roleTitle = 'Engenharia ADM'; }
+  else if (roleSelect === 'TECNICO_1T') { role = TOOLFLOW_ROLES.TECNICO; roleTitle = 'Tecnico 1o Turno'; }
+  else if (roleSelect === 'TECNICO_2T') { role = TOOLFLOW_ROLES.TECNICO; roleTitle = 'Tecnico 2o Turno'; }
+  else if (roleSelect === 'PRESET') { role = TOOLFLOW_ROLES.SOLICITANTE; roleTitle = 'Setor de Preset'; }
+  else if (roleSelect === 'GERENCIADOR') { role = TOOLFLOW_ROLES.SOLICITANTE; roleTitle = 'Gerenciador / Fornecedor'; }
+  else if (roleSelect === 'LEITURA') { role = TOOLFLOW_ROLES.LEITURA; roleTitle = 'Visitante (Consulta)'; }
+
+  const id = `user_${Date.now()}`;
+  const novoUsuario = { id, name: nome, email, password, roleTitle, role };
 
   devflowUsersStore.push(novoUsuario);
   salvarUsuariosLocais();
+  fecharModalCadastroAdmin();
+  renderizarListaUsuariosGestao();
 
-  // Limpar formulário
-  nomeInput.value = '';
-  emailInput.value = '';
-  senhaInput.value = '';
-  papelSelect.value = 'TECNICO_USINAGEM';
-
-  renderizarListaUsuariosCadastrados();
-  alert(`Usuário "${nome}" (${roleConfig.label}) cadastrado com sucesso!`);
+  alert(`Usuario ${nome} (${roleTitle}) cadastrado com sucesso!`);
 }
 
-function renderizarListaUsuariosCadastrados() {
-  const container = document.getElementById('listaUsuariosCadastradosContainer');
-  const contador = document.getElementById('contagemUsuariosCadastrados');
+function renderizarListaUsuariosGestao() {
+  const container = document.getElementById('listaUsuariosGestao');
   if (!container) return;
-
-  if (contador) {
-    contador.textContent = devflowUsersStore.length;
-  }
-
   container.innerHTML = '';
 
   devflowUsersStore.forEach(u => {
-    const roleConfig = USER_ROLES_CONFIG[u.roleKey] || USER_ROLES_CONFIG[u.role] || {
-      label: u.roleTitle || 'Usuário',
-      badgeStyle: 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;',
-      avatarBg: u.avatarBg || '#64748b'
-    };
+    let badgeClass = 'badge-blue';
+    if (u.role === TOOLFLOW_ROLES.ADMIN) badgeClass = 'badge-orange';
+    else if (u.role === TOOLFLOW_ROLES.TECNICO) badgeClass = 'badge-green';
+    else if (u.role === TOOLFLOW_ROLES.LEITURA) badgeClass = 'badge-gray';
 
-    const isCurrent = currentUser && (currentUser.id === u.id || currentUser.email === u.email);
-    const initial = (u.name || 'U').charAt(0).toUpperCase();
-
-    const row = document.createElement('div');
-    row.className = 'user-item-row';
-    row.innerHTML = `
-      <div style="display: flex; align-items: center; min-width: 0;">
-        <div class="user-avatar-circle" style="background-color: ${u.avatarBg || roleConfig.avatarBg};">
-          ${initial}
-        </div>
-        <div class="user-info-text">
-          <div class="user-name-title">
-            <span>${u.name}</span>
-            ${isCurrent ? '<span class="badge-voce">(você)</span>' : ''}
-          </div>
-          <div class="user-email-subtitle">${u.email}</div>
-        </div>
+    const div = document.createElement('div');
+    div.style = 'display: flex; justify-content: space-between; align-items: center; padding: 0.65rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-color);';
+    div.innerHTML = `
+      <div>
+        <strong>${u.name}</strong> &nbsp;<span class="badge ${badgeClass}">${u.roleTitle}</span>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">${u.email}</div>
       </div>
-
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <span class="user-role-badge" style="${roleConfig.badgeStyle}">${roleConfig.label}</span>
-        <div class="user-actions-group">
-          <button type="button" class="btn-icon-user" title="Editar Usuário" onclick="abrirModalEditarUsuario('${u.id}')">
-            <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-          </button>
-          <button type="button" class="btn-icon-user" title="Alterar Senha" onclick="abrirModalAlterarSenha('${u.id}')">
-            <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
-          </button>
-          <button type="button" class="btn-desativar-user" title="Desativar Usuário" onclick="desativarUsuario('${u.id}')">
-            Desativar
-          </button>
-        </div>
-      </div>
+      <button class="btn btn-secondary btn-sm" onclick="selecionarUsuarioRapido('${u.id}')">Conectar</button>
     `;
-
-    container.appendChild(row);
+    container.appendChild(div);
   });
 }
 
-function abrirModalEditarUsuario(userId) {
+function selecionarUsuarioRapido(userId) {
   const user = devflowUsersStore.find(u => u.id === userId);
-  if (!user) return;
-
-  document.getElementById('editUserId').value = user.id;
-  document.getElementById('editUserNome').value = user.name;
-  document.getElementById('editUserEmail').value = user.email;
-  document.getElementById('editUserPapel').value = user.roleKey || 'TECNICO_USINAGEM';
-
-  document.getElementById('modalEditarUsuario').style.display = 'flex';
-}
-
-function fecharModalEditarUsuario() {
-  document.getElementById('modalEditarUsuario').style.display = 'none';
-}
-
-function salvarEdicaoUsuario() {
-  const userId = document.getElementById('editUserId').value;
-  const nome = document.getElementById('editUserNome').value.trim();
-  const email = document.getElementById('editUserEmail').value.trim().toLowerCase();
-  const papelKey = document.getElementById('editUserPapel').value;
-
-  const user = devflowUsersStore.find(u => u.id === userId);
-  if (!user) return;
-
-  const roleConfig = USER_ROLES_CONFIG[papelKey] || USER_ROLES_CONFIG.TECNICO_USINAGEM;
-
-  user.name = nome;
-  user.email = email;
-  user.roleKey = papelKey;
-  user.roleTitle = roleConfig.label;
-  user.role = roleConfig.role;
-  user.avatarBg = roleConfig.avatarBg;
-
-  salvarUsuariosLocais();
-  fecharModalEditarUsuario();
-  renderizarListaUsuariosCadastrados();
-
-  // Se editou o usuario atualmente conectado, atualiza a interface
-  if (currentUser && (currentUser.id === user.id || currentUser.email === user.email)) {
-    currentUser = user;
-    document.getElementById('currentUserName').textContent = user.name;
-    document.getElementById('currentUserRole').textContent = user.roleTitle;
-    document.getElementById('currentUserAvatar').textContent = user.name.charAt(0).toUpperCase();
-  }
-
-  alert(`Usuário "${nome}" atualizado com sucesso!`);
-}
-
-function abrirModalAlterarSenha(userId) {
-  const user = devflowUsersStore.find(u => u.id === userId);
-  if (!user) return;
-
-  document.getElementById('senhaUserId').value = user.id;
-  document.getElementById('senhaUserName').textContent = `${user.name} (${user.email})`;
-  document.getElementById('novaSenhaInput').value = '';
-
-  document.getElementById('modalAlterarSenhaUsuario').style.display = 'flex';
-}
-
-function fecharModalAlterarSenha() {
-  document.getElementById('modalAlterarSenhaUsuario').style.display = 'none';
-}
-
-function salvarNovaSenhaUsuario() {
-  const userId = document.getElementById('senhaUserId').value;
-  const novaSenha = document.getElementById('novaSenhaInput').value;
-
-  if (!novaSenha || novaSenha.length < 6) {
-    alert('A nova senha deve ter no mínimo 6 caracteres.');
-    return;
-  }
-
-  const user = devflowUsersStore.find(u => u.id === userId);
-  if (!user) return;
-
-  user.password = novaSenha;
-  salvarUsuariosLocais();
-  fecharModalAlterarSenha();
-
-  alert(`Senha de "${user.name}" atualizada com sucesso!`);
-}
-
-function desativarUsuario(userId) {
-  const user = devflowUsersStore.find(u => u.id === userId);
-  if (!user) return;
-
-  if (currentUser && (currentUser.id === user.id || currentUser.email === user.email)) {
-    alert('Você não pode desativar seu próprio usuário em uso.');
-    return;
-  }
-
-  if (confirm(`Tem certeza que deseja desativar o usuário "${user.name}" (${user.email})?`)) {
-    devflowUsersStore = devflowUsersStore.filter(u => u.id !== userId);
-    salvarUsuariosLocais();
-    renderizarListaUsuariosCadastrados();
-    alert(`Usuário "${user.name}" desativado com sucesso.`);
+  if (user) {
+    entrarNoApp(user);
   }
 }
 
@@ -1434,20 +1249,16 @@ function carregarDadosLocais() {
 }
 
 function salvarUsuariosLocais() {
-  localStorage.setItem('viemar_toolflow_users_v2', JSON.stringify(devflowUsersStore));
+  localStorage.setItem('viemar_toolflow_users_v1', JSON.stringify(devflowUsersStore));
 }
 
 function carregarUsuariosLocais() {
-  const salvos = localStorage.getItem('viemar_toolflow_users_v2');
+  const salvos = localStorage.getItem('viemar_toolflow_users_v1') || localStorage.getItem('viemar_devflow_users_v1');
   if (salvos) {
     try {
       devflowUsersStore = JSON.parse(salvos);
     } catch (e) {
       console.error(e);
-      devflowUsersStore = [...INITIAL_USERS_STORE];
     }
-  } else {
-    devflowUsersStore = [...INITIAL_USERS_STORE];
-    salvarUsuariosLocais();
   }
 }

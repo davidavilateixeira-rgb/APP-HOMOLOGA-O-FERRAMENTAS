@@ -4,6 +4,28 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
+## [v1.3.0] - 2026-08-04
+
+### Adicionado
+- **Módulo Oficial de Gestão e Cadastro Dinâmico de Usuários (Padrão DevFlow / Viemar)**:
+  - Layout dividido em 2 colunas responsivas:
+    - **Card Esquerdo**: Formulário *Cadastrar novo usuário* com campos `NOME *`, `E-MAIL *`, `SENHA INICIAL * (MÍN. 6 CARACTERES)`, `PAPEL` (Técnico Usinagem, Técnico Montagem, Engenharia de Processos, Engenharia de Produto, Setor Preset, Gerenciador de Ferramentas, Fornecedor Externo, Administrador, Visitante) e botão *Criar usuário* no laranja Viemar.
+    - **Card Direito**: Lista *Usuários cadastrados (N)* com avatares coloridos por perfil, indicador `(você)` para o usuário conectado, tags de papel estilizadas (orange, purple, blue, yellow, teal, pink, gray), botões de ação rápida para edição, alteração de senha e desativação de contas.
+  - **Modais Dedicados**:
+    - Modal *Editar Usuário* para ajuste de nome, e-mail e cargo.
+    - Modal *Alterar Senha do Usuário* com validação de segurança mínima de 6 dígitos.
+    - Confirmação de desativação protegida contra exclusão acidental da própria conta em uso.
+
+### Alterado
+- **Limpeza da Base Inicial de Usuários**:
+  - Remoção de todos os usuários fictícios de teste prévios (Oscar, Jonathan, Filipe, Charles, etc.).
+  - Inicialização limpa exclusiva com o usuário Master Admin: **David** (`davidavillateixeira@gmail.com`).
+  - Atualização do botão de *Primeiro acesso (admin)* na tela de login para preenchimento com as credenciais do David.
+  - Migração segura da persistência local para a chave `viemar_toolflow_users_v2`.
+- Backup de segurança criado em `backups/v1.2.0_to_v1.3.0/`.
+
+---
+
 ## [v1.2.0] - 2026-08-04
 
 ### Adicionado

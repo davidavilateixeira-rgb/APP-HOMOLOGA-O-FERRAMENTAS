@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Viemar ToolFlow v1.3.0 | Gestao de Testes de Ferramentas</title>
+  <title>Viemar ToolFlow v1.2.0 | Gestao de Testes de Ferramentas</title>
   
   <!-- CSS ToolFlow & Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,7 +34,7 @@
         <div class="login-brand-titles">
           <div class="login-title-row">
             <span class="login-main-title">ToolFlow</span>
-            <span class="login-version-tag">v1.3.0</span>
+            <span class="login-version-tag">v1.2.0</span>
           </div>
           <span class="login-subtitle">Engenharia de Processos · VMR</span>
         </div>
@@ -87,7 +87,7 @@
           </div>
         </div>
         <div class="version-badge-container">
-          <span class="version-badge">v1.3.0</span>
+          <span class="version-badge">v1.2.0</span>
           <div class="sync-status-badge" title="Vercel & Cache Local Ativos">
             <span class="sync-dot"></span> Vercel Cloud
           </div>
@@ -114,9 +114,9 @@
 
         <div class="nav-section-label">Configuracao & Governanca</div>
 
-        <button class="sidebar-link" data-view="viewUsuarios" onclick="navegarPara('viewUsuarios', 'Gestão de Usuários')">
+        <button class="sidebar-link" data-view="viewUsuarios" onclick="navegarPara('viewUsuarios', 'Controle de Acessos & Logins')">
           <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          <span>Usuários</span>
+          <span>Gestao de Logins</span>
         </button>
 
         <button class="sidebar-link" data-view="viewAuditoria" onclick="navegarPara('viewAuditoria', 'Logs de Auditoria')">
@@ -128,10 +128,10 @@
       <div class="sidebar-footer">
         <div class="user-card" title="Usuario atualmente conectado">
           <div class="user-card-left">
-            <div class="user-avatar" id="currentUserAvatar">D</div>
+            <div class="user-avatar" id="currentUserAvatar">O</div>
             <div class="user-info">
-              <span class="name" id="currentUserName">David</span>
-              <span class="role" id="currentUserRole">Administrador</span>
+              <span class="name" id="currentUserName">Oscar</span>
+              <span class="role" id="currentUserRole">Engenharia ADM</span>
             </div>
           </div>
         </div>
@@ -884,72 +884,47 @@
         </section>
 
         <!-- ===================================================================== -->
-        <!-- VIEW 4: GESTAO DE USUARIOS (RBAC - PADRAO DEVFLOW / VIEMAR)           -->
+        <!-- VIEW 4: GESTAO DE USUARIOS & CONEXAO EM NUVEM (RBAC)                  -->
         <!-- ===================================================================== -->
         <section id="viewUsuarios" class="app-view">
-          <div class="view-header" style="margin-bottom: 1.5rem;">
+          <div class="view-header">
             <div class="view-title-group">
-              <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a;">Usuários</h2>
-              <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.15rem;">Cadastre os técnicos que vão assumir e movimentar os desenvolvimentos</p>
+              <h2>Matriz de Acessos & Logins Cadastrados</h2>
+              <p>Governança de acessos: O Administrador cria e gerencia os logins da equipe.</p>
+            </div>
+            <div>
+              <button id="btnNovoUsuarioView" class="btn btn-primary btn-sm" onclick="abrirModalCadastroAdmin()">+ Criar Novo Login</button>
             </div>
           </div>
 
-          <div class="grid grid-2" style="grid-template-columns: 1fr 1.35fr; gap: 1.5rem; align-items: start;">
-            
-            <!-- Card Esquerdo: Cadastrar novo usuario -->
-            <div class="user-form-card">
-              <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 1.25rem;">Cadastrar novo usuário</h3>
-              
-              <form id="formCadastroNovoUsuario" onsubmit="event.preventDefault(); criarNovoUsuarioForm();">
-                <div class="form-group" style="margin-bottom: 1rem;">
-                  <label class="user-label">NOME *</label>
-                  <input type="text" id="novoUserNome" class="user-input" placeholder="Ex: Oscar" required>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 1rem;">
-                  <label class="user-label">E-MAIL *</label>
-                  <input type="email" id="novoUserEmail" class="user-input" placeholder="oscar@empresa.com" required>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 1rem;">
-                  <label class="user-label">SENHA INICIAL * (MÍN. 6 CARACTERES)</label>
-                  <input type="password" id="novoUserSenha" class="user-input" placeholder="Senha que o técnico usará para entrar" required minlength="6">
-                </div>
-
-                <div class="form-group" style="margin-bottom: 1.25rem;">
-                  <label class="user-label">PAPEL</label>
-                  <select id="novoUserPapel" class="user-input" required>
-                    <option value="TECNICO_USINAGEM" selected>Técnico Usinagem</option>
-                    <option value="TECNICO_MONTAGEM">Técnico Montagem</option>
-                    <option value="ENG_PROCESSO">Engenharia de Processos</option>
-                    <option value="ENG_PRODUTO">Engenharia de Produto</option>
-                    <option value="PRESET">Setor Preset</option>
-                    <option value="GERENCIADOR">Gerenciador de Ferramentas</option>
-                    <option value="FORNECEDOR">Fornecedor Externo</option>
-                    <option value="ADMIN">Administrador</option>
-                    <option value="VISITANTE">Visitante</option>
-                  </select>
-                </div>
-
-                <button type="submit" class="btn-create-user">Criar usuário</button>
-
-                <p class="user-helper-footer">
-                  O técnico entra com esse e-mail/senha e pode trocá-la depois em "Esqueci minha senha".
-                </p>
-              </form>
-            </div>
-
-            <!-- Card Direito: Usuarios cadastrados (N) -->
-            <div class="user-list-card">
-              <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
-                <span>Usuários cadastrados (<span id="contagemUsuariosCadastrados">0</span>)</span>
-              </h3>
-
-              <div id="listaUsuariosCadastradosContainer" style="display: flex; flex-direction: column; gap: 0.65rem;">
-                <!-- Preenchido dinamicamente via app.js -->
+          <div class="grid grid-2">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Usuarios com Acesso ao ToolFlow</h3>
+                <span class="badge badge-orange">Controle de Logins</span>
+              </div>
+              <div id="listaUsuariosGestao" style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <!-- Preenchido via app.js -->
               </div>
             </div>
 
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Diretrizes de Governanca de Acesso</h3>
+                <span class="badge badge-green">Seguranca Viemar</span>
+              </div>
+              <p style="font-size: 0.825rem; color: var(--text-secondary); line-height: 1.6;">
+                O controle de perfis garante a integridade dos testes de usinagem e rastreabilidade:
+              </p>
+              <div style="margin-top: 0.75rem; background: #f8fafc; padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 0.8rem;">
+                <ul style="margin-left: 1.15rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                  <li><strong>Engenharia ADM:</strong> Apenas administradores podem avaliar viabilidade (D-2), aprovar laudos finais e gerenciar logins.</li>
+                  <li><strong>Tecnicos 1oT / 2oT:</strong> Registram parametros de usinagem no CNC, arestas e desgastes.</li>
+                  <li><strong>Preset / Gerenciador:</strong> Cadastram novas solicitacoes e acompanham status.</li>
+                  <li><strong>Modo Visitante:</strong> Acesso geral sem necessidade de senha, exclusivamente para visualizacao e consulta.</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -973,11 +948,11 @@
                 <div class="timeline-dot green"></div>
                 <div class="timeline-content">
                   <div class="timeline-header">
-                    <span><strong>Sistema ToolFlow v1.3.0</strong></span>
-                    <span>2026-08-04 21:00</span>
+                    <span><strong>Sistema ToolFlow v1.2.0</strong></span>
+                    <span>2026-08-04 20:30</span>
                   </div>
-                  <div class="timeline-title">Gestão e Cadastro Dinâmico de Usuários</div>
-                  <div class="timeline-body">Módulo oficial de gestão de equipe ativo, permitindo cadastro de técnicos, preset, fornecedores e administradores.</div>
+                  <div class="timeline-title">Nova Tela de Login Viemar & Modo Visitante</div>
+                  <div class="timeline-body">Tela de login dedicada com visual limpo, entrada direta para Visitante e gestao de acessos pelo Admin.</div>
                 </div>
               </div>
             </div>
@@ -989,71 +964,43 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- MODAL: EDITAR USUARIO                                                     -->
+  <!-- MODAL: CADASTRO DE NOVO USUARIO (ADMIN ONLY)                              -->
   <!-- ========================================================================= -->
-  <div id="modalEditarUsuario" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalEditarUsuario()">
-    <div class="modal-content" style="max-width: 460px;">
+  <div id="modalCadastroAdmin" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalCadastroAdmin()">
+    <div class="modal-content" style="max-width: 480px;">
       <div class="modal-header">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Editar Usuário</h3>
-        <button onclick="fecharModalEditarUsuario()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">✕</button>
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Cadastrar Novo Usuario / Login</h3>
+        <button onclick="fecharModalCadastroAdmin()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">X</button>
       </div>
 
-      <form onsubmit="event.preventDefault(); salvarEdicaoUsuario();">
-        <input type="hidden" id="editUserId">
+      <form onsubmit="event.preventDefault(); cadastrarNovoUsuarioAdmin();">
         <div class="form-group">
-          <label class="user-label">NOME *</label>
-          <input type="text" id="editUserNome" class="user-input" required>
+          <label>Nome Completo <span class="required">*</span></label>
+          <input type="text" id="adminNewUserNome" class="form-control" placeholder="Ex: Filipe Rosa" required>
         </div>
         <div class="form-group" style="margin-top: 0.75rem;">
-          <label class="user-label">E-MAIL *</label>
-          <input type="email" id="editUserEmail" class="user-input" required>
+          <label>E-mail Corporativo <span class="required">*</span></label>
+          <input type="email" id="adminNewUserEmail" class="form-control" placeholder="Ex: filipe@viemar.com.br" required>
         </div>
         <div class="form-group" style="margin-top: 0.75rem;">
-          <label class="user-label">PAPEL / FUNÇÃO *</label>
-          <select id="editUserPapel" class="user-input" required>
-            <option value="TECNICO_USINAGEM">Técnico Usinagem</option>
-            <option value="TECNICO_MONTAGEM">Técnico Montagem</option>
-            <option value="ENG_PROCESSO">Engenharia de Processos</option>
-            <option value="ENG_PRODUTO">Engenharia de Produto</option>
-            <option value="PRESET">Setor Preset</option>
-            <option value="GERENCIADOR">Gerenciador de Ferramentas</option>
-            <option value="FORNECEDOR">Fornecedor Externo</option>
-            <option value="ADMIN">Administrador</option>
-            <option value="VISITANTE">Visitante</option>
+          <label>Cargo / Perfil de Acesso <span class="required">*</span></label>
+          <select id="adminNewUserRole" class="form-control" required>
+            <option value="ADMIN">Engenharia ADM (Avaliacoes, Custos e Travas)</option>
+            <option value="TECNICO_1T">Tecnico de Usinagem (1o Turno Diurno)</option>
+            <option value="TECNICO_2T">Tecnico de Usinagem (2o Turno Noturno)</option>
+            <option value="PRESET">Setor de Preset (Solicitante D-2 e Acompanhamento)</option>
+            <option value="GERENCIADOR">Gerenciador de Ferramentas / Fornecedor</option>
+            <option value="LEITURA">Visitante / Qualidade (Modo Leitura)</option>
           </select>
         </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
-          <button type="button" class="btn btn-secondary" onclick="fecharModalEditarUsuario()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ========================================================================= -->
-  <!-- MODAL: ALTERAR SENHA                                                      -->
-  <!-- ========================================================================= -->
-  <div id="modalAlterarSenhaUsuario" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalAlterarSenha()">
-    <div class="modal-content" style="max-width: 420px;">
-      <div class="modal-header">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Alterar Senha do Usuário</h3>
-        <button onclick="fecharModalAlterarSenha()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">✕</button>
-      </div>
-
-      <form onsubmit="event.preventDefault(); salvarNovaSenhaUsuario();">
-        <input type="hidden" id="senhaUserId">
-        <div style="margin-bottom: 0.75rem; font-size: 0.85rem; color: #475569;">
-          Definindo nova senha para: <strong id="senhaUserName" style="color: #0f172a;"></strong>
-        </div>
-        <div class="form-group">
-          <label class="user-label">NOVA SENHA (MÍN. 6 CARACTERES) *</label>
-          <input type="password" id="novaSenhaInput" class="user-input" placeholder="Nova senha segura" required minlength="6">
+        <div class="form-group" style="margin-top: 0.75rem;">
+          <label>Senha Provisoria <span class="required">*</span></label>
+          <input type="password" id="adminNewUserPassword" class="form-control" placeholder="Definir senha" required>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
-          <button type="button" class="btn btn-secondary" onclick="fecharModalAlterarSenha()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Atualizar Senha</button>
+          <button type="button" class="btn btn-secondary" onclick="fecharModalCadastroAdmin()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Cadastrar Usuario</button>
         </div>
       </form>
     </div>
