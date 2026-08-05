@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.5.5 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.5.4 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -958,6 +958,12 @@ function preencherCamposWorkflow(teste) {
   document.getElementById('wfSolDataPrev').value = s.dataPrevistaTeste || '';
   document.getElementById('wfSolNome').value = s.solicitante || '';
   document.getElementById('wfSolForn').value = s.fornecedor || '';
+  document.getElementById('wfSolContato').value = s.contatoFornecedor || '';
+  document.getElementById('wfSolPeca').value = `${s.descricaoPeca} (${s.codigoPeca})`;
+  document.getElementById('wfSolMaterial').value = s.materialPeca || '';
+  document.getElementById('wfSolMaquina').value = s.maquina || '';
+  document.getElementById('wfSolOperacao').value = s.operacao || '';
+  document.getElementById('wfSolRefrig').value = s.refrigeracao || '';
   document.getElementById('wfSolProcessos').value = normalizarListaWorkflow(s.processos || s.processo || s.operacao);
   document.getElementById('wfSolTipos').value = `${normalizarListaWorkflow(s.tiposFerramenta)}${s.tipoFerramentaOutra ? ` | Outra: ${s.tipoFerramentaOutra}` : ''}${s.perfilQuebraCavaco ? ` | Perfil: ${s.perfilQuebraCavaco}` : ''}`;
 

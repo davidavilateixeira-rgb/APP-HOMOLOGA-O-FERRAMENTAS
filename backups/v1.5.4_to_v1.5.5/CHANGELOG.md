@@ -4,18 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.5.5] - 2026-08-05
-
-### Ajustado
-- Corrigida a responsividade da tela de Workflow para evitar conteúdo fora da tela e scroll horizontal.
-- Removidos da aba de solicitação campos que não são preenchidos no cadastro, como contato técnico, peça alvo, material/dureza, máquina sugerida, operação e refrigeração.
-- Simplificado o botão de nova solicitação para `Nova Solicitação`.
-- Ajustados grids e campos internos do Workflow para respeitarem a largura disponível da tela.
-
-### Segurança
-- Backup da versão anterior salvo em `backups/v1.5.4_to_v1.5.5/` antes das alterações.
-
----
 ## [v1.5.4] - 2026-08-05
 
 ### Ajustado

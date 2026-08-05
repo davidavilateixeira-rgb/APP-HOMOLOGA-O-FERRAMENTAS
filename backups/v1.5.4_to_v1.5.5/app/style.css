@@ -474,11 +474,10 @@ html, body {
 }
 
 .grid { display: grid; gap: 1rem; }
-.grid-1 { grid-template-columns: 1fr; }
-.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.grid-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-5 { grid-template-columns: repeat(5, 1fr); }
 
 @media (max-width: 1100px) {
   .grid-5 { grid-template-columns: repeat(3, 1fr); }
@@ -1496,7 +1495,7 @@ textarea.form-control {
 .checkbox-grid-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .checkbox-pill { display: flex; align-items: center; gap: 0.45rem; padding: 0.55rem 0.65rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: #ffffff; font-size: 0.78rem; font-weight: 650; color: var(--text-main); cursor: pointer; }
 .checkbox-pill input { accent-color: var(--viemar-orange); }
-.grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 900px) { .grid-4, .checkbox-grid-2, .checkbox-grid-3, .checkbox-grid-5 { grid-template-columns: 1fr; } }
 
 /* ========================================================================= */
@@ -1766,130 +1765,5 @@ textarea.form-control {
 
   .test-policy-card .bpmn-arrow {
     font-size: 0.82rem;
-  }
-}
-
-/* ========================================================================= */
-/* Workflow responsive polish v1.5.5                                          */
-/* ========================================================================= */
-.form-control {
-  width: 100%;
-  min-width: 0;
-}
-
-#viewWorkflow,
-#viewWorkflow .card,
-#viewWorkflow .grid,
-#viewWorkflow .form-group,
-#viewWorkflow .workflow-tab-content {
-  min-width: 0;
-}
-
-#viewWorkflow .card {
-  overflow: hidden;
-}
-
-#viewWorkflow .view-header {
-  align-items: flex-start;
-}
-
-#viewWorkflow .view-header > div:last-child,
-.topbar-actions {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  min-width: 0;
-}
-
-.topbar-actions .btn,
-#viewWorkflow .view-header .btn {
-  white-space: nowrap;
-}
-
-.search-input-wrapper {
-  flex: 1 1 220px;
-  max-width: 280px;
-  min-width: 180px;
-}
-
-.workflow-stepper {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.55rem;
-}
-
-.step-card {
-  min-width: 0;
-  padding: 0.65rem;
-}
-
-.step-title,
-.step-status-tag {
-  overflow-wrap: anywhere;
-}
-
-.workflow-registration-grid {
-  align-items: stretch;
-}
-
-.workflow-tools-grid {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: start;
-}
-
-.workflow-tool-card {
-  min-width: 0;
-  padding: 1rem;
-  border-radius: var(--radius-sm);
-}
-
-.workflow-tool-card-current {
-  background: #f8fafc;
-  border: 1px solid var(--border-color);
-}
-
-.workflow-tool-card-proposed {
-  background: var(--viemar-orange-light);
-  border: 1px solid var(--viemar-orange-border);
-}
-
-.workflow-tool-card .grid-4 {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-@media (max-width: 1250px) {
-  .workflow-stepper {
-    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-  }
-
-  .workflow-tools-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .workflow-tool-card .grid-4 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 760px) {
-  .app-topbar {
-    align-items: stretch;
-  }
-
-  .topbar-actions {
-    width: 100%;
-  }
-
-  .search-input-wrapper {
-    max-width: none;
-    min-width: 100%;
-  }
-
-  .workflow-stepper {
-    grid-template-columns: 1fr;
-  }
-
-  .workflow-tool-card .grid-4,
-  .workflow-tool-card .grid-3,
-  .workflow-tool-card .grid-2 {
-    grid-template-columns: 1fr;
   }
 }
