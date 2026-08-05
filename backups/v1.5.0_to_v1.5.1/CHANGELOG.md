@@ -4,16 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.5.1] - 2026-08-05
-
-### Corrigido
-- Polimento final de acentuação em mensagens, alertas e valores visíveis do workflow.
-- Ajustados nomes de processos para `USI Copo Pivô` e `USI Pré-Forma` no cadastro.
-
-### Segurança
-- Backup da versão anterior salvo em `backups/v1.5.0_to_v1.5.1/` antes das alterações.
-
----
 ## [v1.5.0] - 2026-08-05
 
 ### Ajustado

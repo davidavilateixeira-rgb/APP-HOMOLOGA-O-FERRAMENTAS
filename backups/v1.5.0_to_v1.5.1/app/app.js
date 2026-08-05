@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.5.1 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.5.0 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -306,7 +306,7 @@ let testDataStore = [
       { dataHora: '2026-07-28 09:00', usuario: 'Jonathan', acao: 'Solicitação Criada', detalhe: 'Torneamento acabamento eixo 8620.' },
       { dataHora: '2026-07-29 14:00', usuario: 'Oscar', acao: 'Viabilidade Aprovada', detalhe: 'Liberado para teste.' },
       { dataHora: '2026-07-30 16:00', usuario: 'Filipe', acao: 'Execução Concluída', detalhe: '165 peças usinadas com Ra 0.8.' },
-      { dataHora: '2026-08-01 10:00', usuario: 'Jonathan', acao: 'Bloqueio por Suprimentos', detalhe: 'Lead time de 45 dias gera risco cr\u00EDtico de ruptura.' }
+      { dataHora: '2026-08-01 10:00', usuario: 'Jonathan', acao: 'Bloqueio por Suprimentos', detalhe: 'Lead time de 45 dias gera risco critico de ruptura.' }
     ],
     comentarios: [
       { dataHora: '2026-08-01 10:30', usuario: 'Jonathan', texto: 'Solicitado ao fornecedor remessa a\u00E9rea de 30 pe\u00E7as para cobrir o lead time.' }
@@ -482,7 +482,7 @@ function aplicarPermissoesUI() {
   if (wfBanner) {
     if (isLeitura) {
       wfBanner.className = 'role-banner role-banner-viewer no-print';
-      wfBanner.innerHTML = '<span>Perfil Visitante / Qualidade: Modo de visualiza\u00E7\u00E3o e consulta (somente leitura).</span>';
+      wfBanner.innerHTML = '<span>Perfil Visitante / Qualidade: Modo de visualizacao e consulta (somente leitura).</span>';
     } else if (isAdmin) {
       wfBanner.className = 'role-banner role-banner-editor no-print';
       wfBanner.innerHTML = '<span>Perfil Engenharia ADM: Acesso total a avalia\u00E7\u00F5es, agendamentos, custos e laudos.</span>';
@@ -1168,7 +1168,7 @@ function confirmarAgendamento() {
 
   registrarTimeline(teste, 'Agendamento Confirmado', `Visita confirmada para ${teste.agendamento.dataVisitaConfirmada} as ${teste.agendamento.horarioVisita}.`);
   salvarDadosLocais();
-  alert('Visita e prepara\u00E7\u00E3o do Preset confirmadas! Teste liberado para a F\u00E1brica.');
+  alert('Visita e preparacao do Preset confirmadas! Teste liberado para a Fabrica.');
   renderizarDashboard();
   renderizarTabelaPipeline();
   abrirDetalhesWorkflow(teste.id);
@@ -1223,7 +1223,7 @@ function recalcularFechamento() {
 
   const elEconMes = document.getElementById('wfFechEconMes');
   const elEconAno = document.getElementById('wfFechEconAno');
-  if (elEconMes) elEconMes.textContent = `R$ ${econMes.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / m\u00EAs`;
+  if (elEconMes) elEconMes.textContent = `R$ ${econMes.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / mes`;
   if (elEconAno) elEconAno.textContent = `R$ ${econAno.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / ano`;
 
   const leadTime = parseFloat(document.getElementById('wfFechLeadTime')?.value) || 0;
@@ -1248,7 +1248,7 @@ function recalcularFechamento() {
     if (elAlerta) elAlerta.style.display = 'block';
     if (boxMargem) { boxMargem.className = 'kpi-box danger'; }
   } else {
-    if (elStatusEstoque) elStatusEstoque.textContent = 'TRANSI\u00C7\u00C3O SEGURA';
+    if (elStatusEstoque) elStatusEstoque.textContent = 'TRANSICAO SEGURA';
     if (elAlerta) elAlerta.style.display = 'none';
     if (boxMargem) { boxMargem.className = 'kpi-box success'; }
   }
@@ -1413,7 +1413,7 @@ function gerarQuintasQuinzenais(qtd = 10) {
 function preencherDatasPrevistasTeste() {
   const select = document.getElementById('modalDataPrevista');
   if (!select) return;
-  select.innerHTML = gerarQuintasQuinzenais().map((iso, idx) => `<option value="${iso}">${formatarDataBR(iso)}${idx === 0 ? ' - pr\u00F3xima janela v\u00E1lida' : ''}</option>`).join('');
+  select.innerHTML = gerarQuintasQuinzenais().map((iso, idx) => `<option value="${iso}">${formatarDataBR(iso)}${idx === 0 ? ' - proxima janela valida' : ''}</option>`).join('');
 }
 
 function coletarValoresMarcados(nome) {
@@ -1446,10 +1446,10 @@ function submeterModalSolicitacao() {
   const indicadoresAtacados = coletarValoresMarcados('modalIndicadores');
   const tipoOutra = textoCadastroMaiusculo('modalTipoOutra');
 
-  if (!ehQuintaQuinzenalValida(dataPrevistaTeste)) { alert('Selecione uma quinta-feira quinzenal v\u00E1lida, com pelo menos D+2.'); return; }
+  if (!ehQuintaQuinzenalValida(dataPrevistaTeste)) { alert('Selecione uma quinta-feira quinzenal valida, com pelo menos D+2.'); return; }
   if (processos.length === 0) { alert('Selecione pelo menos um processo.'); return; }
   if (tiposFerramenta.length === 0) { alert('Selecione pelo menos um tipo de ferramenta.'); return; }
-  if (tiposFerramenta.includes('Outra') && !tipoOutra) { alert('Informe qual \u00E9 o outro tipo de ferramenta.'); return; }
+  if (tiposFerramenta.includes('Outra') && !tipoOutra) { alert('Informe qual e o outro tipo de ferramenta.'); return; }
   if (indicadoresAtacados.length === 0) { alert('Selecione pelo menos um indicador.'); return; }
 
   const codigoFerramenta = textoCadastroMaiusculo('modalFerrTeste');
@@ -1548,7 +1548,7 @@ function copiarWhatsAppWorkflow() {
                 `Acompanhamento no Portal de Testes Viemar.`;
 
   navigator.clipboard.writeText(texto).then(() => {
-    alert('Resumo do workflow copiado com padr\u00E3o Viemar para a \u00E1rea de transfer\u00EAncia!');
+    alert('Resumo do workflow copiado com padrao Viemar para a area de transferencia!');
   });
 }
 
