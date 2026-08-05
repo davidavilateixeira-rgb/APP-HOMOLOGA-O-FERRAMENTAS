@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.4.1 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.4.0 - SISTEMA DE WORKFLOW E HOMOLOGACAO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -32,13 +32,13 @@ const USER_ROLES_CONFIG = {
     avatarBg: '#64748b'
   },
   TECNICO_USINAGEM: {
-    label: 'TÃƒÂ©cnico Usinagem',
+    label: 'TÃ©cnico Usinagem',
     role: TOOLFLOW_ROLES.TECNICO,
     badgeStyle: 'background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd;',
     avatarBg: '#64748b'
   },
   TECNICO_MONTAGEM: {
-    label: 'TÃƒÂ©cnico Montagem',
+    label: 'TÃ©cnico Montagem',
     role: TOOLFLOW_ROLES.TECNICO,
     badgeStyle: 'background: #fffbeb; color: #d97706; border: 1px solid #fde68a;',
     avatarBg: '#64748b'
@@ -152,8 +152,8 @@ let testDataStore = [
       cicloRealMedido: 132,
       parametros: { vc: 220, rpm: 1400, fz: 0.18, vf: 1260, ap: 2.5, ae: 40.0, balanco: 85 },
       registrosArestas: [
-        { aresta: '#1', turno: '1o Turno', tecnico: 'Filipe', pecas: 65, ra: '1.4 Ã‚Âµm', desgaste: 'Desgaste VB normal ~0.15mm' },
-        { aresta: '#1 (Cont.)', turno: '2o Turno', tecnico: 'Charles', pecas: 60, ra: '1.5 Ã‚Âµm', desgaste: 'Fim de vida VB=0.30mm sem quebras' }
+        { aresta: '#1', turno: '1o Turno', tecnico: 'Filipe', pecas: 65, ra: '1.4 Âµm', desgaste: 'Desgaste VB normal ~0.15mm' },
+        { aresta: '#1 (Cont.)', turno: '2o Turno', tecnico: 'Charles', pecas: 60, ra: '1.5 Âµm', desgaste: 'Fim de vida VB=0.30mm sem quebras' }
       ],
       totalPecas: 125,
       vidaMediaAresta: 125,
@@ -283,7 +283,7 @@ let testDataStore = [
       cicloRealMedido: 58,
       parametros: { vc: 260, rpm: 1800, fz: 0.15, vf: 270, ap: 1.0, ae: 1.0, balanco: 50 },
       registrosArestas: [
-        { aresta: '#1', turno: '1o Turno', tecnico: 'Filipe', pecas: 165, ra: '0.8 Ã‚Âµm', desgaste: 'Excelente' }
+        { aresta: '#1', turno: '1o Turno', tecnico: 'Filipe', pecas: 165, ra: '0.8 Âµm', desgaste: 'Excelente' }
       ],
       totalPecas: 165,
       vidaMediaAresta: 165,
@@ -386,7 +386,7 @@ function realizarLoginTela() {
 
     entrarNoApp(user);
   } else {
-    alert('UsuÃƒÂ¡rio nÃƒÂ£o encontrado na base. Solicite seu cadastro ao Administrador (David) ou acesse como Visitante.');
+    alert('UsuÃ¡rio nÃ£o encontrado na base. Solicite seu cadastro ao Administrador (David) ou acesse como Visitante.');
   }
 }
 
@@ -511,17 +511,17 @@ function criarNovoUsuarioForm() {
   const papelKey = papelSelect.value;
 
   if (!nome || !email || !senha) {
-    alert('Por favor, preencha todos os campos obrigatÃƒÂ³rios.');
+    alert('Por favor, preencha todos os campos obrigatÃ³rios.');
     return;
   }
 
   if (senha.length < 6) {
-    alert('A senha deve possuir no mÃƒÂ­nimo 6 caracteres.');
+    alert('A senha deve possuir no mÃ­nimo 6 caracteres.');
     return;
   }
 
   if (devflowUsersStore.some(u => u.email.toLowerCase() === email)) {
-    alert('Este e-mail jÃƒÂ¡ estÃƒÂ¡ cadastrado no sistema.');
+    alert('Este e-mail jÃ¡ estÃ¡ cadastrado no sistema.');
     return;
   }
 
@@ -541,14 +541,14 @@ function criarNovoUsuarioForm() {
   devflowUsersStore.push(novoUsuario);
   salvarUsuariosLocais();
 
-  // Limpar formulÃƒÂ¡rio
+  // Limpar formulÃ¡rio
   nomeInput.value = '';
   emailInput.value = '';
   senhaInput.value = '';
   papelSelect.value = 'TECNICO_USINAGEM';
 
   renderizarListaUsuariosCadastrados();
-  alert(`UsuÃƒÂ¡rio "${nome}" (${roleConfig.label}) cadastrado com sucesso!`);
+  alert(`UsuÃ¡rio "${nome}" (${roleConfig.label}) cadastrado com sucesso!`);
 }
 
 function renderizarListaUsuariosCadastrados() {
@@ -564,7 +564,7 @@ function renderizarListaUsuariosCadastrados() {
 
   devflowUsersStore.forEach(u => {
     const roleConfig = USER_ROLES_CONFIG[u.roleKey] || USER_ROLES_CONFIG[u.role] || {
-      label: u.roleTitle || 'UsuÃƒÂ¡rio',
+      label: u.roleTitle || 'UsuÃ¡rio',
       badgeStyle: 'background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;',
       avatarBg: u.avatarBg || '#64748b'
     };
@@ -582,7 +582,7 @@ function renderizarListaUsuariosCadastrados() {
         <div class="user-info-text">
           <div class="user-name-title">
             <span>${u.name}</span>
-            ${isCurrent ? '<span class="badge-voce">(vocÃƒÂª)</span>' : ''}
+            ${isCurrent ? '<span class="badge-voce">(vocÃª)</span>' : ''}
           </div>
           <div class="user-email-subtitle">${u.email}</div>
         </div>
@@ -591,13 +591,13 @@ function renderizarListaUsuariosCadastrados() {
       <div style="display: flex; align-items: center; gap: 0.5rem;">
         <span class="user-role-badge" style="${roleConfig.badgeStyle}">${roleConfig.label}</span>
         <div class="user-actions-group">
-          <button type="button" class="btn-icon-user" title="Editar UsuÃƒÂ¡rio" onclick="abrirModalEditarUsuario('${u.id}')">
+          <button type="button" class="btn-icon-user" title="Editar UsuÃ¡rio" onclick="abrirModalEditarUsuario('${u.id}')">
             <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
           </button>
           <button type="button" class="btn-icon-user" title="Alterar Senha" onclick="abrirModalAlterarSenha('${u.id}')">
             <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
           </button>
-          <button type="button" class="btn-desativar-user" title="Desativar UsuÃƒÂ¡rio" onclick="desativarUsuario('${u.id}')">
+          <button type="button" class="btn-desativar-user" title="Desativar UsuÃ¡rio" onclick="desativarUsuario('${u.id}')">
             Desativar
           </button>
         </div>
@@ -654,7 +654,7 @@ function salvarEdicaoUsuario() {
     document.getElementById('currentUserAvatar').textContent = user.name.charAt(0).toUpperCase();
   }
 
-  alert(`UsuÃƒÂ¡rio "${nome}" atualizado com sucesso!`);
+  alert(`UsuÃ¡rio "${nome}" atualizado com sucesso!`);
 }
 
 function abrirModalAlterarSenha(userId) {
@@ -677,7 +677,7 @@ function salvarNovaSenhaUsuario() {
   const novaSenha = document.getElementById('novaSenhaInput').value;
 
   if (!novaSenha || novaSenha.length < 6) {
-    alert('A nova senha deve ter no mÃƒÂ­nimo 6 caracteres.');
+    alert('A nova senha deve ter no mÃ­nimo 6 caracteres.');
     return;
   }
 
@@ -696,15 +696,15 @@ function desativarUsuario(userId) {
   if (!user) return;
 
   if (currentUser && (currentUser.id === user.id || currentUser.email === user.email)) {
-    alert('VocÃƒÂª nÃƒÂ£o pode desativar seu prÃƒÂ³prio usuÃƒÂ¡rio em uso.');
+    alert('VocÃª nÃ£o pode desativar seu prÃ³prio usuÃ¡rio em uso.');
     return;
   }
 
-  if (confirm(`Tem certeza que deseja desativar o usuÃƒÂ¡rio "${user.name}" (${user.email})?`)) {
+  if (confirm(`Tem certeza que deseja desativar o usuÃ¡rio "${user.name}" (${user.email})?`)) {
     devflowUsersStore = devflowUsersStore.filter(u => u.id !== userId);
     salvarUsuariosLocais();
     renderizarListaUsuariosCadastrados();
-    alert(`UsuÃƒÂ¡rio "${user.name}" desativado com sucesso.`);
+    alert(`UsuÃ¡rio "${user.name}" desativado com sucesso.`);
   }
 }
 
@@ -1046,8 +1046,8 @@ function preencherCamposWorkflow(teste) {
 
   document.getElementById('wfFechVolumeMes').value = f.volumeMensalPecas || 5000;
   document.getElementById('wfFechLeadTime').value = f.leadTimeDias || s.leadTimeDias || 15;
-  document.getElementById('wfFechEstoqueAlmox').value = f.estoqueAlmoxAntigo || s.quantidadeEstoque || 45;
-  document.getElementById('wfFechConsumoMes').value = f.consumoMesAntigo || s.giroMensal || 30;
+  document.getElementById('wfFechEstoqueAlmox').value = f.estoqueAlmoxAntigo || 45;
+  document.getElementById('wfFechConsumoMes').value = f.consumoMesAntigo || 30;
 
   document.getElementById('wfFechDecisaoFinal').value = f.decisaoFinal || 'HOMOLOGADO';
   document.getElementById('wfFechJustificativa').value = f.justificativaFinal || '';
@@ -1086,7 +1086,7 @@ function adicionarLinhaAresta() {
   const pecas = prompt('Informe a quantidade de pecas usinadas nesta aresta/turno:', '60');
   if (!pecas) return;
 
-  const ra = prompt('Informe a rugosidade Ra medida (ex: 1.4 Ã‚Âµm):', '1.4 Ã‚Âµm') || '1.4 Ã‚Âµm';
+  const ra = prompt('Informe a rugosidade Ra medida (ex: 1.4 Âµm):', '1.4 Âµm') || '1.4 Âµm';
   const desgaste = prompt('Estado de desgaste (VB / Aresta):', 'Desgaste VB normal') || 'OK';
 
   if (!teste.chaoDeFabrica.registrosArestas) teste.chaoDeFabrica.registrosArestas = [];
@@ -1421,8 +1421,6 @@ function coletarValoresMarcados(nome) {
 }
 function abrirModalNovaSolicitacao() {
   preencherDatasPrevistasTeste();
-  const solicitante = document.getElementById('modalSolicitanteNome');
-  if (solicitante) solicitante.value = currentUser ? currentUser.name : 'Solicitante';
   document.getElementById('modalNovaSolicitacao').style.display = 'flex';
 }
 
@@ -1446,7 +1444,7 @@ function submeterModalSolicitacao() {
   if (indicadoresAtacados.length === 0) { alert('Selecione pelo menos um indicador.'); return; }
 
   const codigoFerramenta = document.getElementById('modalFerrTeste').value.trim();
-  const descricaoAplicacao = `Teste de ${codigoFerramenta} em ${processos.join(', ')}`;
+  const descricaoAplicacao = document.getElementById('modalDescPeca').value.trim() || `Teste de ${codigoFerramenta} em ${processos.join(', ')}`;
 
   const novoTeste = {
     id: idNovo,
@@ -1455,19 +1453,19 @@ function submeterModalSolicitacao() {
     solicitacao: {
       dataSolicitacao: hoje,
       dataPrevistaTeste: dataPrevistaTeste,
-      calendarioTeste: 'Quinta-feira quinzenal, mÃ­nimo D+2 da solicitaÃ§Ã£o',
+      calendarioTeste: 'Quinta-feira quinzenal, minimo D+2 da solicitacao',
       solicitante: currentUser ? currentUser.name : 'Solicitante',
       fornecedor: document.getElementById('modalFornecedor').value,
       contatoFornecedor: document.getElementById('modalContato').value,
       processos: processos,
       tiposFerramenta: tiposFerramenta,
       tipoFerramentaOutra: tipoOutra,
-      codigoPeca: 'N/A',
+      codigoPeca: document.getElementById('modalCodigoPeca').value,
       descricaoPeca: descricaoAplicacao,
-      materialPeca: '',
-      maquina: processos.join(', '),
-      operacao: processos.join(', '),
-      refrigeracao: '',
+      materialPeca: document.getElementById('modalMaterial').value,
+      maquina: document.getElementById('modalMaquina').value,
+      operacao: document.getElementById('modalOperacao').value,
+      refrigeracao: document.getElementById('modalRefrigeracao').value,
       
       ferramentaAtual: document.getElementById('modalFerrAtual').value,
       ferramentaAtualDescricao: document.getElementById('modalFerrAtualDesc').value,
@@ -1498,8 +1496,6 @@ function submeterModalSolicitacao() {
       arestasTeste: 4,
       leadTimeDias: parseFloat(document.getElementById('modalLeadTime').value) || 15,
       estoqueLocal: document.getElementById('modalEstoqueLocal').value,
-      quantidadeEstoque: parseFloat(document.getElementById('modalQtdEstoque').value) || 0,
-      giroMensal: parseFloat(document.getElementById('modalGiroMensal').value) || 0,
       justificativa: document.getElementById('modalJustificativa').value,
       retornoEsperado: document.getElementById('modalRetornoEsperado').value,
       indicadoresAtacados: indicadoresAtacados

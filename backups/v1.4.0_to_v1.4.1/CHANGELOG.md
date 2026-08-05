@@ -4,19 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.4.1] - 2026-08-05
-
-### Corrigido
-- **Ajustes no modal de nova solicitação**:
-  - Removidos os campos de peça, material, máquina, operação e refrigeração do cadastro, pois não eram necessários nesta etapa.
-  - Incluído campo de solicitante preenchido automaticamente pelo usuário logado.
-  - Incluídos campos de quantidade em estoque e giro mensal para análise de abastecimento.
-  - Corrigidos rótulos com acentuação em português no formulário.
-  - Ajustado layout responsivo para eliminar scroll horizontal no modal.
-- Backup de segurança criado em `backups/v1.4.0_to_v1.4.1/`.
-
----
-
 ## [v1.4.0] - 2026-08-04
 
 ### Adicionado

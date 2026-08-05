@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Viemar ToolFlow v1.4.1 | Gestao de Testes de Ferramentas</title>
+  <title>Viemar ToolFlow v1.4.0 | Gestao de Testes de Ferramentas</title>
   
   <!-- CSS ToolFlow & Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,7 +34,7 @@
         <div class="login-brand-titles">
           <div class="login-title-row">
             <span class="login-main-title">ToolFlow</span>
-            <span class="login-version-tag">v1.4.1</span>
+            <span class="login-version-tag">v1.4.0</span>
           </div>
           <span class="login-subtitle">Engenharia de Processos Â· VMR</span>
         </div>
@@ -86,7 +86,7 @@
           </div>
         </div>
         <div class="version-badge-container">
-          <span class="version-badge">v1.4.1</span>
+          <span class="version-badge">v1.4.0</span>
           <div class="sync-status-badge" title="Vercel & Cache Local Ativos">
             <span class="sync-dot"></span> Vercel Cloud
           </div>
@@ -488,11 +488,11 @@
                   <h4 style="font-size: 0.825rem; color: var(--viemar-orange); margin-bottom: 0.5rem;">Proposta do Fornecedor</h4>
                   <div class="form-group">
                     <label>Nova Ferramenta:</label>
-                    <input type="text" id="wfSolFerrTeste" class="form-control" readonly><div class="grid grid-2" style="margin-top:0.4rem;"><input type="text" id="wfSolClasse" class="form-control" placeholder="Classe" readonly><input type="text" id="wfSolPerfil" class="form-control" placeholder="Perfil / quebra-cavaco" readonly></div><textarea id="wfSolFerrTesteDesc" class="form-control" rows="2" style="margin-top:0.4rem;" readonly></textarea><div class="grid grid-4" style="margin-top:0.4rem;"><input type="text" id="wfSolRecAvanco" class="form-control" placeholder="Avanço rec." readonly><input type="text" id="wfSolRecAp" class="form-control" placeholder="AP rec." readonly><input type="text" id="wfSolRecVc" class="form-control" placeholder="Vc rec." readonly><input type="text" id="wfSolRecRpm" class="form-control" placeholder="RPM rec." readonly></div>
+                    <input type="text" id="wfSolFerrTeste" class="form-control" readonly><div class="grid grid-2" style="margin-top:0.4rem;"><input type="text" id="wfSolClasse" class="form-control" placeholder="Classe" readonly><input type="text" id="wfSolPerfil" class="form-control" placeholder="Perfil / quebra-cavaco" readonly></div><textarea id="wfSolFerrTesteDesc" class="form-control" rows="2" style="margin-top:0.4rem;" readonly></textarea><div class="grid grid-4" style="margin-top:0.4rem;"><input type="text" id="wfSolRecAvanco" class="form-control" placeholder="Avanco rec." readonly><input type="text" id="wfSolRecAp" class="form-control" placeholder="AP rec." readonly><input type="text" id="wfSolRecVc" class="form-control" placeholder="Vc rec." readonly><input type="text" id="wfSolRecRpm" class="form-control" placeholder="RPM rec." readonly></div>
                   </div>
                   <div class="grid grid-3" style="margin-top: 0.4rem;">
                     <div class="form-group">
-                      <label>Vida útil proposta:</label>
+                      <label>Meta Vida:</label>
                       <input type="text" id="wfSolMetaVida" class="form-control" readonly>
                     </div>
                     <div class="form-group">
@@ -500,7 +500,7 @@
                       <input type="text" id="wfSolAmostras" class="form-control" readonly>
                     </div>
                     <div class="form-group">
-                      <label>Preço (R$):</label>
+                      <label>Preco (R$):</label>
                       <input type="text" id="wfSolPrecoTeste" class="form-control" readonly>
                     </div>
                   </div>
@@ -523,8 +523,8 @@
               </div>
 
               <div class="grid grid-2" style="margin-top: 1.25rem;">
-                <div class="form-group"><label>Motivo do teste:</label><textarea id="wfSolJustificativa" class="form-control" rows="3" readonly></textarea></div>
-                <div class="form-group"><label>Retorno esperado / Indicadores:</label><textarea id="wfSolRetorno" class="form-control" rows="3" readonly></textarea></div>
+                <div class="form-group"><label>Motivo do Teste:</label><textarea id="wfSolJustificativa" class="form-control" rows="3" readonly></textarea></div>
+                <div class="form-group"><label>Retorno Esperado / Indicadores:</label><textarea id="wfSolRetorno" class="form-control" rows="3" readonly></textarea></div>
               </div>
             </div>
           </div>
@@ -743,7 +743,7 @@
                     <h4 style="font-size: 0.825rem; color: var(--status-blue-text); margin-bottom: 0.5rem;">Ferramenta Atual</h4>
                     <div class="grid grid-3">
                       <div class="form-group">
-                        <label>Preço (R$):</label>
+                        <label>Preco (R$):</label>
                         <input type="number" step="0.01" id="wfFechPrecoAtual" class="form-control" oninput="recalcularFechamento()">
                       </div>
                       <div class="form-group">
@@ -765,7 +765,7 @@
                     <h4 style="font-size: 0.825rem; color: var(--viemar-orange); margin-bottom: 0.5rem;">Nova Ferramenta Testada</h4>
                     <div class="grid grid-3">
                       <div class="form-group">
-                        <label>Preço (R$):</label>
+                        <label>Preco (R$):</label>
                         <input type="number" step="0.01" id="wfFechPrecoTeste" class="form-control" oninput="recalcularFechamento()">
                       </div>
                       <div class="form-group">
@@ -1080,27 +1080,22 @@
   <div id="modalNovaSolicitacao" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalNovaSolicitacao()">
     <div class="modal-content modal-wide">
       <div class="modal-header">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Nova Solicitação de Teste (D-2)</h3>
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Nova Solicitacao de Teste (D-2)</h3>
         <button onclick="fecharModalNovaSolicitacao()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">X</button>
       </div>
 
       <form onsubmit="event.preventDefault(); submeterModalSolicitacao();">
-        <div class="grid grid-4 modal-form-grid">
+        <div class="grid grid-3">
           <div class="form-group">
-            <label>Data prevista do teste (quinta-feira) <span class="required">*</span></label>
-            <select id="modalDataPrevista" class="form-control" required></select>
-            <small class="form-note">Somente próximas quintas-feiras quinzenais, respeitando D+2.</small>
-          </div>
-          <div class="form-group">
-            <label>Solicitante</label>
-            <input type="text" id="modalSolicitanteNome" class="form-control" readonly>
+            <label>Data Prevista (Quinta-feira) <span class="required">*</span></label>
+            <select id="modalDataPrevista" class="form-control" required></select><small class="form-note">Somente proximas quintas-feiras quinzenais, respeitando D+2.</small>
           </div>
           <div class="form-group">
             <label>Fornecedor <span class="required">*</span></label>
             <input type="text" id="modalFornecedor" class="form-control" placeholder="Ex: Sandvik Coromant" required>
           </div>
           <div class="form-group">
-            <label>Contato / telefone</label>
+            <label>Contato / Tel</label>
             <input type="text" id="modalContato" class="form-control" placeholder="Ex: (51) 99888-7766">
           </div>
         </div>
@@ -1142,19 +1137,54 @@
           </div>
         </div>
 
+        <div class="grid grid-3" style="margin-top: 0.75rem;">
+          <div class="form-group">
+            <label>Codigo Peca <span class="required">*</span></label>
+            <input type="text" id="modalCodigoPeca" class="form-control" placeholder="Ex: PC-88420-A" required>
+          </div>
+          <div class="form-group">
+            <label>Descricao Peca <span class="required">*</span></label>
+            <input type="text" id="modalDescPeca" class="form-control" placeholder="Ex: Flange 120" required>
+          </div>
+          <div class="form-group">
+            <label>Material / Dureza <span class="required">*</span></label>
+            <input type="text" id="modalMaterial" class="form-control" placeholder="Ex: Aco 4140" required>
+          </div>
+        </div>
+
+        <div class="grid grid-3" style="margin-top: 0.75rem;">
+          <div class="form-group">
+            <label>Maquina CNC <span class="required">*</span></label>
+            <input type="text" id="modalMaquina" class="form-control" placeholder="Ex: Romi D800" required>
+          </div>
+          <div class="form-group">
+            <label>Operacao</label>
+            <input type="text" id="modalOperacao" class="form-control" placeholder="Ex: Faceamento">
+          </div>
+          <div class="form-group">
+            <label>Refrigeracao</label>
+            <select id="modalRefrigeracao" class="form-control">
+              <option>Oleo Soluvel Convencional</option>
+              <option>Alta Pressao Interna</option>
+              <option>MQL / Ar</option>
+              <option>Corte a Seco</option>
+            </select>
+          </div>
+        </div>
+
         <div class="grid grid-2" style="margin-top: 1rem;">
           <div style="background: #f8fafc; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
             <h4 style="font-size: 0.75rem; color: var(--status-blue-text); margin-bottom: 0.4rem; font-weight: 700;">Ferramenta Atual</h4>
             <div class="form-group">
-              <label>Código atual:</label>
+              <label>Codigo Atual:</label>
               <input type="text" id="modalFerrAtual" class="form-control" placeholder="Ex: APMT1604" required>
             </div>
             <div class="form-group" style="margin-top: 0.35rem;">
-              <label>Descrição da ferramenta atual:</label>
+              <label>Descricao da Ferramenta Atual:</label>
               <textarea id="modalFerrAtualDesc" class="form-control" rows="2" placeholder="Descreva a ferramenta atual"></textarea>
             </div>
             <div class="grid grid-4" style="margin-top: 0.35rem;">
-              <div class="form-group"><label>Avanço:</label><input type="number" step="0.001" id="modalAtualAvanco" class="form-control" placeholder="0.20"></div>
+              <div class="form-group"><label>Avanco:</label><input type="number" step="0.001" id="modalAtualAvanco" class="form-control" placeholder="0.20"></div>
               <div class="form-group"><label>AP (mm):</label><input type="number" step="0.01" id="modalAtualAp" class="form-control" placeholder="2.0"></div>
               <div class="form-group"><label>Vc (m/min):</label><input type="number" step="0.1" id="modalAtualVc" class="form-control" placeholder="180"></div>
               <div class="form-group"><label>RPM:</label><input type="number" step="1" id="modalAtualRpm" class="form-control" placeholder="1200"></div>
@@ -1178,7 +1208,7 @@
           <div style="background: var(--viemar-orange-light); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--viemar-orange-border);">
             <h4 style="font-size: 0.75rem; color: var(--viemar-orange); margin-bottom: 0.4rem; font-weight: 700;">Nova Ferramenta</h4>
             <div class="form-group">
-              <label>Código da ferramenta:</label>
+              <label>Codigo da Ferramenta:</label>
               <input type="text" id="modalFerrTeste" class="form-control" placeholder="Ex: ANHX1607" required>
             </div>
             <div class="grid grid-2" style="margin-top: 0.35rem;">
@@ -1186,18 +1216,18 @@
               <div class="form-group"><label>Perfil / Quebra-cavaco:</label><input type="text" id="modalPerfilQuebraCavaco" class="form-control" placeholder="Ex: PM, MF, chipbreaker"></div>
             </div>
             <div class="form-group" style="margin-top: 0.35rem;">
-              <label>Descrição da ferramenta:</label>
+              <label>Descricao da Ferramenta:</label>
               <textarea id="modalFerrTesteDesc" class="form-control" rows="2" placeholder="Descreva a nova ferramenta proposta"></textarea>
             </div>
             <div class="grid grid-4" style="margin-top: 0.35rem;">
-              <div class="form-group"><label>Avanço rec.:</label><input type="number" step="0.001" id="modalRecAvanco" class="form-control" placeholder="0.25"></div>
+              <div class="form-group"><label>Avanco rec.:</label><input type="number" step="0.001" id="modalRecAvanco" class="form-control" placeholder="0.25"></div>
               <div class="form-group"><label>AP rec. (mm):</label><input type="number" step="0.01" id="modalRecAp" class="form-control" placeholder="2.5"></div>
               <div class="form-group"><label>Vc rec.:</label><input type="number" step="0.1" id="modalRecVc" class="form-control" placeholder="220"></div>
               <div class="form-group"><label>RPM rec.:</label><input type="number" step="1" id="modalRecRpm" class="form-control" placeholder="1400"></div>
             </div>
             <div class="grid grid-3" style="margin-top: 0.35rem;">
               <div class="form-group">
-                <label>Vida útil proposta:</label>
+                <label>Meta Vida:</label>
                 <input type="number" id="modalMetaVida" class="form-control" placeholder="120" required>
               </div>
               <div class="form-group">
@@ -1205,51 +1235,43 @@
                 <input type="number" id="modalAmostras" class="form-control" placeholder="10" required>
               </div>
               <div class="form-group">
-                <label>Preço (R$):</label>
+                <label>Preco (R$):</label>
                 <input type="number" step="0.01" id="modalPrecoTeste" class="form-control" placeholder="32.00">
               </div>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-5 modal-form-grid" style="margin-top: 0.75rem;">
+        <div class="grid grid-3" style="margin-top: 0.75rem;">
           <div class="form-group">
-            <label>Lead time (dias) <span class="required">*</span></label>
+            <label>Lead Time (Dias) <span class="required">*</span></label>
             <input type="number" id="modalLeadTime" class="form-control" placeholder="15" required>
           </div>
           <div class="form-group">
-            <label>Estoque local?</label>
+            <label>Estoque Local?</label>
             <select id="modalEstoqueLocal" class="form-control">
-              <option value="SIM">SIM (distribuidor local)</option>
-              <option value="NAO">NÃO (importação)</option>
+              <option value="SIM">SIM (Distribuidor Local)</option>
+              <option value="NAO">NAO (Importacao)</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Quantidade em estoque</label>
-            <input type="number" id="modalQtdEstoque" class="form-control" placeholder="Ex: 30">
-          </div>
-          <div class="form-group">
-            <label>Giro mensal</label>
-            <input type="number" id="modalGiroMensal" class="form-control" placeholder="Ex: 20">
-          </div>
-          <div class="form-group">
-            <label>Retorno esperado</label>
-            <input type="text" id="modalRetornoEsperado" class="form-control" placeholder="Ex: menor CPP e vida útil maior">
+            <label>Retorno Esperado</label>
+            <input type="text" id="modalRetornoEsperado" class="form-control" placeholder="Ex: menor CPP e vida util maior">
           </div>
         </div>
 
         <div class="grid grid-2" style="margin-top: 0.75rem;">
           <div class="form-group">
-            <label>Motivo do teste <span class="required">*</span></label>
+            <label>Motivo do Teste <span class="required">*</span></label>
             <textarea id="modalJustificativa" class="form-control" rows="3" placeholder="Descreva por que o teste deve ser feito" required></textarea>
           </div>
           <div class="form-group">
             <label>Indicador que pretende atacar <span class="required">*</span></label>
             <div class="checkbox-grid checkbox-grid-2">
-              <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Redução de custo"> Redução de custo</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Padronização"> Padronização</label>
+              <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Reducao de Custo"> Reducao de Custo</label>
+              <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Padronizacao"> Padronizacao</label>
               <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Melhoria de Cavaco"> Melhoria de Cavaco</label>
-              <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Redução de tempo de ciclo"> Redução de tempo de ciclo</label>
+              <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Reducao de Tempo de Ciclo"> Reducao de Tempo de Ciclo</label>
               <label class="checkbox-pill"><input type="checkbox" name="modalIndicadores" value="Robustez"> Robustez</label>
             </div>
           </div>
@@ -1257,7 +1279,7 @@
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem;">
           <button type="button" class="btn btn-secondary" onclick="fecharModalNovaSolicitacao()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Enviar para análise técnica</button>
+          <button type="submit" class="btn btn-primary">Enviar para Analise Tecnica</button>
         </div>
       </form>
     </div>

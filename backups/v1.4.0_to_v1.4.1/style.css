@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
   /* Viemar DevFlow Official Color Tokens */
@@ -1497,48 +1497,3 @@ textarea.form-control {
 .checkbox-pill input { accent-color: var(--viemar-orange); }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 900px) { .grid-4, .checkbox-grid-2, .checkbox-grid-3, .checkbox-grid-5 { grid-template-columns: 1fr; } }
-
-/* ========================================================================= */
-/* MODAL AJUSTES v1.4.1 - sem scroll horizontal                              */
-/* ========================================================================= */
-.modal-content,
-.modal-content.modal-wide {
-  box-sizing: border-box;
-  overflow-x: hidden;
-}
-
-.modal-wide form,
-.modal-wide .form-group,
-.modal-wide .form-control,
-.modal-wide textarea,
-.modal-wide select {
-  min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.modal-wide .grid,
-.modal-wide .modal-form-grid,
-.modal-wide .checkbox-grid {
-  width: 100%;
-  min-width: 0;
-}
-
-.modal-wide .grid-2,
-.modal-wide .grid-3,
-.modal-wide .grid-4,
-.modal-wide .grid-5,
-.modal-wide .modal-form-grid {
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-}
-
-.modal-wide .checkbox-grid-2,
-.modal-wide .checkbox-grid-3,
-.modal-wide .checkbox-grid-5 {
-  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
-}
-
-.modal-wide .checkbox-pill {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
