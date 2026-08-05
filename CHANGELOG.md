@@ -4,6 +4,18 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
+## [v1.3.1] - 2026-08-04
+
+### Segurança & Autenticação
+- **Remoção de Atalhos de Login Automático do Administrador**:
+  - Removido o link `Primeiro acesso (admin)` da tela inicial de login para evitar acessos não autorizados por terceiros.
+  - O campo de `SENHA` agora é estritamente obrigatório (`required`) e a autenticação compara com rigor a senha individual cadastrada de cada usuário.
+  - Eliminação de qualquer fallback/senha padrão em código aberto na tela de login.
+  - Centralização do link `Esqueci minha senha` com instruções de contato com o Administrador.
+- Backup de segurança criado em `backups/v1.3.0_to_v1.3.1/`.
+
+---
+
 ## [v1.3.0] - 2026-08-04
 
 ### Adicionado
