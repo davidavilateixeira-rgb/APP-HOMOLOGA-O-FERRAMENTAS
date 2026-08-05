@@ -4,16 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.6.1] - 2026-08-05
-
-### Corrigido
-- Removida sequência literal `` `r`n `` que aparecia visualmente abaixo do Kanban.
-- Ajustado layout dos cards do Kanban para impedir estouro horizontal de badges e botões dentro das colunas.
-- Melhorada a responsividade do Kanban em telas médias, reduzindo para duas colunas quando necessário.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.6.0_to_v1.6.1/` antes das alterações.
-
 ## [v1.6.0] - 2026-08-05
 
 ### Adicionado
