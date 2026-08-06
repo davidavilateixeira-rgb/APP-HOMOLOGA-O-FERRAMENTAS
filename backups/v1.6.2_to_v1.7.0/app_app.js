@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.7.0 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.6.2 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -465,7 +465,7 @@ function aplicarBloqueioSomenteLeitura() {
   const isLeitura = usuarioSomenteLeitura();
   document.querySelectorAll('#viewWorkflow input, #viewWorkflow select, #viewWorkflow textarea, #viewUsuarios input, #viewUsuarios select, #viewUsuarios textarea').forEach(el => {
     if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.readOnly = isLeitura || el.hasAttribute('readonly');
-    if (el.tagName === 'SELECT' || el.type === 'file') el.disabled = isLeitura;
+    if (el.tagName === 'SELECT') el.disabled = isLeitura;
     if (isLeitura) el.classList.add('readonly-locked');
     else el.classList.remove('readonly-locked');
   });
@@ -503,10 +503,6 @@ function aplicarPermissoesUI() {
 
   document.querySelectorAll('.btn-admin-delete').forEach(btn => {
     btn.style.display = isAdmin ? 'inline-flex' : 'none';
-  });
-
-  document.querySelectorAll('.btn-remover-anexo').forEach(btn => {
-    btn.style.display = isLeitura ? 'none' : 'inline-flex';
   });
 
   aplicarBloqueioSomenteLeitura();
@@ -1193,7 +1189,6 @@ function preencherCamposWorkflow(teste) {
   document.getElementById('wfCfBalanco').value = p.balanco || 85;
 
   renderizarTabelaArestas(cf.registrosArestas || []);
-  renderizarAnexosCavaco(cf.anexosCavaco || {});
   document.getElementById('wfCfTotalPecas').textContent = cf.totalPecas || 0;
   document.getElementById('wfCfVidaMedia').textContent = cf.vidaMediaAresta || 0;
   document.getElementById('wfCfVariacao').textContent = cf.variacaoVidaPorc || '+0.0%';
@@ -1219,161 +1214,6 @@ function preencherCamposWorkflow(teste) {
   recalcularFechamento();
 }
 
-const ANEXOS_CAVACO_CONFIG = {
-  cavacoAtual: {
-    label: 'Foto do cavaco atual',
-    inputId: 'wfAnexoCavacoAtual',
-    previewId: 'wfPreviewCavacoAtual'
-  },
-  cavacoNovaFerramenta: {
-    label: 'Foto do cavaco com nova ferramenta',
-    inputId: 'wfAnexoCavacoNovo',
-    previewId: 'wfPreviewCavacoNovo'
-  },
-  anexoExtra: {
-    label: 'Outro anexo de imagem',
-    inputId: 'wfAnexoCavacoExtra',
-    previewId: 'wfPreviewCavacoExtra'
-  }
-};
-
-function obterTesteAtualWorkflow() {
-  return testDataStore.find(t => t.id === currentSelectedTestId);
-}
-
-function obterAnexosCavaco(teste) {
-  if (!teste.chaoDeFabrica) teste.chaoDeFabrica = { parametros: {}, registrosArestas: [] };
-  if (!teste.chaoDeFabrica.anexosCavaco) teste.chaoDeFabrica.anexosCavaco = {};
-  return teste.chaoDeFabrica.anexosCavaco;
-}
-
-function limparInputsAnexosCavaco() {
-  Object.values(ANEXOS_CAVACO_CONFIG).forEach(cfg => {
-    const input = document.getElementById(cfg.inputId);
-    if (input) input.value = '';
-  });
-}
-
-function renderizarAnexosCavaco(anexos = {}) {
-  Object.entries(ANEXOS_CAVACO_CONFIG).forEach(([tipo, cfg]) => {
-    const preview = document.getElementById(cfg.previewId);
-    if (!preview) return;
-
-    const anexo = anexos[tipo];
-    if (anexo?.dataUrl) {
-      preview.classList.add('has-image');
-      preview.innerHTML = `
-        <img src="${anexo.dataUrl}" alt="${cfg.label}">
-        <div class="chip-preview-meta">
-          <strong>${cfg.label}</strong>
-          <span>${anexo.nome || 'imagem anexada'} · ${anexo.usuario || 'Sistema'}</span>
-        </div>
-      `;
-    } else {
-      preview.classList.remove('has-image');
-      preview.innerHTML = '<span>Nenhuma imagem anexada.</span>';
-    }
-  });
-
-  limparInputsAnexosCavaco();
-  aplicarBloqueioSomenteLeitura();
-}
-
-function lerArquivoComoDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-function carregarImagem(dataUrl) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = dataUrl;
-  });
-}
-
-async function compactarImagemAnexo(file) {
-  const dataUrlOriginal = await lerArquivoComoDataUrl(file);
-  const img = await carregarImagem(dataUrlOriginal);
-  const maxWidth = 1280;
-  const scale = Math.min(1, maxWidth / img.width);
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.max(1, Math.round(img.width * scale));
-  canvas.height = Math.max(1, Math.round(img.height * scale));
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL('image/jpeg', 0.78);
-}
-
-async function processarAnexoCavaco(tipo, input) {
-  if (bloquearMutacaoVisitante()) {
-    if (input) input.value = '';
-    return;
-  }
-
-  const cfg = ANEXOS_CAVACO_CONFIG[tipo];
-  const file = input?.files?.[0];
-  if (!cfg || !file) return;
-
-  if (!file.type.startsWith('image/')) {
-    alert('Anexe apenas arquivos de imagem para as evidências do cavaco.');
-    input.value = '';
-    return;
-  }
-
-  if (file.size > 12 * 1024 * 1024) {
-    alert('Imagem muito grande. Use uma foto com até 12 MB.');
-    input.value = '';
-    return;
-  }
-
-  const teste = obterTesteAtualWorkflow();
-  if (!teste) return;
-
-  try {
-    const dataUrl = await compactarImagemAnexo(file);
-    const anexos = obterAnexosCavaco(teste);
-    anexos[tipo] = {
-      nome: file.name,
-      tipo: 'image/jpeg',
-      tamanhoOriginal: file.size,
-      registradoEm: new Date().toISOString(),
-      usuario: currentUser ? currentUser.name : 'Sistema',
-      dataUrl
-    };
-
-    registrarTimeline(teste, 'Evidência fotográfica anexada', `${cfg.label} registrada por ${currentUser ? currentUser.name : 'Sistema'}.`);
-    salvarDadosLocais();
-    renderizarAnexosCavaco(anexos);
-    renderizarTimeline(teste);
-  } catch (e) {
-    console.error(e);
-    alert('Não foi possível anexar a imagem. Tente outra foto ou um arquivo menor.');
-  }
-}
-
-function removerAnexoCavaco(tipo) {
-  if (bloquearMutacaoVisitante()) return;
-
-  const cfg = ANEXOS_CAVACO_CONFIG[tipo];
-  const teste = obterTesteAtualWorkflow();
-  if (!cfg || !teste) return;
-
-  const anexos = obterAnexosCavaco(teste);
-  if (!anexos[tipo]) return;
-  if (!confirm(`Remover ${cfg.label.toLowerCase()} deste teste?`)) return;
-
-  delete anexos[tipo];
-  registrarTimeline(teste, 'Evidência fotográfica removida', `${cfg.label} removida por ${currentUser ? currentUser.name : 'Sistema'}.`);
-  salvarDadosLocais();
-  renderizarAnexosCavaco(anexos);
-  renderizarTimeline(teste);
-}
 function renderizarTabelaArestas(registros) {
   const tbody = document.querySelector('#tabelaArestasDevFlow tbody');
   if (!tbody) return;
@@ -1858,13 +1698,7 @@ function copiarWhatsAppWorkflow() {
 // PERSISTENCIA LOCAL / USUARIOS / SESSAO
 // =========================================================================
 function salvarDadosLocais() {
-  try {
-    localStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
-  } catch (e) {
-    console.error(e);
-    alert('Não foi possível salvar os dados locais. Remova anexos muito grandes ou libere espaço do navegador.');
-    throw e;
-  }
+  localStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
 }
 
 function carregarDadosLocais() {

@@ -4,21 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.7.0] - 2026-08-06
-
-### Adicionado
-- Adicionada seção de evidências fotográficas na Etapa 3 do workflow para anexar imagem do cavaco atual, imagem do cavaco com a nova ferramenta e um anexo extra opcional.
-- Incluído preview das imagens anexadas diretamente na tela do teste em máquina.
-- As imagens anexadas são compactadas no navegador antes de salvar para reduzir risco de estouro do armazenamento local.
-- Eventos de anexo e remoção de evidência passam a ser registrados na linha do tempo do workflow.
-
-### Corrigido
-- Reforçado bloqueio de upload/remoção de anexos para perfil Visitante somente leitura.
-- Adicionado tratamento de erro quando o navegador recusa salvar dados locais por falta de espaço.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.6.2_to_v1.7.0/` antes das alterações.
-
 ## [v1.6.2] - 2026-08-05
 
 ### Corrigido

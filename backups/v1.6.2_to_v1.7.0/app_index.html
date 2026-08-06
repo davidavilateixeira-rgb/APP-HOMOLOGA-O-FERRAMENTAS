@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
-  <title>Viemar ToolFlow v1.7.0 | Gestão de Testes de Ferramentas</title>
+  <title>Viemar ToolFlow v1.6.2 | Gestão de Testes de Ferramentas</title>
   
   <!-- CSS ToolFlow & Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -36,7 +36,7 @@
         <div class="login-brand-titles">
           <div class="login-title-row">
             <span class="login-main-title">ToolFlow</span>
-            <span class="login-version-tag">v1.7.0</span>
+            <span class="login-version-tag">v1.6.2</span>
           </div>
           <span class="login-subtitle">Engenharia de Processos · VMR</span>
         </div>
@@ -88,7 +88,7 @@
           </div>
         </div>
         <div class="version-badge-container">
-          <span class="version-badge">v1.7.0</span>
+          <span class="version-badge">v1.6.2</span>
           <div class="sync-status-badge" title="Vercel & Cache Local Ativos">
             <span class="sync-dot"></span> Vercel Cloud
           </div>
@@ -419,7 +419,7 @@
             <img src="logo.png" alt="Viemar" class="print-logo">
             <div style="text-align: right;">
               <h3 style="font-size: 11pt; margin: 0; color: #ff6600;">ENGENHARIA DE USINAGEM</h3>
-              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatório Oficial ToolFlow v1.7.0</p>
+              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatório Oficial ToolFlow v1.6.2</p>
             </div>
           </div>
 
@@ -674,46 +674,6 @@
                   </div>
                 </div>
 
-
-                <!-- Evidencias Fotograficas do Cavaco -->
-                <div class="chip-attachments-panel">
-                  <div class="chip-attachments-header">
-                    <div>
-                      <h4>Evidências fotográficas do cavaco</h4>
-                      <p>Anexe as fotos do cavaco atual, do cavaco com a nova ferramenta e uma imagem extra quando necessário.</p>
-                    </div>
-                    <span class="badge badge-blue">Anexos do Teste</span>
-                  </div>
-
-                  <div class="chip-attachments-grid">
-                    <div class="chip-upload-card">
-                      <label for="wfAnexoCavacoAtual">Foto do cavaco atual</label>
-                      <input type="file" id="wfAnexoCavacoAtual" class="form-control chip-file-input" accept="image/*" onchange="processarAnexoCavaco('cavacoAtual', this)">
-                      <div class="chip-preview" id="wfPreviewCavacoAtual">
-                        <span>Nenhuma imagem anexada.</span>
-                      </div>
-                      <button type="button" class="btn btn-secondary btn-sm btn-remover-anexo no-print" onclick="removerAnexoCavaco('cavacoAtual')">Remover imagem</button>
-                    </div>
-
-                    <div class="chip-upload-card">
-                      <label for="wfAnexoCavacoNovo">Foto do cavaco com nova ferramenta</label>
-                      <input type="file" id="wfAnexoCavacoNovo" class="form-control chip-file-input" accept="image/*" onchange="processarAnexoCavaco('cavacoNovaFerramenta', this)">
-                      <div class="chip-preview" id="wfPreviewCavacoNovo">
-                        <span>Nenhuma imagem anexada.</span>
-                      </div>
-                      <button type="button" class="btn btn-secondary btn-sm btn-remover-anexo no-print" onclick="removerAnexoCavaco('cavacoNovaFerramenta')">Remover imagem</button>
-                    </div>
-
-                    <div class="chip-upload-card">
-                      <label for="wfAnexoCavacoExtra">Outro anexo de imagem</label>
-                      <input type="file" id="wfAnexoCavacoExtra" class="form-control chip-file-input" accept="image/*" onchange="processarAnexoCavaco('anexoExtra', this)">
-                      <div class="chip-preview" id="wfPreviewCavacoExtra">
-                        <span>Nenhuma imagem anexada.</span>
-                      </div>
-                      <button type="button" class="btn btn-secondary btn-sm btn-remover-anexo no-print" onclick="removerAnexoCavaco('anexoExtra')">Remover imagem</button>
-                    </div>
-                  </div>
-                </div>
                 <!-- Tabela de Arestas / Turnos -->
                 <div class="data-table-wrapper" style="margin-top: 1.25rem;">
                   <table class="data-table" id="tabelaArestasDevFlow">
