@@ -4,23 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.7.1] - 2026-08-06
-
-### Ajustado & Aprimorado
-- **Refinamento Oficial do Motor BPMN 2.0 (ISO/IEC 19510)**:
-  - Eliminação completa de sobreposição nas pontas das setas dos Gateways 1 (Engenharia) e 2 (Suprimentos), com cálculo trigonométrico exato dos pontos de conexão nos vértices externos.
-  - Correção da rota do fluxo tracejado de feedback (Revisão de Informações -> Análise Técnica), contornando pelo canal superior livre para impedir qualquer cruzamento de linhas ou sobreposição de cards.
-  - Desobstrução visual da raia de Suprimentos / Almoxarifado, segmentando as linhas de fluxo para encaixe limpo nas tags de decisão (`[Estoque > 0]` e `[Estoque Consumido]`).
-  - Remoção de labels de depuração `(d-2)` e substituição integral de emojis por ícones SVG corporativos de alta fidelidade.
-- **Layout & Espaçamento da Janela**:
-  - Inserido bloco estrutural físico de respiro (`.view-scroll-footer-space`) calibrado com folga de rolagem perfeita entre a borda do card e o limite inferior da janela.
-  - Ajustado padding e margens para equilíbrio visual harmônico no dashboard executivo.
-
-### Backup
-- Backup da versão anterior salvo com sucesso em `backups/v1.7.0_to_v1.7.1/` antes do deploy.
-
----
-
 ## [v1.7.0] - 2026-08-06
 
 ### Adicionado

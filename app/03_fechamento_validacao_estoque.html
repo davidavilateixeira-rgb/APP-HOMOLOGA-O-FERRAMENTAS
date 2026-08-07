@@ -12,15 +12,17 @@
     <!-- Top Header -->
     <header class="app-header">
       <div class="brand-wrapper">
-        <div class="brand-icon" style="background: linear-gradient(135deg, var(--accent-purple), #6d28d9);">📊</div>
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        </div>
         <div class="brand-info">
           <h1>ENGENHARIA DE USINAGEM</h1>
           <p>Laudo Técnico de Fechamento, Análise de ROI & Trava de Abastecimento</p>
         </div>
       </div>
       <div class="header-actions">
-        <button class="btn btn-secondary no-print" onclick="window.location.href='index.html'">⬅️ Portal Hub</button>
-        <button class="btn btn-primary no-print" onclick="window.print()">🖨️ Gerar PDF do Fechamento</button>
+        <button class="btn btn-secondary no-print" onclick="window.location.href='index.html'">Voltar ao Hub</button>
+        <button class="btn btn-primary no-print" onclick="window.print()">Gerar PDF do Fechamento</button>
       </div>
     </header>
 
@@ -78,7 +80,7 @@
         <div class="grid grid-2">
           <!-- Baseline Atual -->
           <div style="background: rgba(31, 41, 55, 0.5); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-            <h3 style="color: #93c5fd; font-size: 0.95rem; margin-bottom: 0.75rem;">🔵 Ferramenta Atual</h3>
+            <h3 style="color: #93c5fd; font-size: 0.95rem; margin-bottom: 0.75rem;">Ferramenta Atual</h3>
             
             <div class="form-group">
               <label for="precoAtual">Preço Unitário da Ferramenta/Inserto (R$):</label>
@@ -102,7 +104,7 @@
 
           <!-- Nova Ferramenta -->
           <div style="background: rgba(31, 41, 55, 0.5); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid rgba(59, 130, 246, 0.3);">
-            <h3 style="color: #60a5fa; font-size: 0.95rem; margin-bottom: 0.75rem;">🟡 Nova Ferramenta Testada</h3>
+            <h3 style="color: #60a5fa; font-size: 0.95rem; margin-bottom: 0.75rem;">Nova Ferramenta Testada</h3>
             
             <div class="form-group">
               <label for="precoTeste">Preço Unitário Proposto (R$):</label>
@@ -146,7 +148,7 @@
       <section class="card" style="border: 2px solid var(--accent-amber);">
         <div class="card-header">
           <h2 class="card-title" style="color: #fbbf24;">
-            ⚠️ 3. Trava Crítica de Abastecimento, Lead Time & Transição de Estoque
+            3. Trava Crítica de Abastecimento, Lead Time & Transição de Estoque
           </h2>
           <span class="badge badge-amber">Segurança de Fábrica</span>
         </div>
@@ -190,7 +192,6 @@
 
         <!-- Alerta Dinâmico de Risco -->
         <div id="alertaRuptura" class="alert alert-danger" style="display: none; margin-top: 1rem; margin-bottom: 0;">
-          <div class="alert-icon">🚫</div>
           <div>
             <strong>ALERTA DE RUPTURA DE ESTOQUE:</strong> O Lead Time do novo fornecedor é maior que o estoque antigo existente na fábrica! 
             <strong>A virada de linha é BLOQUEADA</strong> até que o fornecedor garanta um lote emergencial para cobrir a transição.
@@ -209,10 +210,10 @@
           <div class="form-group">
             <label for="decisaoFinal">Decisão Oficial da Engenharia de Usinagem:</label>
             <select id="decisaoFinal" class="form-control" style="font-size: 1rem; font-weight: bold;">
-              <option value="HOMOLOGADO">🟢 HOMOLOGADO INTEGRALMENTE (Técnico + Econômico + Estoque Seguro)</option>
-              <option value="BLOQUEADO_SUPRIMENTOS">🟡 APROVADO TECNICAMENTE, MAS BLOQUEADO POR SUPRIMENTOS (Risco de Estoque)</option>
-              <option value="REPROVADO">🔴 REPROVADO (Não atingiu critérios técnicos)</option>
-              <option value="RETESTE">🔵 RETESTE NECESSÁRIO (Teste Inconclusivo)</option>
+              <option value="HOMOLOGADO">HOMOLOGADO INTEGRALMENTE (Técnico + Econômico + Estoque Seguro)</option>
+              <option value="BLOQUEADO_SUPRIMENTOS">APROVADO TECNICAMENTE, MAS BLOQUEADO POR SUPRIMENTOS (Risco de Estoque)</option>
+              <option value="REPROVADO">REPROVADO (Não atingiu critérios técnicos)</option>
+              <option value="RETESTE">RETESTE NECESSÁRIO (Teste Inconclusivo)</option>
             </select>
           </div>
 
@@ -239,9 +240,9 @@
 
       <!-- Bottom Bar Action Buttons -->
       <div class="no-print" style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; margin-bottom: 3rem;">
-        <button type="button" class="btn btn-secondary" onclick="copiarLaudoWhatsApp()">📱 Copiar Parecer p/ WhatsApp</button>
-        <button type="button" class="btn btn-success" onclick="salvarLaudo()">💾 Salvar Laudo</button>
-        <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Gerar PDF do Fechamento</button>
+        <button type="button" class="btn btn-secondary" onclick="copiarLaudoWhatsApp()">Copiar Parecer WhatsApp</button>
+        <button type="button" class="btn btn-success" onclick="salvarLaudo()">Salvar Laudo</button>
+        <button type="button" class="btn btn-primary" onclick="window.print()">Gerar PDF do Fechamento</button>
       </div>
     </form>
   </div>
@@ -305,19 +306,19 @@
         if (margem >= 15) {
           boxMargem.className = 'kpi-box success';
           boxStatus.className = 'kpi-box success';
-          kpiStatus.textContent = '🟢 TRANSIÇÃO SEGURA';
+          kpiStatus.textContent = 'TRANSIÇÃO SEGURA';
           kpiStatus.style.color = '#34d399';
           alerta.style.display = 'none';
         } else if (margem >= 5) {
           boxMargem.className = 'kpi-box warning';
           boxStatus.className = 'kpi-box warning';
-          kpiStatus.textContent = '🟡 ATENÇÃO / ALINHAR';
+          kpiStatus.textContent = 'ATENÇÃO / ALINHAR';
           kpiStatus.style.color = '#fbbf24';
           alerta.style.display = 'none';
         } else {
           boxMargem.className = 'kpi-box danger';
           boxStatus.className = 'kpi-box danger';
-          kpiStatus.textContent = '🔴 BLOQUEIO: RISCO RUPTURA';
+          kpiStatus.textContent = 'BLOQUEIO: RISCO RUPTURA';
           kpiStatus.style.color = '#f87171';
           alerta.style.display = 'flex';
         }
@@ -332,7 +333,7 @@
       const econAnual = document.getElementById('economiaAnualDisplay').textContent;
       const statusEstoque = document.getElementById('kpiStatusRisco').textContent;
 
-      const texto = `🏁 *[LAUDO FINAL DE TESTE] - ${num}*\n` +
+      const texto = `*[LAUDO FINAL DE TESTE] - ${num}*\n` +
                     `• *Peça / Aplicação:* ${peca}\n` +
                     `• *Ferramenta:* ${ferr}\n` +
                     `• *Decisão Engenharia:* ${decisao}\n` +

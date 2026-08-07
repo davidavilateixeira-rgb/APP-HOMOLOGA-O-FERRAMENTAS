@@ -12,15 +12,17 @@
     <!-- Header -->
     <header class="app-header">
       <div class="brand-wrapper">
-        <div class="brand-icon" style="background: linear-gradient(135deg, var(--accent-emerald), #047857);">🏭</div>
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20M4 20V10l4 4V10l4 4V4l8 6v10"/></svg>
+        </div>
         <div class="brand-info">
           <h1>ENGENHARIA DE USINAGEM</h1>
           <p>Ficha de Resultados Obtidos & Acompanhamento em Máquina (1º e 2º Turno)</p>
         </div>
       </div>
       <div class="header-actions">
-        <button class="btn btn-secondary no-print" onclick="window.location.href='index.html'">⬅️ Portal Hub</button>
-        <button class="btn btn-primary no-print" onclick="window.print()">🖨️ Gerar PDF dos Resultados</button>
+        <button class="btn btn-secondary no-print" onclick="window.location.href='index.html'">Voltar ao Hub</button>
+        <button class="btn btn-primary no-print" onclick="window.print()">Gerar PDF dos Resultados</button>
       </div>
     </header>
 
@@ -214,9 +216,9 @@
 
       <!-- Bottom Bar Action Buttons -->
       <div class="no-print" style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; margin-bottom: 3rem;">
-        <button type="button" class="btn btn-secondary" onclick="copiarPassagemTurnoWhatsApp()">📱 Copiar Status p/ WhatsApp</button>
-        <button type="button" class="btn btn-success" onclick="salvarAcompanhamento()">💾 Salvar Dados</button>
-        <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Gerar PDF dos Resultados</button>
+        <button type="button" class="btn btn-secondary" onclick="copiarPassagemTurnoWhatsApp()">Copiar Status WhatsApp</button>
+        <button type="button" class="btn btn-success" onclick="salvarAcompanhamento()">Salvar Dados</button>
+        <button type="button" class="btn btn-primary" onclick="window.print()">Gerar PDF dos Resultados</button>
       </div>
     </form>
   </div>
@@ -287,7 +289,7 @@
       const ferr = document.getElementById('ferramentaTesteNome').value || 'Ferramenta Teste';
       const varPct = document.getElementById('kpiVariacaoPorc').textContent;
 
-      const texto = `🔵 *[STATUS / PASSAGEM DE TURNO] - ${num}*\n` +
+      const texto = `*[STATUS / PASSAGEM DE TURNO] - ${num}*\n` +
                     `• *Máquina:* ${maq}\n` +
                     `• *Ferramenta:* ${ferr}\n` +
                     `• *Peças Acumuladas:* ${pecas} peças\n` +
