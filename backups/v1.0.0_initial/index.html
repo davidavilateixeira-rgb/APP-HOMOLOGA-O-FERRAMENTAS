@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viemar | Gestao e Workflow de Testes de Ferramentas</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Firebase SDKs (Compatibilidade Nuvem) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+
+  <!-- Barra Superior de Navegacao Viemar -->
+  <header class="navbar no-print">
+    <div class="navbar-container">
+      <div class="nav-brand">
+        <img src="logo.png" alt="Viemar Logo" class="nav-logo-img" onerror="this.style.display='none'">
+        <div class="brand-divider"></div>
+        <div class="brand-titles">
+          <h1>ENGENHARIA DE USINAGEM</h1>
+          <p>Workflow de Homologacao de Ferramentas</p>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-item active" data-view="viewDashboard" onclick="navegarPara('viewDashboard')">
+          Painel Geral
+        </button>
+        <button class="nav-item" data-view="viewNovaSolicitacao" onclick="navegarPara('viewNovaSolicitacao')">
+          Nova Solicitacao (D-2)
+        </button>
+        <button class="nav-item" data-view="viewDetalhesTeste" onclick="navegarPara('viewDetalhesTeste')">
+          Workflow do Teste
+        </button>
+        <button class="nav-item" data-view="viewUsuarios" onclick="navegarPara('viewUsuarios')">
+          Usuarios & Conexao
+        </button>
+      </nav>
+
+      <div class="user-profile-badge" onclick="trocarUsuarioModal()" title="Clique para alternar o usuario ativo">
+        <div class="user-avatar" id="currentUserAvatar">O</div>
+        <div>
+          <div id="currentUserName" style="font-weight: 700;">Oscar</div>
+          <div id="currentUserRole" style="font-size: 0.7rem; color: var(--text-muted);">Engenharia ADM</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Container Principal -->
+  <main class="main-wrapper">
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 0: PAINEL GERAL (DASHBOARD DO WORKFLOW)                              -->
+    <!-- ========================================================================= -->
+    <section id="viewDashboard" class="app-view active-view">
+      <div class="view-header">
+        <div class="view-title-group">
+          <h2>Painel Geral de Testes</h2>
+          <p>Visao integrada de todos os testes de ferramentas e status do pipeline de homologacao.</p>
+        </div>
+        <div>
+          <button class="btn btn-primary" onclick="navegarPara('viewNovaSolicitacao')">+ Nova Solicitacao (D-2)</button>
+        </div>
+      </div>
+
+      <!-- Resumo de Metricas do Workflow -->
+      <div class="dashboard-summary-grid">
+        <div class="summary-card">
+          <h4>Total Registrado</h4>
+          <div class="count" id="countTotal">0</div>
+        </div>
+        <div class="summary-card" style="border-left: 3px solid var(--status-blue);">
+          <h4>1. Solicitados (D-2)</h4>
+          <div class="count" id="countEtapa1">0</div>
+        </div>
+        <div class="summary-card" style="border-left: 3px solid var(--viemar-orange);">
+          <h4>2. Em Avaliacao</h4>
+          <div class="count" id="countEtapa2">0</div>
+        </div>
+        <div class="summary-card" style="border-left: 3px solid var(--status-amber);">
+          <h4>3/4. Agendado/Fabrica</h4>
+          <div class="count" id="countEtapa3e4">0</div>
+        </div>
+        <div class="summary-card" style="border-left: 3px solid var(--status-green);">
+          <h4>5. Homologados</h4>
+          <div class="count" id="countEtapa5">0</div>
+        </div>
+      </div>
+
+      <!-- Lista de Testes Cadastrados -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Testes em Andamento</h3>
+          <span class="badge badge-orange">Pipeline Viemar</span>
+        </div>
+        <div id="dashboardTestList">
+          <!-- Renderizado via JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 1: NOVA SOLICITACAO (D-2)                                            -->
+    <!-- ========================================================================= -->
+    <section id="viewNovaSolicitacao" class="app-view">
+      <div class="view-header">
+        <div class="view-title-group">
+          <h2>Nova Solicitacao de Teste (D-2)</h2>
+          <p>Preenchimento obrigatorio com antecedencia minima de 2 dias (terca-feira ate 17h00).</p>
+        </div>
+        <button class="btn btn-secondary" onclick="navegarPara('viewDashboard')">Voltar ao Painel</button>
+      </div>
+
+      <form id="formNovaSolicitacao" onsubmit="event.preventDefault(); submeterNovaSolicitacao();">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">1. Dados do Solicitante e Fornecedor</h3>
+            <span class="badge badge-blue">Etapa 1</span>
+          </div>
+          <div class="grid grid-3">
+            <div class="form-group">
+              <label for="novaDataPrevista">Data Sugerida para o Teste (Quinta-feira) <span class="required">*</span></label>
+              <input type="date" id="novaDataPrevista" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="novoFornecedor">Fabricante / Fornecedor <span class="required">*</span></label>
+              <input type="text" id="novoFornecedor" class="form-control" placeholder="Ex: Sandvik Coromant, Walter, Iscar" required>
+            </div>
+            <div class="form-group">
+              <label for="novoContato">Contato Tecnico / Telefone</label>
+              <input type="text" id="novoContato" class="form-control" placeholder="Ex: Marcelo (51) 99888-7766">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">2. Peca, Material e Maquina Alvo</h3>
+          </div>
+          <div class="grid grid-3">
+            <div class="form-group">
+              <label for="novoCodigoPeca">Codigo da Peca <span class="required">*</span></label>
+              <input type="text" id="novoCodigoPeca" class="form-control" placeholder="Ex: PC-88420-A" required>
+            </div>
+            <div class="form-group">
+              <label for="novaDescPeca">Descricao da Peca <span class="required">*</span></label>
+              <input type="text" id="novaDescPeca" class="form-control" placeholder="Ex: Flange de Acoplamento 120" required>
+            </div>
+            <div class="form-group">
+              <label for="novoMaterial">Material e Dureza <span class="required">*</span></label>
+              <input type="text" id="novoMaterial" class="form-control" placeholder="Ex: Aco 4140 Tratado (32 HRC)" required>
+            </div>
+          </div>
+          <div class="grid grid-3" style="margin-top: 1rem;">
+            <div class="form-group">
+              <label for="novaMaquina">Maquina CNC Sugerida <span class="required">*</span></label>
+              <input type="text" id="novaMaquina" class="form-control" placeholder="Ex: Centro Romi D800 (CNC-04)" required>
+            </div>
+            <div class="form-group">
+              <label for="novaOperacao">Operacao de Usinagem</label>
+              <input type="text" id="novaOperacao" class="form-control" placeholder="Ex: Desbaste Faceamento">
+            </div>
+            <div class="form-group">
+              <label for="novaRefrigeracao">Refrigeracao</label>
+              <select id="novaRefrigeracao" class="form-control">
+                <option>Oleo Soluvel Convencional</option>
+                <option>Alta Pressao Interna</option>
+                <option>MQL / Ar</option>
+                <option>Corte a Seco</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">3. Comparativo Tecnico (Atual vs Proposta)</h3>
+          </div>
+          <div class="grid grid-2">
+            <div style="background: #f8fafc; padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <h4 style="color: var(--status-blue-text); margin-bottom: 0.6rem; font-size: 0.9rem;">Ferramenta Atual (Referencia)</h4>
+              <div class="form-group">
+                <label for="novaFerrAtual">Codigo Ferramenta Atual:</label>
+                <input type="text" id="novaFerrAtual" class="form-control" placeholder="Ex: Fresa D50 Inserto APMT1604" required>
+              </div>
+              <div class="grid grid-2" style="margin-top: 0.5rem;">
+                <div class="form-group">
+                  <label for="novaVidaAtual">Vida Atual (pecas):</label>
+                  <input type="number" id="novaVidaAtual" class="form-control" placeholder="Ex: 80" required>
+                </div>
+                <div class="form-group">
+                  <label for="novoCicloAtual">Tempo Ciclo (s):</label>
+                  <input type="number" id="novoCicloAtual" class="form-control" placeholder="Ex: 145">
+                </div>
+              </div>
+              <div class="form-group" style="margin-top: 0.5rem;">
+                <label for="novoCustoAtual">Custo Unitario Aresta (R$):</label>
+                <input type="number" step="0.01" id="novoCustoAtual" class="form-control" placeholder="Ex: 38.50">
+              </div>
+            </div>
+
+            <div style="background: var(--viemar-orange-light); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--viemar-orange-border);">
+              <h4 style="color: var(--viemar-orange); margin-bottom: 0.6rem; font-size: 0.9rem;">Nova Ferramenta Proposta</h4>
+              <div class="form-group">
+                <label for="novaFerrTeste">Codigo Nova Ferramenta:</label>
+                <input type="text" id="novaFerrTeste" class="form-control" placeholder="Ex: Fresa D50 Inserto ANHX1607" required>
+              </div>
+              <div class="grid grid-2" style="margin-top: 0.5rem;">
+                <div class="form-group">
+                  <label for="novaMetaVida">Meta de Vida (pecas):</label>
+                  <input type="number" id="novaMetaVida" class="form-control" placeholder="Ex: 120" required>
+                </div>
+                <div class="form-group">
+                  <label for="novasAmostras">Qtd Amostras Bonificadas:</label>
+                  <input type="number" id="novasAmostras" class="form-control" placeholder="Ex: 10" required>
+                </div>
+              </div>
+              <div class="form-group" style="margin-top: 0.5rem;">
+                <label for="novoPrecoTeste">Preco Unitario Proposto (R$):</label>
+                <input type="number" step="0.01" id="novoPrecoTeste" class="form-control" placeholder="Ex: 32.00">
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-3" style="margin-top: 1rem;">
+            <div class="form-group">
+              <label for="novoLeadTime">Lead Time de Entrega (Dias) <span class="required">*</span></label>
+              <input type="number" id="novoLeadTime" class="form-control" placeholder="Ex: 15" required>
+            </div>
+            <div class="form-group">
+              <label for="novoEstoqueLocal">Estoque Local no Distribuidor?</label>
+              <select id="novoEstoqueLocal" class="form-control">
+                <option value="SIM">SIM (Distribuidor Regional)</option>
+                <option value="NAO">NAO (Importacao / Fabrica)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="novaJustificativa">Objetivo Principal do Teste</label>
+              <input type="text" id="novaJustificativa" class="form-control" placeholder="Ex: Reducao de CPP e melhor acabamento">
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="navegarPara('viewDashboard')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Submeter Solicitacao para Avaliacao da Engenharia</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 2: DETALHES DO TESTE (WORKFLOW COMPLETO E AUDITAVEL)                 -->
+    <!-- ========================================================================= -->
+    <section id="viewDetalhesTeste" class="app-view">
+      <!-- Print Header oficial com Logo Viemar -->
+      <div class="print-header">
+        <img src="logo.png" alt="Viemar Logo" class="print-logo">
+        <div style="text-align: right;">
+          <h3 style="font-size: 11pt; margin: 0; color: #ff6600;">ENGENHARIA DE USINAGEM</h3>
+          <p style="font-size: 9pt; margin: 0; color: #64748b;">Relatorio Oficial de Workflow de Teste</p>
+        </div>
+      </div>
+
+      <div class="view-header no-print">
+        <div class="view-title-group">
+          <h2>Workflow do Teste: <span id="detalheIdTeste" style="color: var(--viemar-orange);">TESTE-001/2026</span></h2>
+          <p><span id="detalhePeca">Flange 120</span> | Fornecedor: <span id="detalheFornecedor">Sandvik Coromant</span></p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-secondary" onclick="copiarWhatsAppWorkflow()">Copiar Resumo</button>
+          <button class="btn btn-primary" onclick="window.print()">Gerar PDF Oficial</button>
+        </div>
+      </div>
+
+      <!-- Banner de Permissao do Perfil Ativo -->
+      <div id="rolePermissionBanner" class="role-banner role-banner-editor no-print">
+        <span>Perfil Engenharia: Acesso Total</span>
+      </div>
+
+      <!-- Stepper Visual de 5 Etapas do Workflow -->
+      <div class="workflow-stepper no-print">
+        <div class="step-card" id="stepCard_1" onclick="alternarAbaWorkflow(1)">
+          <div class="step-number">Etapa 1</div>
+          <div class="step-title">1. Solicitacao (D-2)</div>
+          <span class="step-status-tag" style="color: var(--text-secondary);">Dados da Proposta</span>
+        </div>
+        <div class="step-card" id="stepCard_2" onclick="alternarAbaWorkflow(2)">
+          <div class="step-number">Etapa 2</div>
+          <div class="step-title">2. Analise Engenharia</div>
+          <span class="step-status-tag" style="color: var(--viemar-orange);">Avaliacao GO / NO-GO</span>
+        </div>
+        <div class="step-card" id="stepCard_3" onclick="alternarAbaWorkflow(3)">
+          <div class="step-number">Etapa 3</div>
+          <div class="step-title">3. Agendamento & Preset</div>
+          <span class="step-status-tag" style="color: var(--status-amber-text);">Confirmacao de Visita</span>
+        </div>
+        <div class="step-card" id="stepCard_4" onclick="alternarAbaWorkflow(4)">
+          <div class="step-number">Etapa 4</div>
+          <div class="step-title">4. Teste em Maquina</div>
+          <span class="step-status-tag" style="color: var(--status-blue-text);">Resultados 1oT / 2oT</span>
+        </div>
+        <div class="step-card" id="stepCard_5" onclick="alternarAbaWorkflow(5)">
+          <div class="step-number">Etapa 5</div>
+          <div class="step-title">5. Validacao & Estoque</div>
+          <span class="step-status-tag" style="color: var(--status-green-text);">Laudo & Trava Estoque</span>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- ABA 1: DADOS DA SOLICITACAO                                               -->
+      <!-- ========================================================================= -->
+      <div id="workflowTabContent_1" class="workflow-tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Etapa 1: Dados da Solicitacao Inicial (D-2)</h3>
+            <span class="badge badge-blue">Cadastro Original</span>
+          </div>
+          <div class="grid grid-3">
+            <div class="form-group">
+              <label>Data Solicitacao:</label>
+              <input type="text" id="solData" class="form-control" readonly>
+            </div>
+            <div class="form-group">
+              <label>Data Prevista do Teste:</label>
+              <input type="text" id="solDataTeste" class="form-control" readonly>
+            </div>
+            <div class="form-group">
+              <label>Solicitante:</label>
+              <input type="text" id="solNome" class="form-control" readonly>
+            </div>
+          </div>
+
+          <div class="grid grid-2" style="margin-top: 1rem;">
+            <div class="form-group">
+              <label>Fornecedor:</label>
+              <input type="text" id="solFornecedor" class="form-control" readonly>
+            </div>
+            <div class="form-group">
+              <label>Contato Tecnico:</label>
+              <input type="text" id="solContato" class="form-control" readonly>
+            </div>
+          </div>
+
+          <div class="grid grid-3" style="margin-top: 1rem;">
+            <div class="form-group">
+              <label>Peca:</label>
+              <input type="text" id="solPeca" class="form-control" readonly>
+            </div>
+            <div class="form-group">
+              <label>Material:</label>
+              <input type="text" id="solMaterial" class="form-control" readonly>
+            </div>
+            <div class="form-group">
+              <label>Maquina Sugerida:</label>
+              <input type="text" id="solMaquina" class="form-control" readonly>
+            </div>
+          </div>
+
+          <div class="grid grid-2" style="margin-top: 1rem;">
+            <div class="form-group">
+              <label>Operacao:</label>
+              <input type="text" id="solOperacao" class="form-control" readonly>
+            </div>
+            <div class="form-group">
+              <label>Refrigeracao:</label>
+              <input type="text" id="solRefrigeracao" class="form-control" readonly>
+            </div>
+          </div>
+
+          <div class="grid grid-2" style="margin-top: 1.25rem;">
+            <div style="background: #f8fafc; padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <h4 style="font-size: 0.85rem; color: var(--status-blue-text); margin-bottom: 0.5rem;">Linha Atual</h4>
+              <div class="form-group">
+                <label>Ferramenta Atual:</label>
+                <input type="text" id="solFerrAtual" class="form-control" readonly>
+              </div>
+              <div class="grid grid-3" style="margin-top: 0.4rem;">
+                <div class="form-group">
+                  <label>Vida Atual:</label>
+                  <input type="text" id="solVidaAtual" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Ciclo (s):</label>
+                  <input type="text" id="solCicloAtual" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Custo (R$):</label>
+                  <input type="text" id="solCustoAtual" class="form-control" readonly>
+                </div>
+              </div>
+            </div>
+
+            <div style="background: var(--viemar-orange-light); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--viemar-orange-border);">
+              <h4 style="font-size: 0.85rem; color: var(--viemar-orange); margin-bottom: 0.5rem;">Proposta do Fornecedor</h4>
+              <div class="form-group">
+                <label>Nova Ferramenta:</label>
+                <input type="text" id="solFerrTeste" class="form-control" readonly>
+              </div>
+              <div class="grid grid-3" style="margin-top: 0.4rem;">
+                <div class="form-group">
+                  <label>Meta Vida:</label>
+                  <input type="text" id="solMetaVida" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Amostras:</label>
+                  <input type="text" id="solAmostras" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Preco (R$):</label>
+                  <input type="text" id="solPrecoTeste" class="form-control" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-container" style="margin-top: 1rem;">
+            <div class="kpi-box success">
+              <div class="kpi-label">Ganho Estimado de Vida</div>
+              <div class="kpi-value" id="solKpiGanho">+50.0%</div>
+            </div>
+            <div class="kpi-box">
+              <div class="kpi-label">Lead Time de Entrega</div>
+              <input type="text" id="solLeadTime" class="form-control" style="text-align: center; font-weight: bold;" readonly>
+            </div>
+            <div class="kpi-box">
+              <div class="kpi-label">Estoque Local no Distribuidor</div>
+              <input type="text" id="solEstoqueLocal" class="form-control" style="text-align: center; font-weight: bold;" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- ABA 2: ANALISE E DEVOLUTIVA DA ENGENHARIA                                 -->
+      <!-- ========================================================================= -->
+      <div id="workflowTabContent_2" class="workflow-tab-content" style="display: none;">
+        <form id="formAnaliseEngenharia" onsubmit="event.preventDefault(); salvarDecisaoEngenharia();">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Etapa 2: Analise de Viabilidade & Devolutiva da Engenharia</h3>
+              <span class="badge badge-orange">Exclusivo Engenharia</span>
+            </div>
+
+            <div class="grid grid-3">
+              <div class="form-group">
+                <label for="engDataAnalise">Data da Analise:</label>
+                <input type="date" id="engDataAnalise" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label for="engResponsavel">Responsavel Tecnico (Engenharia):</label>
+                <input type="text" id="engResponsavel" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label for="engDecisao">Devolutiva / Parecer Inicial:</label>
+                <select id="engDecisao" class="form-control" style="font-weight: 700;">
+                  <option value="APROVADO">APROVADO (GO - Liberar para Agendamento)</option>
+                  <option value="REPROVADO">REPROVADO (NO-GO - Inviavel Tecnicamente)</option>
+                  <option value="REVISAO">EM REVISAO (Aguardando Dados Adicionais)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 1rem;">
+              <label for="engParecer">Parecer Tecnico da Engenharia (Devolutiva ao Solicitante) <span class="required">*</span></label>
+              <textarea id="engParecer" class="form-control" rows="3" placeholder="Descreva os motivos da aprovacao ou recusa, disponibilidade de lote no PCP e restricoes tecnicas..." required></textarea>
+            </div>
+
+            <div class="form-group" style="margin-top: 1rem;">
+              <label for="engTecnicos">Tecnicos Escalados para Acompanhamento:</label>
+              <input type="text" id="engTecnicos" class="form-control" value="Filipe (1o Turno) e Charles (2o Turno)">
+            </div>
+
+            <div class="no-print" style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+              <button type="submit" class="btn btn-primary">Registrar Parecer e Devolutiva</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- ABA 3: AGENDAMENTO DE VISITA & PRESET                                     -->
+      <!-- ========================================================================= -->
+      <div id="workflowTabContent_3" class="workflow-tab-content" style="display: none;">
+        <form id="formAgendamentoVisita" onsubmit="event.preventDefault(); confirmarAgendamentoVisita();">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Etapa 3: Agendamento da Visita & Preparacao do Preset</h3>
+              <span class="badge badge-amber">Quinta-feira Quinzenal</span>
+            </div>
+
+            <div class="grid grid-3">
+              <div class="form-group">
+                <label for="agDataVisita">Data Confirmada da Visita:</label>
+                <input type="date" id="agDataVisita" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label for="agHorario">Horario Previsto de Inicio:</label>
+                <input type="time" id="agHorario" class="form-control" value="08:30" required>
+              </div>
+              <div class="form-group">
+                <label for="agTecnicoForn">Presenca de Tecnico do Fornecedor:</label>
+                <select id="agTecnicoForn" class="form-control">
+                  <option value="SIM">SIM (Acompanhamento Presencial)</option>
+                  <option value="NAO">NAO (Teste Interno Viemar)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-2" style="margin-top: 1rem;">
+              <div class="form-group">
+                <label for="agPresetEntregue">Ferramentas & Amostras Entregues no Preset?</label>
+                <select id="agPresetEntregue" class="form-control">
+                  <option value="SIM">SIM (Identificadas e conferidas)</option>
+                  <option value="NAO">NAO (Pendente entrega)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="agConeMontado">Cone / Fixacao Montada e Medida no Preset?</label>
+                <select id="agConeMontado" class="form-control">
+                  <option value="SIM">SIM (Cone montado e balanceado)</option>
+                  <option value="NAO">NAO (Sera montado no dia)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="no-print" style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+              <button type="submit" class="btn btn-primary">Confirmar Agendamento e Liberar para Maquina</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- ABA 4: TESTE EM MAQUINA / CHAO DE FABRICA                                -->
+      <!-- ========================================================================= -->
+      <div id="workflowTabContent_4" class="workflow-tab-content" style="display: none;">
+        <form id="formChaoDeFabrica" onsubmit="event.preventDefault(); salvarChaoDeFabricaEAvancar();">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Etapa 4: Resultados Obtidos em Fabrica (1oT Filipe & 2oT Charles)</h3>
+              <span class="badge badge-green">Execucao em Maquina</span>
+            </div>
+
+            <div class="grid grid-2">
+              <div class="form-group">
+                <label for="cfMaquina">Maquina CNC Utilizada:</label>
+                <input type="text" id="cfMaquina" class="form-control" value="Centro Romi D800 (CNC-04)">
+              </div>
+              <div class="form-group">
+                <label for="cfCiclo">Tempo de Ciclo Real Medido (segundos):</label>
+                <input type="number" id="cfCiclo" class="form-control" value="132">
+              </div>
+            </div>
+
+            <!-- Parametros de Usinagem Registrados -->
+            <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem; margin-top: 1rem;">
+              <h4 style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem; text-transform: uppercase;">Parametros de Corte Aplicados no CNC</h4>
+              <div class="grid grid-4">
+                <div class="form-group">
+                  <label for="cfVc">Vc (m/min):</label>
+                  <input type="number" id="cfVc" class="form-control" value="220">
+                </div>
+                <div class="form-group">
+                  <label for="cfRpm">RPM (n):</label>
+                  <input type="number" id="cfRpm" class="form-control" value="1400">
+                </div>
+                <div class="form-group">
+                  <label for="cfFz">fz (mm/dente):</label>
+                  <input type="number" step="0.01" id="cfFz" class="form-control" value="0.18">
+                </div>
+                <div class="form-group">
+                  <label for="cfVf">Vf (mm/min):</label>
+                  <input type="number" id="cfVf" class="form-control" value="1260">
+                </div>
+              </div>
+              <div class="grid grid-3" style="margin-top: 0.5rem;">
+                <div class="form-group">
+                  <label for="cfAp">Profundidade ap (mm):</label>
+                  <input type="number" step="0.1" id="cfAp" class="form-control" value="2.5">
+                </div>
+                <div class="form-group">
+                  <label for="cfAe">Largura ae (mm):</label>
+                  <input type="number" step="0.1" id="cfAe" class="form-control" value="40.0">
+                </div>
+                <div class="form-group">
+                  <label for="cfBalanco">Balanco Ferramenta (mm):</label>
+                  <input type="number" id="cfBalanco" class="form-control" value="85">
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabela de Arestas e Passagem de Turno -->
+            <div class="data-table-wrapper" style="margin-top: 1.25rem;">
+              <table class="data-table" id="tabelaArestasWorkflow">
+                <thead>
+                  <tr>
+                    <th style="width: 70px;">Aresta</th>
+                    <th style="width: 120px;">Turno</th>
+                    <th style="width: 130px;">Tecnico</th>
+                    <th style="width: 130px;">Pecas Usinadas</th>
+                    <th style="width: 120px;">Rugosidade (Ra)</th>
+                    <th>Estado de Desgaste (VB / Observacoes)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Renderizado Dinamicamente -->
+                </tbody>
+              </table>
+            </div>
+
+            <button type="button" class="btn btn-secondary btn-sm no-print" onclick="adicionarLinhaChaoFabrica()">
+              + Adicionar Registro de Turno
+            </button>
+
+            <!-- KPIs de Fabrica -->
+            <div class="kpi-container" style="margin-top: 1.25rem;">
+              <div class="kpi-box">
+                <div class="kpi-label">Total Pecas Produzidas</div>
+                <div class="kpi-value" id="cfTotalPecas">125</div>
+              </div>
+              <div class="kpi-box success">
+                <div class="kpi-label">Vida Media por Aresta</div>
+                <div class="kpi-value" id="cfVidaMedia">125</div>
+              </div>
+              <div class="kpi-box success">
+                <div class="kpi-label">Variacao vs Linha Atual</div>
+                <div class="kpi-value" id="cfVariacao" style="color: var(--status-green-text);">+56.3%</div>
+              </div>
+            </div>
+
+            <div class="no-print" style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+              <button type="submit" id="btnSalvarChaoFabrica" class="btn btn-primary">Salvar Resultados e Avancar para Fechamento</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- ABA 5: FECHAMENTO, VALIDACAO & TRAVA DE ESTOQUE                           -->
+      <!-- ========================================================================= -->
+      <div id="workflowTabContent_5" class="workflow-tab-content" style="display: none;">
+        <form id="formFechamentoEstoque" onsubmit="event.preventDefault(); emitirLaudoFinalFechamento();">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Etapa 5: Fechamento, Calculo de CPP & Trava de Abastecimento</h3>
+              <span class="badge badge-orange">Laudo Oficial</span>
+            </div>
+
+            <!-- Calculo de Custo por Peca (CPP) -->
+            <div class="grid grid-2">
+              <div style="background: #f8fafc; padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                <h4 style="font-size: 0.85rem; color: var(--status-blue-text); margin-bottom: 0.5rem;">Ferramenta Atual</h4>
+                <div class="grid grid-3">
+                  <div class="form-group">
+                    <label>Preco (R$):</label>
+                    <input type="number" step="0.01" id="fechPrecoAtual" class="form-control" value="38.50" oninput="recalcularFechamento()">
+                  </div>
+                  <div class="form-group">
+                    <label>Arestas:</label>
+                    <input type="number" id="fechArestasAtual" class="form-control" value="2" oninput="recalcularFechamento()">
+                  </div>
+                  <div class="form-group">
+                    <label>Vida (pecas):</label>
+                    <input type="number" id="fechVidaAtual" class="form-control" value="80" oninput="recalcularFechamento()">
+                  </div>
+                </div>
+                <div style="margin-top: 0.75rem; padding: 0.5rem; background: #ffffff; border: 1px solid var(--border-color); border-radius: 4px;">
+                  <span style="font-size: 0.75rem; color: var(--text-secondary);">CPP Atual:</span>
+                  <strong style="font-size: 1.15rem; color: var(--text-main); display: block;" id="fechCppAtualDisplay">R$ 0,241</strong>
+                </div>
+              </div>
+
+              <div style="background: var(--viemar-orange-light); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--viemar-orange-border);">
+                <h4 style="font-size: 0.85rem; color: var(--viemar-orange); margin-bottom: 0.5rem;">Nova Ferramenta Testada</h4>
+                <div class="grid grid-3">
+                  <div class="form-group">
+                    <label>Preco (R$):</label>
+                    <input type="number" step="0.01" id="fechPrecoTeste" class="form-control" value="32.00" oninput="recalcularFechamento()">
+                  </div>
+                  <div class="form-group">
+                    <label>Arestas:</label>
+                    <input type="number" id="fechArestasTeste" class="form-control" value="4" oninput="recalcularFechamento()">
+                  </div>
+                  <div class="form-group">
+                    <label>Vida Real:</label>
+                    <input type="number" id="fechVidaTeste" class="form-control" value="125" oninput="recalcularFechamento()">
+                  </div>
+                </div>
+                <div style="margin-top: 0.75rem; padding: 0.5rem; background: #ffffff; border: 1px solid var(--status-green-border); border-radius: 4px;">
+                  <span style="font-size: 0.75rem; color: var(--status-green-text);">CPP Novo:</span>
+                  <strong style="font-size: 1.15rem; color: var(--status-green-text); display: block;" id="fechCppNovoDisplay">R$ 0,064</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Economia Mensal e Anual -->
+            <div class="grid grid-3" style="margin-top: 1rem;">
+              <div class="form-group">
+                <label for="fechVolumeMes">Volume Mensal da Linha (pecas/mes):</label>
+                <input type="number" id="fechVolumeMes" class="form-control" value="5000" oninput="recalcularFechamento()">
+              </div>
+              <div class="form-group">
+                <label>Economia Estimada / Mes:</label>
+                <div class="form-control" id="fechEconMesDisplay" style="font-weight: 800; color: var(--status-green-text); background: var(--status-green-bg);">
+                  R$ 885,00 / mes
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Economia Estimada / Ano:</label>
+                <div class="form-control" id="fechEconAnoDisplay" style="font-weight: 800; color: var(--status-green-text); background: var(--status-green-bg);">
+                  R$ 10.620,00 / ano
+                </div>
+              </div>
+            </div>
+
+            <!-- TRAVA OBRIGATORIA DE ABASTECIMENTO -->
+            <div style="border: 2px solid var(--viemar-orange); border-radius: var(--radius-sm); padding: 1rem; margin-top: 1.25rem; background: #ffffff;">
+              <h4 style="color: var(--viemar-orange); font-size: 0.95rem; margin-bottom: 0.75rem;">
+                Trava Obrigatoria de Lead Time & Transicao de Estoque
+              </h4>
+              <div class="grid grid-3">
+                <div class="form-group">
+                  <label for="fechLeadTime">Lead Time Novo Fornecedor (Dias):</label>
+                  <input type="number" id="fechLeadTime" class="form-control" value="15" oninput="recalcularFechamento()">
+                </div>
+                <div class="form-group">
+                  <label for="fechEstoqueAlmox">Estoque Fisico da Ferramenta Antiga:</label>
+                  <input type="number" id="fechEstoqueAlmox" class="form-control" value="45" oninput="recalcularFechamento()">
+                </div>
+                <div class="form-group">
+                  <label for="fechConsumoMes">Consumo Mensal Medio (Insertos/Mes):</label>
+                  <input type="number" id="fechConsumoMes" class="form-control" value="30" oninput="recalcularFechamento()">
+                </div>
+              </div>
+
+              <div class="kpi-container" style="margin-top: 1rem;">
+                <div class="kpi-box">
+                  <div class="kpi-label">Autonomia Estoque Antigo</div>
+                  <div class="kpi-value" id="fechAutonomia">45 dias</div>
+                </div>
+                <div class="kpi-box success" id="fechBoxMargem">
+                  <div class="kpi-label">Margem de Cobertura</div>
+                  <div class="kpi-value" id="fechMargem">+30 dias</div>
+                </div>
+                <div class="kpi-box success" id="fechBoxStatusEstoque">
+                  <div class="kpi-label">Status de Abastecimento</div>
+                  <div class="kpi-value" id="fechKpiStatusEstoque" style="font-size: 1.1rem;">TRANSICAO SEGURA</div>
+                </div>
+              </div>
+
+              <div id="fechAlertaRuptura" class="alert alert-red" style="display: none; margin-top: 0.75rem; margin-bottom: 0;">
+                <strong>ALERTA DE RUPTURA:</strong> O Lead Time do fornecedor excede o estoque disponivel. A virada esta suspensa ate lote emergencial.
+              </div>
+            </div>
+
+            <!-- Parecer Final da Engenharia -->
+            <div class="grid grid-2" style="margin-top: 1.25rem;">
+              <div class="form-group">
+                <label for="fechDecisaoFinal">Parecer Final da Engenharia:</label>
+                <select id="fechDecisaoFinal" class="form-control" style="font-weight: 700;">
+                  <option value="HOMOLOGADO">HOMOLOGADO (Tecnico + Economico + Estoque Seguro)</option>
+                  <option value="BLOQUEADO_ESTOQUE">APROVADO TECNICAMENTE, BLOQUEADO POR SUPRIMENTOS</option>
+                  <option value="REPROVADO">REPROVADO (Nao atingiu criterios tecnicos)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="fechJustificativa">Justificativa Tecnica do Laudo Final:</label>
+                <textarea id="fechJustificativa" class="form-control" placeholder="Parecer conclusivo da Engenharia de Usinagem..."></textarea>
+              </div>
+            </div>
+
+            <div class="no-print" style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+              <button type="submit" id="btnSalvarFechamento" class="btn btn-primary">Emitir Laudo Final de Homologacao</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- HISTORICO & LINHA DO TEMPO AUDITAVEL (TIMELINE)                           -->
+      <!-- ========================================================================= -->
+      <div class="card" style="margin-top: 1.5rem;">
+        <div class="card-header">
+          <h3 class="card-title">Linha do Tempo Auditavel (Historico em Tempo Real)</h3>
+          <span class="badge badge-gray">Registro Completo de Etapas</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Todas as movimentacoes, aprovacoes, passagem de turno e decisoes registradas permanentemente no teste:
+        </p>
+        <div class="timeline" id="workflowTimelineList">
+          <!-- Renderizado Dinamicamente -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 3: USUARIOS & CONEXAO EM NUVEM                                       -->
+    <!-- ========================================================================= -->
+    <section id="viewUsuarios" class="app-view">
+      <div class="view-header">
+        <div class="view-title-group">
+          <h2>Gestao de Perfis & Conexao Nuvem (Firebase)</h2>
+          <p>Configuracao de papeis da fabrica e status de sincronizacao.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Perfis Configurados na Fabrica</h3>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <div>
+                <strong>Oscar / Jonathan / Ponto Focal</strong> &nbsp;<span class="badge badge-orange">Engenharia ADM</span>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Avaliacao de viabilidade, devolutivas, laudos e custos</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="selecionarUsuario('oscar_adm')">Entrar como Oscar</button>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <div>
+                <strong>Filipe (1o Turno)</strong> &nbsp;<span class="badge badge-green">Tecnico</span>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Acompanhamento em maquina no turno da manha</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="selecionarUsuario('filipe_1t')">Entrar como Filipe</button>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <div>
+                <strong>Charles (2o Turno)</strong> &nbsp;<span class="badge badge-green">Tecnico</span>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Acompanhamento em maquina no turno da noite</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="selecionarUsuario('charles_2t')">Entrar como Charles</button>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <div>
+                <strong>Roberto (Preset) / Gerenciador Externo</strong> &nbsp;<span class="badge badge-blue">Solicitante</span>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Abertura de solicitacoes D-2 e visualizacao em tempo real</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="selecionarUsuario('preset_op')">Entrar como Preset</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Publicacao Web (Google Firebase)</h3>
+            <span class="badge badge-blue">Online</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+            Para disponibilizar o link online para a equipe acessar do computador ou celular:
+          </p>
+          <ol style="margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-main); margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem;">
+            <li>Acesse o Firebase Console (firebase.google.com).</li>
+            <li>Crie o projeto "viemar-testes-ferramentas".</li>
+            <li>Cole as credenciais no arquivo <code>firebase-config.js</code>.</li>
+            <li>Execute <code>firebase deploy</code> para gerar o link web oficial.</li>
+          </ol>
+          <div class="alert alert-orange" style="margin-top: 1rem; margin-bottom: 0;">
+            <div>
+              <strong>Modo Local 100% Funcional:</strong> O aplicativo funciona offline no seu computador, salvando todos os dados no cache local e emitindo PDFs oficiais da Viemar.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal de Troca de Usuario -->
+  <div id="modalUsuarios" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalUsuario()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">Alternar Perfil de Usuario</h3>
+        <button onclick="fecharModalUsuario()" style="background:none; border:none; font-size:1.1rem; cursor:pointer;">X</button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+        Selecione o usuario para simular as permissoes de workflow:
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('oscar_adm')">
+          Oscar (Engenharia ADM)
+        </button>
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('jonathan_adm')">
+          Jonathan (Engenharia ADM)
+        </button>
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('ponto_focal')">
+          Ponto Focal (Coordenador de Testes)
+        </button>
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('filipe_1t')">
+          Filipe (Tecnico 1o Turno)
+        </button>
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('charles_2t')">
+          Charles (Tecnico 2o Turno)
+        </button>
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('preset_op')">
+          Roberto (Setor de Preset)
+        </button>
+        <button class="btn btn-secondary" style="justify-content: flex-start;" onclick="selecionarUsuario('gerenciador_ext')">
+          Gerenciador Externo de Ferramentas
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

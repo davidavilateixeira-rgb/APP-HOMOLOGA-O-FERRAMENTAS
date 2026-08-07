@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ficha Digital de Solicitação Prévia de Teste | Engenharia de Usinagem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand-wrapper">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <div class="brand-info">
+          <h1>ENGENHARIA DE USINAGEM</h1>
+          <p>Ficha de Solicitação Prévia de Teste de Ferramenta</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary no-print" onclick="window.location.href='index.html'">Voltar ao Hub</button>
+        <button class="btn btn-primary no-print" onclick="window.print()">Gerar PDF</button>
+      </div>
+    </header>
+
+    <!-- Regra de Prazo Alert -->
+    <div class="alert alert-warning no-print">
+      <div>
+        <strong>Atenção ao Prazo:</strong> Esta solicitação deve ser preenchida e enviada com antecedência mínima de 2 dias (até <strong>Terça-feira às 17h00</strong>) para os testes da <strong>Quinta-feira Quinzenal</strong>. Preencha todos os campos e clique em <em>"Gerar PDF"</em> para enviar à Engenharia.
+      </div>
+    </div>
+
+    <form id="formSolicitacao" onsubmit="event.preventDefault();">
+      
+      <!-- Card 1: Identificação -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">1. Identificação Geral</h2>
+          <span class="badge badge-blue">Nova Entrada</span>
+        </div>
+        
+        <div class="grid grid-3">
+          <div class="form-group">
+            <label for="dataSolicitacao">Data da Solicitação:</label>
+            <input type="date" id="dataSolicitacao" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="dataTeste">Data Prevista do Teste (Quinta):</label>
+            <input type="date" id="dataTeste" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="setorSolicitante">Origem do Solicitante:</label>
+            <select id="setorSolicitante" class="form-control">
+              <option value="Preset">Setor de Preset</option>
+              <option value="Gerenciador Externo">Gerenciador Externo de Ferramentas</option>
+              <option value="Engenharia">Engenharia de Usinagem</option>
+              <option value="Producao">Chão de Fábrica / Produção</option>
+              <option value="Fornecedor">Fornecedor Direto</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-3" style="margin-top: 1rem;">
+          <div class="form-group">
+            <label for="nomeSolicitante">Nome do Solicitante:</label>
+            <input type="text" id="nomeSolicitante" class="form-control" placeholder="Ex: Roberto (Preset)" required>
+          </div>
+          <div class="form-group">
+            <label for="fornecedor">Empresa / Fabricante da Ferramenta:</label>
+            <input type="text" id="fornecedor" class="form-control" placeholder="Ex: Sandvik, Iscar, Seco, Walter, Mitsubishi" required>
+          </div>
+          <div class="form-group">
+            <label for="contatoTecnico">Técnico Responsável do Fornecedor:</label>
+            <input type="text" id="contatoTecnico" class="form-control" placeholder="Nome e Celular / WhatsApp">
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 2: Aplicação Alvo -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">2. Aplicação Alvo, Máquina e Peça</h2>
+        </div>
+        
+        <div class="grid grid-3">
+          <div class="form-group">
+            <label for="codigoPeca">Código / Desenho da Peça:</label>
+            <input type="text" id="codigoPeca" class="form-control" placeholder="Ex: PC-88420-A" required>
+          </div>
+          <div class="form-group">
+            <label for="descPeca">Descrição da Peça:</label>
+            <input type="text" id="descPeca" class="form-control" placeholder="Ex: Flange de Acoplamento 120" required>
+          </div>
+          <div class="form-group">
+            <label for="materialPeca">Material & Dureza:</label>
+            <input type="text" id="materialPeca" class="form-control" placeholder="Ex: Aço 4140 Tratado (32 HRC)" required>
+          </div>
+        </div>
+
+        <div class="grid grid-3" style="margin-top: 1rem;">
+          <div class="form-group">
+            <label for="maquinaAlvo">Máquina Pretendida:</label>
+            <input type="text" id="maquinaAlvo" class="form-control" placeholder="Ex: Centro Romi D800 / Torno G280" required>
+          </div>
+          <div class="form-group">
+            <label for="tipoOperacao">Operação de Usinagem:</label>
+            <select id="tipoOperacao" class="form-control">
+              <option value="Faceamento">Faceamento</option>
+              <option value="Desbaste Externo / Interno">Desbaste Torneamento</option>
+              <option value="Acabamento Torneamento">Acabamento Torneamento</option>
+              <option value="Fresamento de Cavidade / Contorno">Fresamento de Cavidade / Contorno</option>
+              <option value="Furacao Profunda">Furação</option>
+              <option value="Rosqueamento">Rosqueamento</option>
+              <option value="Mandrilamento">Mandrilamento</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="tipoRefrigeracao">Refrigeração:</label>
+            <select id="tipoRefrigeracao" class="form-control">
+              <option value="Oleo Soluvel Emulsao">Óleo Solúvel Convencional</option>
+              <option value="Alta Pressao Interna">Alta Pressão Interna</option>
+              <option value="MQL Ar / Micro-lubrificacao">MQL / Ar</option>
+              <option value="Corte a Seco">Corte a Seco</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 3: Comparativo Técnico (Atual vs Teste) -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">3. Situação Atual (Linha) vs Proposta de Teste</h2>
+        </div>
+
+        <div class="grid grid-2">
+          <!-- Coluna Atual -->
+          <div style="background: rgba(31, 41, 55, 0.5); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <h3 style="color: #93c5fd; font-size: 1rem; margin-bottom: 0.75rem; border-bottom: 1px solid #374151; padding-bottom: 0.4rem;">
+              Ferramenta Atual (Referência)
+            </h3>
+            
+            <div class="form-group">
+              <label for="ferramentaAtual">Código do Inserto / Fresa Atual:</label>
+              <input type="text" id="ferramentaAtual" class="form-control" placeholder="Ex: CNMG 120408-WM WPP20S" required>
+            </div>
+            <div class="form-group" style="margin-top: 0.5rem;">
+              <label for="vidaAtual">Vida Útil Atual (peças/aresta):</label>
+              <input type="number" id="vidaAtual" class="form-control" placeholder="Ex: 80" oninput="calcularGanhos()" required>
+            </div>
+            <div class="form-group" style="margin-top: 0.5rem;">
+              <label for="cicloAtual">Tempo de Ciclo Atual da Operação (segundos):</label>
+              <input type="number" id="cicloAtual" class="form-control" placeholder="Ex: 145" required>
+            </div>
+            <div class="form-group" style="margin-top: 0.5rem;">
+              <label for="custoAtual">Custo Atual da Aresta / Inserto (R$):</label>
+              <input type="number" step="0.01" id="custoAtual" class="form-control" placeholder="Ex: 38.50" oninput="calcularGanhos()">
+            </div>
+          </div>
+
+          <!-- Coluna Proposta -->
+          <div style="background: rgba(31, 41, 55, 0.5); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid rgba(59, 130, 246, 0.3);">
+            <h3 style="color: #60a5fa; font-size: 1rem; margin-bottom: 0.75rem; border-bottom: 1px solid #374151; padding-bottom: 0.4rem;">
+              Ferramenta de Teste Ofertada
+            </h3>
+            
+            <div class="form-group">
+              <label for="ferramentaTeste">Código da Nova Ferramenta:</label>
+              <input type="text" id="ferramentaTeste" class="form-control" placeholder="Ex: CNMG 120408-MP WCM20" required>
+            </div>
+            <div class="form-group" style="margin-top: 0.5rem;">
+              <label for="metaVidaTeste">Meta Prometida de Vida (peças/aresta):</label>
+              <input type="number" id="metaVidaTeste" class="form-control" placeholder="Ex: 120" oninput="calcularGanhos()" required>
+            </div>
+            <div class="form-group" style="margin-top: 0.5rem;">
+              <label for="amostrasBonificadas">Qtd Amostras Bonificadas (Sem Custo):</label>
+              <input type="number" id="amostrasBonificadas" class="form-control" placeholder="Ex: 10 insertos" required>
+            </div>
+            <div class="form-group" style="margin-top: 0.5rem;">
+              <label for="precoOfertado">Preço Unitário Proposto (R$):</label>
+              <input type="number" step="0.01" id="precoOfertado" class="form-control" placeholder="Ex: 32.00" oninput="calcularGanhos()">
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI Resumo Calculado -->
+        <div class="kpi-container" style="margin-top: 1.25rem;">
+          <div class="kpi-box success">
+            <div class="kpi-label">Ganho Estimado de Vida Útil</div>
+            <div class="kpi-value" id="kpiGanhoVida">+0%</div>
+            <div class="kpi-subtext">Baseado na promessa do fornecedor</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label">Lead Time Normal de Fornecimento</div>
+            <div class="form-group" style="margin-top: 0.5rem;">
+              <input type="number" id="leadTimeDias" class="form-control" style="text-align: center; font-weight: bold;" placeholder="Ex: 15 dias" required>
+            </div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label">Estoque Pronta Entrega Local?</div>
+            <div style="margin-top: 0.75rem;">
+              <select id="estoqueLocal" class="form-control" style="text-align: center;">
+                <option value="SIM">SIM (Distribuidor Local)</option>
+                <option value="NAO">NÃO (Importação / Fábrica)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 4: Motivo & Justificativa -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">4. Justificativa & Gatilho do Teste</h2>
+        </div>
+        
+        <div class="choice-group" style="margin-bottom: 1rem;">
+          <label class="choice-label"><input type="checkbox" id="gatilhoCPP" checked> Redução de Custo por Peça (CPP)</label>
+          <label class="choice-label"><input type="checkbox" id="gatilhoVida"> Aumento de Vida Útil / Produtividade</label>
+          <label class="choice-label"><input type="checkbox" id="gatilhoCiclo"> Redução de Tempo de Ciclo (Gargalo)</label>
+          <label class="choice-label"><input type="checkbox" id="gatilhoQualidade"> Problema Crônico de Rugosidade / Rebarba</label>
+          <label class="choice-label"><input type="checkbox" id="gatilhoObsoleto"> Substituição de Item Obsoleto</label>
+        </div>
+
+        <div class="form-group">
+          <label for="obsSolicitante">Observações Adicionais / Requisitos Especiais de Fixação:</label>
+          <textarea id="obsSolicitante" class="form-control" placeholder="Ex: Necessário cone BT40 ER32 ou cabeçote específico (cedido pelo fornecedor)."></textarea>
+        </div>
+      </section>
+
+      <!-- Card 5: Parecer da Engenharia (GO / NO-GO) -->
+      <section class="card" style="border-left: 4px solid var(--accent-blue);">
+        <div class="card-header">
+          <h2 class="card-title">5. Aval da Engenharia de Usinagem (Uso Interno)</h2>
+          <span class="badge badge-emerald">Decisão GO / NO-GO</span>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="form-group">
+            <label for="pontoFocalNome">Ponto Focal Responsável:</label>
+            <input type="text" id="pontoFocalNome" class="form-control" placeholder="Ponto Focal da Engenharia">
+          </div>
+          <div class="form-group">
+            <label for="decisaoEngenharia">Parecer da Engenharia:</label>
+            <select id="decisaoEngenharia" class="form-control" style="font-weight: bold;">
+              <option value="AGUARDANDO">Em Análise (Aguardando Quarta-feira)</option>
+              <option value="GO">GO (Aprovado para Quinta-feira)</option>
+              <option value="NO-GO">NO-GO (Recusado / Sem Ganho Comprovável)</option>
+              <option value="REAGENDADO">Reagendado (Sem Lote no PCP)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="tecnicoAcompanha">Técnicos Escalados:</label>
+            <input type="text" id="tecnicoAcompanha" class="form-control" value="1ºT: Filipe | 2ºT: Charles" readonly>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Bar Action Buttons -->
+      <div class="no-print" style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; margin-bottom: 3rem;">
+        <button type="button" class="btn btn-secondary" onclick="copiarResumoWhatsApp()">Copiar Resumo WhatsApp</button>
+        <button type="button" class="btn btn-success" onclick="salvarRascunho()">Salvar Rascunho</button>
+        <button type="button" class="btn btn-primary" onclick="window.print()">Gerar PDF para Envio</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Inicializar data padrão como hoje
+    document.addEventListener('DOMContentLoaded', () => {
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('dataSolicitacao').value = hoje;
+      carregarRascunho();
+    });
+
+    function calcularGanhos() {
+      const vidaAtual = parseFloat(document.getElementById('vidaAtual').value) || 0;
+      const metaVida = parseFloat(document.getElementById('metaVidaTeste').value) || 0;
+      
+      const kpiElement = document.getElementById('kpiGanhoVida');
+      if (vidaAtual > 0 && metaVida > 0) {
+        const ganho = (((metaVida - vidaAtual) / vidaAtual) * 100).toFixed(1);
+        kpiElement.textContent = (ganho >= 0 ? `+${ganho}%` : `${ganho}%`);
+        kpiElement.style.color = ganho >= 0 ? '#34d399' : '#f87171';
+      } else {
+        kpiElement.textContent = '+0%';
+      }
+    }
+
+    function copiarResumoWhatsApp() {
+      const sol = document.getElementById('nomeSolicitante').value || 'Não informado';
+      const forn = document.getElementById('fornecedor').value || 'Não informado';
+      const peca = document.getElementById('descPeca').value || 'Não informado';
+      const maq = document.getElementById('maquinaAlvo').value || 'Não informado';
+      const atual = document.getElementById('ferramentaAtual').value || 'Não informado';
+      const teste = document.getElementById('ferramentaTeste').value || 'Não informado';
+      const ganho = document.getElementById('kpiGanhoVida').textContent;
+      const dataPrevista = document.getElementById('dataTeste').value || 'Quinta-feira';
+
+      const texto = `*SOLICITAÇÃO DE TESTE*\n` +
+                    `• *Solicitante:* ${sol}\n` +
+                    `• *Fornecedor:* ${forn}\n` +
+                    `• *Data Pretendida:* ${dataPrevista}\n` +
+                    `• *Peça / Máquina:* ${peca} (${maq})\n` +
+                    `• *Ferramenta Atual:* ${atual}\n` +
+                    `• *Ferramenta Ofertada:* ${teste}\n` +
+                    `• *Meta Ganho de Vida:* ${ganho}\n` +
+                    `_Ficha completa em PDF anexada/gerada para análise da Engenharia._`;
+
+      navigator.clipboard.writeText(texto).then(() => {
+        alert('Resumo copiado para a área de transferência! Cole no Grupo do WhatsApp.');
+      }).catch(err => {
+        alert('Erro ao copiar texto: ' + err);
+      });
+    }
+
+    function salvarRascunho() {
+      const form = document.getElementById('formSolicitacao');
+      const inputs = form.querySelectorAll('input, select, textarea');
+      const dados = {};
+      inputs.forEach(input => {
+        if (input.id) dados[input.id] = input.value;
+      });
+      localStorage.setItem('rascunho_solicitacao_teste', JSON.stringify(dados));
+      alert('Rascunho salvo com sucesso no seu navegador!');
+    }
+
+    function carregarRascunho() {
+      const rascunho = localStorage.getItem('rascunho_solicitacao_teste');
+      if (rascunho) {
+        const dados = JSON.parse(rascunho);
+        for (const [key, value] of Object.entries(dados)) {
+          const el = document.getElementById(key);
+          if (el) el.value = value;
+        }
+        calcularGanhos();
+      }
+    }
+  </script>
+</body>
+</html>

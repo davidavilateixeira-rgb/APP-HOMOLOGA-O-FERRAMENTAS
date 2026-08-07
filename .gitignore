@@ -1,0 +1,6 @@
+# Dependencias e logs locais
+.DS_Store
+Thumbs.db
+*.log
+
+# Backups sao mantidos no repositorio conforme AGENTS.md

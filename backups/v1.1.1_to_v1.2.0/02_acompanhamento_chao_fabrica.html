@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultados Obtidos em Chão de Fábrica | Engenharia de Usinagem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-wrapper">
+        <div class="brand-icon" style="background: linear-gradient(135deg, var(--accent-emerald), #047857);">🏭</div>
+        <div class="brand-info">
+          <h1>ENGENHARIA DE USINAGEM</h1>
+          <p>Ficha de Resultados Obtidos & Acompanhamento em Máquina (1º e 2º Turno)</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary no-print" onclick="window.location.href='index.html'">⬅️ Portal Hub</button>
+        <button class="btn btn-primary no-print" onclick="window.print()">🖨️ Gerar PDF dos Resultados</button>
+      </div>
+    </header>
+
+    <form id="formAcompanhamento" onsubmit="event.preventDefault();">
+      
+      <!-- Card 1: Cabeçalho do Teste -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">1. Dados do Teste em Execução</h2>
+          <span class="badge badge-emerald">Acompanhamento Ativo</span>
+        </div>
+        
+        <div class="grid grid-4">
+          <div class="form-group">
+            <label for="numTeste">Nº do Teste:</label>
+            <input type="text" id="numTeste" class="form-control" placeholder="TESTE-015/2026" required>
+          </div>
+          <div class="form-group">
+            <label for="dataInicio">Data do Teste (Quinta):</label>
+            <input type="date" id="dataInicio" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="maquina">Máquina CNC:</label>
+            <input type="text" id="maquina" class="form-control" placeholder="Ex: Romi D800 / CNC-04" required>
+          </div>
+          <div class="form-group">
+            <label for="pecaOperacao">Peça / Operação:</label>
+            <input type="text" id="pecaOperacao" class="form-control" placeholder="Ex: Flange 120 / Faceamento" required>
+          </div>
+        </div>
+
+        <div class="grid grid-3" style="margin-top: 1rem;">
+          <div class="form-group">
+            <label for="ferramentaTesteNome">Ferramenta em Teste:</label>
+            <input type="text" id="ferramentaTesteNome" class="form-control" placeholder="Código / Fornecedor" required>
+          </div>
+          <div class="form-group">
+            <label for="vidaReferencia">Vida Útil Atual de Referência (peças):</label>
+            <input type="number" id="vidaReferencia" class="form-control" placeholder="Ex: 80 peças" oninput="calcularTotais()" required>
+          </div>
+          <div class="form-group">
+            <label for="tempoCicloMedido">Tempo de Ciclo Real Medido (segundos):</label>
+            <input type="number" id="tempoCicloMedido" class="form-control" placeholder="Ex: 130">
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 2: Parâmetros Reais de Corte Aplicados -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">2. Parâmetros de Corte Reais Aplicados</h2>
+        </div>
+
+        <div class="grid grid-4">
+          <div class="form-group">
+            <label for="vc">Velocidade Corte (Vc m/min):</label>
+            <input type="number" id="vc" class="form-control" placeholder="Ex: 220">
+          </div>
+          <div class="form-group">
+            <label for="rpm">Rotação (n - RPM):</label>
+            <input type="number" id="rpm" class="form-control" placeholder="Ex: 1400">
+          </div>
+          <div class="form-group">
+            <label for="fz">Avanço (fz/fn mm):</label>
+            <input type="number" step="0.01" id="fz" class="form-control" placeholder="Ex: 0.18">
+          </div>
+          <div class="form-group">
+            <label for="vf">Velocidade Avanço (Vf mm/min):</label>
+            <input type="number" id="vf" class="form-control" placeholder="Ex: 1260">
+          </div>
+        </div>
+
+        <div class="grid grid-3" style="margin-top: 1rem;">
+          <div class="form-group">
+            <label for="ap">Profundidade (ap mm):</label>
+            <input type="number" step="0.1" id="ap" class="form-control" placeholder="Ex: 2.5">
+          </div>
+          <div class="form-group">
+            <label for="ae">Largura Corte (ae mm):</label>
+            <input type="number" step="0.1" id="ae" class="form-control" placeholder="Ex: 40.0">
+          </div>
+          <div class="form-group">
+            <label for="balanco">Balanço da Ferramenta (L mm):</label>
+            <input type="number" id="balanco" class="form-control" placeholder="Ex: 85 mm">
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 3: Tabela de Arestas & Passagem de Turno -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">3. Registro de Peças Usinadas por Aresta & Turno</h2>
+          <span class="badge badge-blue">Filipe (1ºT) ↔ Charles (2ºT)</span>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+          Preencha a contagem de peças e a condição de desgaste ao final de cada aresta ou passagem de turno.
+        </p>
+
+        <div class="data-table-wrapper">
+          <table class="data-table" id="tabelaArestas">
+            <thead>
+              <tr>
+                <th style="width: 70px;">Aresta</th>
+                <th style="width: 90px;">Turno</th>
+                <th style="width: 120px;">Técnico</th>
+                <th style="width: 110px;">Peças no Turno</th>
+                <th style="width: 100px;">Rugosidade (Ra)</th>
+                <th>Estado do Desgaste (VB / Aspecto)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: bold; text-align: center;">#1</td>
+                <td><select class="cell-input"><option>1º Turno</option><option>2º Turno</option></select></td>
+                <td><input type="text" class="cell-input" value="Filipe"></td>
+                <td><input type="number" class="cell-input input-pecas" placeholder="Ex: 65" oninput="calcularTotais()"></td>
+                <td><input type="text" class="cell-input" placeholder="Ra 1.4 µm"></td>
+                <td><input type="text" class="cell-input" placeholder="Desgaste normal VB~0.15mm"></td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold; text-align: center;">#1 (Cont.)</td>
+                <td><select class="cell-input"><option selected>2º Turno</option><option>1º Turno</option></select></td>
+                <td><input type="text" class="cell-input" value="Charles"></td>
+                <td><input type="number" class="cell-input input-pecas" placeholder="Ex: 55" oninput="calcularTotais()"></td>
+                <td><input type="text" class="cell-input" placeholder="Ra 1.6 µm"></td>
+                <td><input type="text" class="cell-input" placeholder="Fim de vida VB=0.30mm, sem quebra"></td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold; text-align: center;">#2</td>
+                <td><select class="cell-input"><option>1º Turno</option><option>2º Turno</option></select></td>
+                <td><input type="text" class="cell-input" value="Filipe"></td>
+                <td><input type="number" class="cell-input input-pecas" placeholder="Ex: 118" oninput="calcularTotais()"></td>
+                <td><input type="text" class="cell-input" placeholder="Ra 1.5 µm"></td>
+                <td><input type="text" class="cell-input" placeholder="Desgaste de flanco uniforme"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <button type="button" class="btn btn-secondary no-print" onclick="adicionarLinhaTabela()" style="margin-top: 0.5rem;">
+          ➕ Adicionar Linha de Registro
+        </button>
+
+        <!-- KPI Resumo do Chão de Fábrica -->
+        <div class="kpi-container" style="margin-top: 1.5rem;">
+          <div class="kpi-box">
+            <div class="kpi-label">Total de Peças Produzidas</div>
+            <div class="kpi-value" id="kpiTotalPecas">0</div>
+            <div class="kpi-subtext">Soma de todos os turnos</div>
+          </div>
+          <div class="kpi-box success">
+            <div class="kpi-label">Vida Média por Aresta</div>
+            <div class="kpi-value" id="kpiMediaAresta">0</div>
+            <div class="kpi-subtext">peças / aresta</div>
+          </div>
+          <div class="kpi-box" id="boxVariacao">
+            <div class="kpi-label">Variação vs Referência Atual</div>
+            <div class="kpi-value" id="kpiVariacaoPorc">+0%</div>
+            <div class="kpi-subtext">Referência: <span id="lblRef">80</span> peças</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 4: Intercorrências & Observações -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">4. Critérios de Fim de Vida & Ocorrências</h2>
+        </div>
+
+        <div class="grid grid-2">
+          <div>
+            <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">
+              Critérios Observados no Fim de Vida:
+            </label>
+            <div class="choice-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+              <label class="choice-label"><input type="checkbox" checked> Desgaste de Flanco Normal (VB ~ 0.30mm)</label>
+              <label class="choice-label"><input type="checkbox"> Lascamento / Micro-lascamento</label>
+              <label class="choice-label"><input type="checkbox"> Perda de Rugosidade (Ra acima do desenho)</label>
+              <label class="choice-label"><input type="checkbox"> Quebra Catastrófica da Aresta</label>
+              <label class="choice-label"><input type="checkbox"> Vibração / Ruído Anormal (Chatter)</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="obsTecnicos">Relato dos Técnicos (Filipe / Charles):</label>
+            <textarea id="obsTecnicos" class="form-control" style="min-height: 110px;" placeholder="Ex: Cavaco com boa quebra, acabamento brilhante, sem desvio dimensional nas 3 arestas testadas."></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Bar Action Buttons -->
+      <div class="no-print" style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; margin-bottom: 3rem;">
+        <button type="button" class="btn btn-secondary" onclick="copiarPassagemTurnoWhatsApp()">📱 Copiar Status p/ WhatsApp</button>
+        <button type="button" class="btn btn-success" onclick="salvarAcompanhamento()">💾 Salvar Dados</button>
+        <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Gerar PDF dos Resultados</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('dataInicio').value = hoje;
+      carregarAcompanhamento();
+    });
+
+    function calcularTotais() {
+      const inputs = document.querySelectorAll('.input-pecas');
+      let total = 0;
+      let count = 0;
+      inputs.forEach(input => {
+        const val = parseFloat(input.value);
+        if (!isNaN(val) && val > 0) {
+          total += val;
+          count++;
+        }
+      });
+
+      document.getElementById('kpiTotalPecas').textContent = total;
+      
+      const media = count > 0 ? (total / (count > 2 ? 2 : 1)).toFixed(0) : total;
+      document.getElementById('kpiMediaAresta').textContent = total > 0 ? (total / Math.max(1, count >= 2 ? (count/2).toFixed(0) : 1)).toFixed(0) : 0;
+
+      const vidaRef = parseFloat(document.getElementById('vidaReferencia').value) || 0;
+      document.getElementById('lblRef').textContent = vidaRef;
+
+      const kpiVar = document.getElementById('kpiVariacaoPorc');
+      const boxVar = document.getElementById('boxVariacao');
+      
+      const mediaReal = total > 0 ? total : 0;
+      if (vidaRef > 0 && total > 0) {
+        const variacao = (((total - vidaRef) / vidaRef) * 100).toFixed(1);
+        kpiVar.textContent = (variacao >= 0 ? `+${variacao}%` : `${variacao}%`);
+        if (variacao >= 0) {
+          boxVar.className = 'kpi-box success';
+          kpiVar.style.color = '#34d399';
+        } else {
+          boxVar.className = 'kpi-box danger';
+          kpiVar.style.color = '#f87171';
+        }
+      }
+    }
+
+    function adicionarLinhaTabela() {
+      const tbody = document.querySelector('#tabelaArestas tbody');
+      const rowCount = tbody.rows.length + 1;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="font-weight: bold; text-align: center;">#${Math.ceil(rowCount/2)}</td>
+        <td><select class="cell-input"><option>1º Turno</option><option selected>2º Turno</option></select></td>
+        <td><input type="text" class="cell-input" value="Charles"></td>
+        <td><input type="number" class="cell-input input-pecas" placeholder="Qtd peças" oninput="calcularTotais()"></td>
+        <td><input type="text" class="cell-input" placeholder="Ra µm"></td>
+        <td><input type="text" class="cell-input" placeholder="Estado do desgaste"></td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    function copiarPassagemTurnoWhatsApp() {
+      const num = document.getElementById('numTeste').value || 'S/N';
+      const maq = document.getElementById('maquina').value || 'CNC';
+      const pecas = document.getElementById('kpiTotalPecas').textContent;
+      const ferr = document.getElementById('ferramentaTesteNome').value || 'Ferramenta Teste';
+      const varPct = document.getElementById('kpiVariacaoPorc').textContent;
+
+      const texto = `🔵 *[STATUS / PASSAGEM DE TURNO] - ${num}*\n` +
+                    `• *Máquina:* ${maq}\n` +
+                    `• *Ferramenta:* ${ferr}\n` +
+                    `• *Peças Acumuladas:* ${pecas} peças\n` +
+                    `• *Desempenho vs Atual:* ${varPct}\n` +
+                    `_Ficha de resultados em máquina atualizada. Acompanhamento segue ativo._`;
+
+      navigator.clipboard.writeText(texto).then(() => {
+        alert('Status copiado para o WhatsApp!');
+      });
+    }
+
+    function salvarAcompanhamento() {
+      const num = document.getElementById('numTeste').value || 'temp';
+      localStorage.setItem(`acomp_${num}`, 'salvo');
+      alert('Dados do teste salvos localmente com sucesso!');
+    }
+
+    function carregarAcompanhamento() {
+      calcularTotais();
+    }
+  </script>
+</body>
+</html>

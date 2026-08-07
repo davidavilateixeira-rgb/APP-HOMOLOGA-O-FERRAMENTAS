@@ -1,0 +1,167 @@
+# Changelog - Viemar ToolFlow | Gestao de Testes de Usinagem
+
+Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamento SemVer e a governanca do `.agents/AGENTS.md`.
+
+---
+
+## [v1.4.1] - 2026-08-05
+
+### Corrigido
+- **Ajustes no modal de nova solicitação**:
+  - Removidos os campos de peça, material, máquina, operação e refrigeração do cadastro, pois não eram necessários nesta etapa.
+  - Incluído campo de solicitante preenchido automaticamente pelo usuário logado.
+  - Incluídos campos de quantidade em estoque e giro mensal para análise de abastecimento.
+  - Corrigidos rótulos com acentuação em português no formulário.
+  - Ajustado layout responsivo para eliminar scroll horizontal no modal.
+- Backup de segurança criado em `backups/v1.4.0_to_v1.4.1/`.
+
+---
+
+## [v1.4.0] - 2026-08-04
+
+### Adicionado
+- **Cadastro inteligente de solicitacao de teste de ferramenta**:
+  - Inclusao de campos para fornecedor, classe de inserto, descricao da ferramenta, perfil/quebra-cavaco e parametros recomendados: avanco, AP, velocidade de corte e RPM.
+  - Inclusao dos dados da ferramenta atual para comparacao: codigo, descricao, parametros atuais, vida util, ciclo e custo.
+  - Selecao multipla para tipo da ferramenta e processo de aplicacao, incluindo opcao "Outra" com descricao livre.
+  - Inclusao de motivo do teste, retorno esperado e indicadores atacados: reducao de custo, padronizacao, melhoria de cavaco, reducao de tempo de ciclo e robustez.
+- **Calendario quinzenal inteligente**:
+  - Data do teste agora e selecionada a partir das proximas quintas-feiras quinzenais validas, respeitando minimo D+2 da solicitacao.
+- **Fluxo de analise tecnica**:
+  - Nova solicitacao entra diretamente como `AGUARDANDO_ANALISE` na etapa de Analise Engenharia.
+  - Parecer tecnico trata aprovado, reprovado e em revisao com devolutiva rastreavel ao solicitante.
+- Backup de seguranca preservado em `backups/v1.3.2_to_v1.4.0/`.
+
+---
+
+## [v1.3.2] - 2026-08-04
+
+### Corrigido
+- **Credenciais do Administrador Master**:
+  - E-mail alterado de `davidavillateixeira@gmail.com` para `dteixeira@viemar.com.br` (e-mail corporativo correto).
+  - Nome atualizado para `David Teixeira`.
+  - Migração do armazenamento local para chave `viemar_toolflow_users_v3` para forçar reset em navegadores com dados antigos.
+- Backup de segurança criado em `backups/v1.3.1_to_v1.3.2/`.
+
+---
+
+## [v1.3.1] - 2026-08-04
+
+### Segurança & Autenticação
+- **Remoção de Atalhos de Login Automático do Administrador**:
+  - Removido o link `Primeiro acesso (admin)` da tela inicial de login para evitar acessos não autorizados por terceiros.
+  - O campo de `SENHA` agora é estritamente obrigatório (`required`) e a autenticação compara com rigor a senha individual cadastrada de cada usuário.
+  - Eliminação de qualquer fallback/senha padrão em código aberto na tela de login.
+  - Centralização do link `Esqueci minha senha` com instruções de contato com o Administrador.
+- Backup de segurança criado em `backups/v1.3.0_to_v1.3.1/`.
+
+---
+
+## [v1.3.0] - 2026-08-04
+
+### Adicionado
+- **Módulo Oficial de Gestão e Cadastro Dinâmico de Usuários (Padrão DevFlow / Viemar)**:
+  - Layout dividido em 2 colunas responsivas:
+    - **Card Esquerdo**: Formulário *Cadastrar novo usuário* com campos `NOME *`, `E-MAIL *`, `SENHA INICIAL * (MÍN. 6 CARACTERES)`, `PAPEL` (Técnico Usinagem, Técnico Montagem, Engenharia de Processos, Engenharia de Produto, Setor Preset, Gerenciador de Ferramentas, Fornecedor Externo, Administrador, Visitante) e botão *Criar usuário* no laranja Viemar.
+    - **Card Direito**: Lista *Usuários cadastrados (N)* com avatares coloridos por perfil, indicador `(você)` para o usuário conectado, tags de papel estilizadas (orange, purple, blue, yellow, teal, pink, gray), botões de ação rápida para edição, alteração de senha e desativação de contas.
+  - **Modais Dedicados**:
+    - Modal *Editar Usuário* para ajuste de nome, e-mail e cargo.
+    - Modal *Alterar Senha do Usuário* com validação de segurança mínima de 6 dígitos.
+    - Confirmação de desativação protegida contra exclusão acidental da própria conta em uso.
+
+### Alterado
+- **Limpeza da Base Inicial de Usuários**:
+  - Remoção de todos os usuários fictícios de teste prévios (Oscar, Jonathan, Filipe, Charles, etc.).
+  - Inicialização limpa exclusiva com o usuário Master Admin: **David** (`davidavillateixeira@gmail.com`).
+  - Atualização do botão de *Primeiro acesso (admin)* na tela de login para preenchimento com as credenciais do David.
+  - Migração segura da persistência local para a chave `viemar_toolflow_users_v2`.
+- Backup de segurança criado em `backups/v1.2.0_to_v1.3.0/`.
+
+---
+
+## [v1.2.0] - 2026-08-04
+
+### Adicionado
+- **Nova Tela de Login Dedicada no Padrão Viemar Automotive**:
+  - Interface limpa e centralizada com logotipo Viemar, identificador ToolFlow, tag de versão e subtítulo *Engenharia de Processos · VMR*.
+  - Campos de entrada: `E-MAIL` e `SENHA` estilizados.
+  - Botão principal **Entrar** em Laranja Viemar (`#ff6600`).
+  - Botão secundário **Entrar como visitante** (acesso instantâneo sem necessidade de login prévio).
+  - Links de rodapé: **Esqueci minha senha** e **Primeiro acesso (admin)** para autofill rápido do Administrador.
+- **Modo Visitante (Somente Leitura)**:
+  - Banner informativo persistente no topo da tela.
+  - Bloqueio e ocultação automática de botões de edição, criação de solicitações, pareceres da engenharia e apontamentos de fábrica.
+  - Formulários protegidos em modo consulta.
+- **Governança de Usuários e Gestão de Logins pelo Admin**:
+  - Exclusividade do Administrador (Engenharia ADM) para cadastrar e gerenciar novos logins para a equipe (`Filipe 1ºT`, `Charles 2ºT`, `Preset`, `Fornecedores`).
+  - Botão de logout no rodapé da Sidebar para retorno imediato à tela de login.
+
+### Alterado
+- Incremento de versão para `v1.2.0` na Sidebar, Topbar, cabeçalho de login e relatórios técnicos.
+- Backup de segurança criado em `backups/v1.1.1_to_v1.2.0/`.
+
+---
+
+## [v1.1.1] - 2026-08-04
+
+### Alterado
+- **Renomeação Oficial do Sistema para ToolFlow Viemar**:
+  - Nova nomenclatura aplicada em toda a interface: **Viemar ToolFlow - Gestão e Governança de Ferramentas**.
+  - Atualização do título da página, Sidebar, Topbar de navegação, cabeçalhos de impressão e modais de autenticação.
+  - Atualização das chaves de persistência no `localStorage` com retrocompatibilidade (`viemar_toolflow_store_v1` e `viemar_toolflow_users_v1`).
+  - Atualização do formato de exportação para compartilhamento WhatsApp (`[VIEMAR TOOLFLOW - STATUS TESTE...]`).
+  - Atualização dos arquivos [`index.html`](file:///q:/02%20ENGENHARIA%20DE%20USINAGEM/37%20-%20TESTES%20DE%20FERRAMENTAS/index.html) raiz e [`README.md`](file:///q:/02%20ENGENHARIA%20DE%20USINAGEM/37%20-%20TESTES%20DE%20FERRAMENTAS/README.md).
+- **Governanca**:
+  - Backup de segurança criado em `backups/v1.1.0_to_v1.1.1/`.
+  - Tag de versão `v1.1.1` criada no Git.
+
+---
+
+## [v1.1.0] - 2026-08-04
+
+### Adicionado
+- **Configuração de Deploy para a Vercel**:
+  - Criação do `vercel.json` para roteamento limpo de Single Page Application.
+  - Criação do `index.html` raiz para redirecionamento transparente.
+  - Criação do guia completo de deploy em [`README.md`](file:///q:/02%20ENGENHARIA%20DE%20USINAGEM/37%20-%20TESTES%20DE%20FERRAMENTAS/README.md).
+- **Módulo Completo de Autenticação e Cadastro Multi-Usuário (Login & Sign Up)**:
+  - Aba de **Entrar** (Login por e-mail ou seleção rápida de membros da equipe).
+  - Aba de **Cadastrar Novo Usuário** (Permite que colaboradores em diferentes máquinas ou celulares criem seus próprios logins).
+  - Seleção de papel/cargo no cadastro (`Engenharia ADM`, `Tecnico 1oT`, `Tecnico 2oT`, `Preset`, `Gerenciador/Fornecedor`, `Leitura`).
+  - Persistência sincronizada de novos usuários e controle de sessão ativa.
+- **Refinamento de Layout & Eliminação de Sobreposições**:
+  - Stepper de 5 etapas com grid responsivo e quebra fluida para evitar achatamento.
+  - Correção de proporções nos gráficos Chart.js com contêineres dimensionados e `destroy()` preventivo ao redesenhar.
+  - Ajuste de margens, paddings e rolagem interna no conteúdo principal (`app-main`) para garantir visualização perfeita em qualquer resolução de tela.
+
+### Alterado
+- Incremento de versão para `v1.1.0` visível na Sidebar e cabeçalhos de relatórios.
+- Backup completo da versão anterior criado em `backups/v1.0.0_to_v1.1.0/`.
+
+---
+
+## [v1.0.0] - 2026-08-04
+
+### Adicionado
+- **Arquitetura DevFlow**: Estrutura SPA completa com HTML5, Vanilla JS modular, TailwindCSS via CDN e Chart.js.
+- **Identidade Visual Viemar**: Layout limpo, sidebar lateral com logotipo oficial da Viemar e badge de versao `v1.0.0`, cores corporativas (tons de cinza e laranja Viemar `#ff6600`), com zero emojis.
+- **Sistema de Controle de Acesso (RBAC)**:
+  - `Admin`: Engenharia ADM (Oscar, Jonathan, Ponto Focal) - Acesso total a avaliacoes, laudos, custos e travas de estoque.
+  - `Tecnico`: Chao de Fabrica (Filipe 1oT, Charles 2oT) - Registro de parametros CNC, arestas, rugosidade e desgaste.
+  - `Solicitante`: Preset, Gerenciador Externo, Fornecedores - Abertura D-2 e visualizacao em tempo real (modo somente leitura).
+  - `Leitura`: Visitante / Consulta geral.
+- **Workflow Linear de 5 Etapas**:
+  - `1. Solicitacao (D-2)`: Abertura formal com calculo de ganho de vida util e lead time.
+  - `2. Analise Engenharia`: Avaliacao de viabilidade GO / NO-GO com devolutiva registrada.
+  - `3. Agendamento Visita`: Confirmacao da quinta-feira quinzenal e preparacao do Preset.
+  - `4. Teste em Maquina`: Acompanhamento de turnos, pecas usinadas, $Ra$ e $VB$.
+  - `5. Validacao & Estoque`: Calculo de CPP, economia anual e Trava Obrigatoria de Abastecimento (Lead Time vs Estoque Antigo).
+- **Dashboard com Graficos (Chart.js)**:
+  - Grafico de distribuicao de status dos testes.
+  - Grafico de economia projetada por fornecedor.
+- **Recursos Interativos**:
+  - Tabela filtrável com busca dinamica e paginacao.
+  - Linha do tempo / Historico de auditoria em tempo real para cada teste.
+  - Aba de comentarios e anotacoes tecnicas por teste.
+  - Exportacao para impressao e PDF oficial em folha A4 com cabecalho Viemar.
+  - Integracao preparada com Google Firebase (Auth & Firestore) com fallback seguro para cache local.
