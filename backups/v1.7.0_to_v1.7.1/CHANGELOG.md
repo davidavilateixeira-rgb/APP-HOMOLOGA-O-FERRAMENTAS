@@ -4,20 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.7.1] - 2026-08-09
-
-### Corrigido
-- Ajustada a responsividade geral para iPhone e tablet, reduzindo risco de estouro horizontal da página.
-- Pipeline de testes e tabela de arestas passam a se comportar como cartões em telas pequenas, evitando tabela larga no celular.
-- Topbar, filtros, botões, cards, workflow, timeline/comentários, usuários e auditoria receberam empilhamento e espaçamento específicos para mobile.
-- Modal de nova solicitação ajustado para ocupar a tela do celular sem exigir rolagem horizontal.
-
-### Adicionado
-- Navegação compacta mobile para acessar Dashboard, Pipeline, Kanban, Workflow, Usuários e Auditoria quando a sidebar estiver oculta.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.7.0_to_v1.7.1/` antes das alterações.
-
 ## [v1.7.0] - 2026-08-06
 
 ### Adicionado

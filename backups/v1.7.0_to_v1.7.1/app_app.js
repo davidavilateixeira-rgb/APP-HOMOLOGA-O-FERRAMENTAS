@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.7.1 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.7.0 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -906,16 +906,16 @@ function renderizarTabelaPipeline() {
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td data-label="ID Teste"><strong>${t.id}</strong></td>
-        <td data-label="Peça / Código">
+        <td><strong>${t.id}</strong></td>
+        <td>
           <div style="font-weight: 600; color: var(--text-main);">${t.solicitacao.descricaoPeca}</div>
           <div style="font-size: 0.75rem; color: var(--text-muted);">${t.solicitacao.codigoPeca}</div>
         </td>
-        <td data-label="Fornecedor">${t.solicitacao.fornecedor}</td>
-        <td data-label="Máquina CNC">${t.solicitacao.maquina}</td>
-        <td data-label="Etapa"><span class="badge ${WORKFLOW_STAGES[t.stage]?.badgeClass || 'badge-gray'}">${WORKFLOW_STAGES[t.stage]?.label || t.stage}</span></td>
-        <td data-label="Status"><span class="badge ${badgeStatusClass}">${formatarStatusVisual(t.statusGeral)}</span></td>
-        <td data-label="Ações" style="text-align: right;">
+        <td>${t.solicitacao.fornecedor}</td>
+        <td>${t.solicitacao.maquina}</td>
+        <td><span class="badge ${WORKFLOW_STAGES[t.stage]?.badgeClass || 'badge-gray'}">${WORKFLOW_STAGES[t.stage]?.label || t.stage}</span></td>
+        <td><span class="badge ${badgeStatusClass}">${formatarStatusVisual(t.statusGeral)}</span></td>
+        <td style="text-align: right;">
           <div class="table-action-row">
             <button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${t.id}')">Acessar</button>
             ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" onclick="excluirTeste('${t.id}')">Excluir</button>` : ''}
@@ -1387,12 +1387,12 @@ function renderizarTabelaArestas(registros) {
   registros.forEach(r => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td data-label="Aresta"><strong>${r.aresta}</strong></td>
-      <td data-label="Turno">${r.turno}</td>
-      <td data-label="Técnico">${r.tecnico}</td>
-      <td data-label="Peças usinadas"><strong>${r.pecas} pe\u00E7as</strong></td>
-      <td data-label="Rugosidade (RA)">${r.ra}</td>
-      <td data-label="Desgaste">${r.desgaste}</td>
+      <td><strong>${r.aresta}</strong></td>
+      <td>${r.turno}</td>
+      <td>${r.tecnico}</td>
+      <td><strong>${r.pecas} pe\u00E7as</strong></td>
+      <td>${r.ra}</td>
+      <td>${r.desgaste}</td>
     `;
     tbody.appendChild(tr);
   });
