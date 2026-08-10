@@ -4,15 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.8.6] - 2026-08-10
-
-### Corrigido
-- Corrigido desalinhamento horizontal do Dashboard que podia criar grande espaço branco e empurrar conteúdo para a direita.
-- Adicionada trava anti-overflow horizontal no shell principal, conteúdo, cards, grids e canvases dos gráficos.
-- Ajustada largura útil do `.app-main` para respeitar a largura da sidebar em desktop e `100vw` em mobile.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.8.5_to_v1.8.6/` antes das alterações.
 ## [v1.8.5] - 2026-08-10
 
 ### Corrigido
