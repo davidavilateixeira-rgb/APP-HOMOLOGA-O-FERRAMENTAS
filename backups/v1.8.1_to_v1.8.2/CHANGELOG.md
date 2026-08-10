@@ -4,20 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.8.2] - 2026-08-10
-
-### Corrigido
-- Corrigida a sincronização Firebase para impedir que perfil Visitante/somente leitura escreva dados no Firestore.
-- Removido o auto-seed do Firestore a partir de cache local/demo quando a coleção de testes está vazia, evitando retorno de testes antigos já apagados.
-- Endurecidas funções administrativas e de cadastro para validar permissão no código, além de esconder botões na interface.
-- Bloqueio de campos somente leitura passa a cobrir também o modal de nova solicitação.
-
-### Investigação
-- Causa dos 3 testes reaparecerem: usuário autenticado sem perfil Firestore recebia papel Visitante, mas a rotina de sync checava apenas se o ID era diferente de `visitante`; com isso, cache local podia semear a nuvem.
-- Causa do `fgvieira` entrar como Visitante: o usuário foi criado no Firebase Authentication, mas ainda não havia documento de perfil/papel correspondente em `toolflow_user_profiles`.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.8.1_to_v1.8.2/` antes das alterações.
 ## [v1.8.1] - 2026-08-10
 
 ### Corrigido

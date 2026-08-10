@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.8.2 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.8.1 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -449,7 +449,6 @@ async function aguardarUsuarioFirebaseInicial() {
 async function salvarPerfilUsuarioFirebase(user) {
   if (!firebaseDisponivel() || !user || user.id === 'visitante') return false;
   const perfil = perfilUsuarioParaFirebase(user);
-  if (perfil.role === TOOLFLOW_ROLES.LEITURA && (!currentUser || currentUser.role === TOOLFLOW_ROLES.LEITURA)) return false;
   const docId = perfil.firebaseUid || sanitizarDocId(perfil.email || perfil.id);
   try {
     await window.db.collection(FIREBASE_COLLECTIONS.userProfiles).doc(docId).set({
@@ -514,6 +513,7 @@ async function obterPerfilUsuarioFirebase(firebaseUser) {
     roleKey: 'VISITANTE'
   });
   mesclarUsuarioLocal(perfilLeitura);
+  await salvarPerfilUsuarioFirebase(perfilLeitura);
   salvarUsuariosLocais(false);
   return perfilLeitura;
 }
@@ -548,7 +548,7 @@ function prepararTesteParaFirebase(teste) {
 }
 
 async function salvarDadosFirestore() {
-  if (!firebaseDisponivel() || !usuarioPodeEscreverFirebase()) return false;
+  if (!firebaseDisponivel() || !currentUser || currentUser.id === 'visitante') return false;
   if (firebaseSyncEmExecucao) return false;
   firebaseSyncEmExecucao = true;
   try {
@@ -574,7 +574,7 @@ async function salvarDadosFirestore() {
 }
 
 function agendarSyncFirebase() {
-  if (!firebaseDisponivel() || !usuarioPodeEscreverFirebase()) return;
+  if (!firebaseDisponivel() || !currentUser || currentUser.id === 'visitante') return;
   clearTimeout(firebaseSaveTimer);
   firebaseSaveTimer = setTimeout(() => {
     salvarDadosFirestore().catch(err => console.warn('[ToolFlow] Sync Firebase pendente falhou:', err));
@@ -586,12 +586,11 @@ async function carregarDadosFirestore() {
   try {
     const snapshot = await window.db.collection(FIREBASE_COLLECTIONS.tests).get();
     if (snapshot.empty) {
-      // Nunca semear automaticamente o Firestore com cache local/demo. Evita visitante regravar testes apagados.
+      if (dadosLocaisPersistidos && currentUser && currentUser.id !== 'visitante') {
+        await salvarDadosFirestore();
+      }
       firebasePrimeiraCargaConcluida = true;
-      testDataStore = [];
-      currentSelectedTestId = null;
-      localStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
-      return true;
+      return false;
     }
 
     testDataStore = snapshot.docs
@@ -917,10 +916,6 @@ function usuarioAdmin() {
   return currentUser && currentUser.role === TOOLFLOW_ROLES.ADMIN;
 }
 
-function usuarioPodeEscreverFirebase() {
-  return Boolean(currentUser && currentUser.id !== 'visitante' && currentUser.role !== TOOLFLOW_ROLES.LEITURA);
-}
-
 function bloquearMutacaoVisitante() {
   if (!usuarioSomenteLeitura()) return false;
   alert('Perfil Visitante é somente leitura. Faça login com um perfil autorizado para alterar dados.');
@@ -929,7 +924,7 @@ function bloquearMutacaoVisitante() {
 
 function aplicarBloqueioSomenteLeitura() {
   const isLeitura = usuarioSomenteLeitura();
-  document.querySelectorAll('#viewWorkflow input, #viewWorkflow select, #viewWorkflow textarea, #viewUsuarios input, #viewUsuarios select, #viewUsuarios textarea, #modalNovaSolicitacao input, #modalNovaSolicitacao select, #modalNovaSolicitacao textarea').forEach(el => {
+  document.querySelectorAll('#viewWorkflow input, #viewWorkflow select, #viewWorkflow textarea, #viewUsuarios input, #viewUsuarios select, #viewUsuarios textarea').forEach(el => {
     if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.readOnly = isLeitura || el.hasAttribute('readonly');
     if (el.tagName === 'SELECT' || el.type === 'file') el.disabled = isLeitura;
     if (isLeitura) el.classList.add('readonly-locked');
@@ -951,10 +946,8 @@ function aplicarPermissoesUI() {
   // Botoes de Nova Solicitacao
   const btnTop = document.getElementById('btnNovaSolicitacaoTopbar');
   const btnPipe = document.getElementById('btnNovaSolicitacaoPipeline');
-  const btnMobileNovo = document.getElementById('btnMobileNovaSolicitacao');
   if (btnTop) btnTop.style.display = isLeitura ? 'none' : 'flex';
   if (btnPipe) btnPipe.style.display = isLeitura ? 'none' : 'block';
-  if (btnMobileNovo) btnMobileNovo.style.display = isLeitura ? 'none' : 'flex';
 
   // Botoes do Workflow
   const btnAnalise = document.getElementById('btnSalvarAnaliseEng');
@@ -1118,7 +1111,6 @@ function renderizarListaUsuariosCadastrados() {
 }
 
 function abrirModalEditarUsuario(userId) {
-  if (!usuarioAdmin()) { alert('Apenas Administrador pode editar usuários.'); return; }
   const user = devflowUsersStore.find(u => u.id === userId);
   if (!user) return;
 
@@ -1135,7 +1127,6 @@ function fecharModalEditarUsuario() {
 }
 
 function salvarEdicaoUsuario() {
-  if (!usuarioAdmin()) { alert('Apenas Administrador pode editar usuários.'); return; }
   const userId = document.getElementById('editUserId').value;
   const nome = document.getElementById('editUserNome').value.trim();
   const email = document.getElementById('editUserEmail').value.trim().toLowerCase();
@@ -1169,7 +1160,6 @@ function salvarEdicaoUsuario() {
 }
 
 function abrirModalAlterarSenha(userId) {
-  if (!usuarioAdmin()) { alert('Apenas Administrador pode alterar senhas.'); return; }
   const user = devflowUsersStore.find(u => u.id === userId);
   if (!user) return;
 
@@ -1185,7 +1175,6 @@ function fecharModalAlterarSenha() {
 }
 
 function salvarNovaSenhaUsuario() {
-  if (!usuarioAdmin()) { alert('Apenas Administrador pode alterar senhas.'); return; }
   const userId = document.getElementById('senhaUserId').value;
   const novaSenha = normalizarSenhaDigitada(document.getElementById('novaSenhaInput').value);
 
@@ -1207,7 +1196,6 @@ function salvarNovaSenhaUsuario() {
   alert(`Senha local de "${user.name}" atualizada com sucesso!${msgFirebase}`);
 }
 function desativarUsuario(userId) {
-  if (!usuarioAdmin()) { alert('Apenas Administrador pode desativar usuários.'); return; }
   const user = devflowUsersStore.find(u => u.id === userId);
   if (!user) return;
 
@@ -2300,7 +2288,6 @@ function textoCadastroMaiusculo(id) {
   return valor;
 }
 function submeterModalSolicitacao() {
-  if (bloquearMutacaoVisitante()) return;
   const idNovo = `TESTE-00${testDataStore.length + 1}/2026`;
   const hoje = new Date().toISOString().split('T')[0];
   const dataPrevistaTeste = document.getElementById('modalDataPrevista').value;
@@ -2446,7 +2433,7 @@ function carregarDadosLocais() {
 function salvarUsuariosLocais(dispararSync = true) {
   localStorage.setItem('viemar_toolflow_users_v3', JSON.stringify(devflowUsersStore));
   usuariosLocaisPersistidos = true;
-  if (dispararSync && firebaseDisponivel() && usuarioPodeEscreverFirebase()) {
+  if (dispararSync && firebaseDisponivel() && currentUser && currentUser.id !== 'visitante') {
     devflowUsersStore.forEach(user => salvarPerfilUsuarioFirebase(user));
   }
 }
