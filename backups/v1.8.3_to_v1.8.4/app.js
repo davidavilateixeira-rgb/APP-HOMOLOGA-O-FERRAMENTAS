@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.8.4 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.8.3 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -953,9 +953,11 @@ function aplicarPermissoesUI() {
   const isTecnico = (currentUser.role === TOOLFLOW_ROLES.TECNICO);
   const isSolicitante = (currentUser.role === TOOLFLOW_ROLES.SOLICITANTE);
 
-  // Banner Visitante removido da interface operacional.
+  // Banner Visitante
   const bannerVisitante = document.getElementById('bannerModoVisitante');
-  if (bannerVisitante) bannerVisitante.style.display = 'none';
+  if (bannerVisitante) {
+    bannerVisitante.style.display = isLeitura ? 'flex' : 'none';
+  }
 
   // Menu de Governança: somente Admin/Engenharia
   document.querySelectorAll('[data-admin-only="true"]').forEach(el => {
@@ -976,9 +978,6 @@ function aplicarPermissoesUI() {
   if (btnTop) btnTop.style.display = isLeitura ? 'none' : 'flex';
   if (btnPipe) btnPipe.style.display = isLeitura ? 'none' : 'block';
   if (btnMobileNovo) btnMobileNovo.style.display = isLeitura ? 'none' : 'flex';
-  document.querySelectorAll('[data-write-only="true"]').forEach(el => {
-    el.style.display = isLeitura ? 'none' : '';
-  });
 
   // Botoes do Workflow
   const btnAnalise = document.getElementById('btnSalvarAnaliseEng');

@@ -4,14 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.8.4] - 2026-08-10
-
-### Corrigido
-- Botões de **Nova Solicitação** passam a ficar ocultos para o perfil Visitante em todas as áreas da tela, incluindo Dashboard, Pipeline, Topbar e navegação mobile.
-- Removida a faixa/mensagem de **Modo Visitante (Somente Leitura)** da interface operacional.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.8.3_to_v1.8.4/` antes das alterações.
 ## [v1.8.3] - 2026-08-10
 
 ### Corrigido

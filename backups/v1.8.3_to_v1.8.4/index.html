@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
-  <title>Viemar ToolFlow v1.8.4 | Gestão de Testes de Ferramentas</title>
+  <title>Viemar ToolFlow v1.8.3 | Gestão de Testes de Ferramentas</title>
   
   <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,7 +53,7 @@
         <div class="login-brand-titles">
           <div class="login-title-row">
             <span class="login-main-title">ToolFlow</span>
-            <span class="login-version-tag">v1.8.4</span>
+            <span class="login-version-tag">v1.8.3</span>
           </div>
           <span class="login-subtitle">Engenharia de Processos · VMR</span>
         </div>
@@ -107,7 +107,7 @@
           </div>
         </div>
         <div class="version-badge-container">
-          <span class="version-badge">v1.8.4</span>
+          <span class="version-badge">v1.8.3</span>
           <div class="sync-status-badge" title="Vercel & Cache Local Ativos">
             <span class="sync-dot"></span> Vercel Cloud
           </div>
@@ -173,7 +173,14 @@
     <!-- MAIN CONTENT + TOOLFLOW TOPBAR                                            -->
     <!-- ========================================================================= -->
     <div class="app-main">
-<button class="btn btn-secondary btn-sm" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="fazerLogout()">Fazer Login</button>
+      
+      <!-- Banner de Alerta para Modo Visitante -->
+      <div id="bannerModoVisitante" class="visitor-alert-strip no-print" style="display: none;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <svg style="width: 16px; height: 16px; color: #d97706;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span><strong>Modo Visitante (Somente Leitura):</strong> Visualização liberada. Formulários e aprovações técnicas requerem login de operador/engenheiro.</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="fazerLogout()">Fazer Login</button>
       </div>
 
       <!-- ToolFlow Topbar -->
@@ -205,7 +212,7 @@
             </span>
           </button>
 
-          <button id="btnNovaSolicitacaoTopbar" data-write-only="true" class="btn btn-primary" onclick="abrirModalNovaSolicitacao()">
+          <button id="btnNovaSolicitacaoTopbar" class="btn btn-primary" onclick="abrirModalNovaSolicitacao()">
             <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             Nova Solicitação
           </button>
@@ -231,7 +238,7 @@
                 <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
                 Ver Pipeline
               </button>
-              <button class="btn btn-primary" data-write-only="true" onclick="abrirModalNovaSolicitacao()">
+              <button class="btn btn-primary" onclick="abrirModalNovaSolicitacao()">
                 <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Nova Solicitação
               </button>
@@ -638,7 +645,7 @@
               <h2>Pipeline Geral de Testes</h2>
               <p>Pesquisa, filtragem avançada e acompanhamento de todos os testes de ferramentas.</p>
             </div>
-            <button id="btnNovaSolicitacaoPipeline" data-write-only="true" class="btn btn-primary" onclick="abrirModalNovaSolicitacao()">Nova Solicitação</button>
+            <button id="btnNovaSolicitacaoPipeline" class="btn btn-primary" onclick="abrirModalNovaSolicitacao()">Nova Solicitação</button>
           </div>
 
           <div class="card">
@@ -751,7 +758,7 @@
             <img src="logo.png" alt="Viemar" class="print-logo">
             <div style="text-align: right;">
               <h3 style="font-size: 11pt; margin: 0; color: #ff6600;">ENGENHARIA DE USINAGEM</h3>
-              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatório Oficial ToolFlow v1.8.4</p>
+              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatório Oficial ToolFlow v1.8.3</p>
             </div>
           </div>
 
@@ -1376,7 +1383,7 @@
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
         <span>Pipeline</span>
       </button>
-      <button class="mobile-nav-item mobile-nav-action" data-write-only="true" onclick="abrirModalNovaSolicitacao()" id="btnMobileNovaSolicitacao" title="Nova Solicitação">
+      <button class="mobile-nav-item mobile-nav-action" onclick="abrirModalNovaSolicitacao()" id="btnMobileNovaSolicitacao" title="Nova Solicitação">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         <span>Novo</span>
       </button>
