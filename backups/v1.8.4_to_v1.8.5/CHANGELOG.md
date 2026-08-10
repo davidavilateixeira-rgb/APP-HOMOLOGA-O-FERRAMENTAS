@@ -4,15 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.8.5] - 2026-08-10
-
-### Corrigido
-- Gráfico **Economia Anual Projetada por Homologação** deixa de usar fornecedores e valores fixos de demonstração.
-- Economia anual passa a ser calculada somente a partir dos testes reais cadastrados, usando custo atual/proposto, vida atual/proposta e giro mensal.
-- Quando não houver testes com dados suficientes, o gráfico exibe estado vazio em vez de valores fictícios.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.8.4_to_v1.8.5/` antes das alterações.
 ## [v1.8.4] - 2026-08-10
 
 ### Corrigido

@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.8.5 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.8.4 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -1310,33 +1310,6 @@ function renderizarDashboard() {
   atualizarGraficos();
 }
 
-function calcularEconomiaAnualFornecedor() {
-  const economiaPorFornecedor = new Map();
-
-  testDataStore.forEach(teste => {
-    const s = teste.solicitacao || {};
-    const fornecedor = String(s.fornecedor || 'Fornecedor não informado').trim();
-    const custoAtual = Number(s.custoAtual) || 0;
-    const custoProposto = Number(s.precoTeste) || 0;
-    const vidaAtual = Number(s.vidaAtual) || 0;
-    const vidaProposta = Number(s.metaVida) || 0;
-    const giroMensal = Number(s.giroMensal) || 0;
-
-    if (!fornecedor || custoAtual <= 0 || custoProposto <= 0 || vidaAtual <= 0 || vidaProposta <= 0 || giroMensal <= 0) return;
-
-    const custoPorPecaAtual = custoAtual / vidaAtual;
-    const custoPorPecaProposto = custoProposto / vidaProposta;
-    const economiaAnual = Math.max(0, (custoPorPecaAtual - custoPorPecaProposto) * giroMensal * 12);
-
-    if (economiaAnual <= 0) return;
-    economiaPorFornecedor.set(fornecedor, (economiaPorFornecedor.get(fornecedor) || 0) + economiaAnual);
-  });
-
-  return Array.from(economiaPorFornecedor.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8)
-    .map(([fornecedor, economia]) => ({ fornecedor, economia: Math.round(economia) }));
-}
 function iniciarGraficos() {
   const ctxStatus = document.getElementById('chartStatus');
   const ctxSavings = document.getElementById('chartSavings');
@@ -1383,18 +1356,14 @@ function iniciarGraficos() {
 
   if (ctxSavings && typeof Chart !== 'undefined') {
     if (chartSavingsInstance) chartSavingsInstance.destroy();
-    const economiaFornecedor = calcularEconomiaAnualFornecedor();
-    const labelsEconomia = economiaFornecedor.length ? economiaFornecedor.map(item => item.fornecedor) : ['Sem dados'];
-    const dadosEconomia = economiaFornecedor.length ? economiaFornecedor.map(item => item.economia) : [0];
-
     chartSavingsInstance = new Chart(ctxSavings, {
       type: 'bar',
       data: {
-        labels: labelsEconomia,
+        labels: ['Sandvik Coromant', 'Iscar do Brasil', 'Seco Tools'],
         datasets: [{
           label: 'Economia Estimada (R$ / Ano)',
-          data: dadosEconomia,
-          backgroundColor: economiaFornecedor.length ? '#ff6600' : 'rgba(148, 163, 184, 0.35)',
+          data: [38500, 19200, 42000],
+          backgroundColor: '#ff6600',
           borderRadius: 6
         }]
       },
@@ -1402,20 +1371,18 @@ function iniciarGraficos() {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          y: {
-            beginAtZero: true,
-            suggestedMax: economiaFornecedor.length ? undefined : 1,
+          y: { 
+            beginAtZero: true, 
             grid: { color: gridColor },
-            ticks: { color: textColor, font: { size: 10, family: 'Inter, sans-serif' } }
+            ticks: { color: textColor, font: { size: 10, family: 'Inter, sans-serif' } } 
           },
-          x: {
+          x: { 
             grid: { display: false },
-            ticks: { color: textColor, font: { size: 10, family: 'Inter, sans-serif' } }
+            ticks: { color: textColor, font: { size: 10, family: 'Inter, sans-serif' } } 
           }
         },
         plugins: {
-          legend: { display: false },
-          tooltip: { enabled: economiaFornecedor.length > 0 }
+          legend: { display: false }
         }
       }
     });
