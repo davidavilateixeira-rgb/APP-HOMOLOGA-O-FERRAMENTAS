@@ -4,17 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.7.2] - 2026-08-10
-
-### Corrigido
-- Ajustada a responsividade final para iPhone e tablet sem sobrescrever o refinamento BPMN/mobile da v1.7.1.
-- Corrigido comportamento das tabelas em telas pequenas: apenas a tabela principal do Pipeline é substituída pelos cards mobile, enquanto tabelas internas do Workflow passam a virar cards responsivos.
-- Removida navegação mobile duplicada, mantendo a gaveta lateral e a barra inferior já existentes no layout remoto.
-- Atualizada a versão visível do sistema para v1.7.2.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.7.1_to_v1.7.2/` antes das alterações.
-
 ## [v1.7.1] - 2026-08-06
 
 ### Ajustado & Aprimorado

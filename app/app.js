@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.7.1 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.7.2 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -87,7 +87,7 @@ let devflowUsersStore = [...INITIAL_USERS_STORE];
 
 // Definicao das 4 etapas visiveis do Workflow
 const WORKFLOW_STAGES = {
-  STAGE_1_SOLICITACAO: { id: 1, key: 'STAGE_1_SOLICITACAO', label: '1. Solicitação (D-2)', badgeClass: 'badge-blue' },
+  STAGE_1_SOLICITACAO: { id: 1, key: 'STAGE_1_SOLICITACAO', label: '1. Solicitação de Teste', badgeClass: 'badge-blue' },
   STAGE_2_ANALISE: { id: 2, key: 'STAGE_2_ANALISE', label: '2. Análise Engenharia', badgeClass: 'badge-orange' },
   // Compatibilidade para solicitações antigas: a etapa de agendamento foi removida da interface.
   STAGE_3_AGENDAMENTO: { id: 4, key: 'STAGE_3_AGENDAMENTO', label: '3. Teste em Máquina', badgeClass: 'badge-blue' },
@@ -178,7 +178,7 @@ let testDataStore = [
     },
 
     timeline: [
-      { dataHora: '2026-08-01 14:20', usuario: 'Roberto (Preset)', acao: 'Solicitação Criada (D-2)', detalhe: 'Proposta submetida para análise.' },
+      { dataHora: '2026-08-01 14:20', usuario: 'Roberto (Preset)', acao: 'Solicitação Criada', detalhe: 'Proposta submetida para análise.' },
       { dataHora: '2026-08-02 10:15', usuario: 'Oscar (Engenharia ADM)', acao: 'Viabilidade Aprovada (GO)', detalhe: 'Solicitante responsável pelo agendamento/conferência. Teste liberado para fábrica.' },
       { dataHora: '2026-08-03 09:00', usuario: 'Roberto (Preset)', acao: 'Agendamento pelo Solicitante', detalhe: 'Solicitante assumiu agendamento e conferência antes do teste.' },
       { dataHora: '2026-08-06 08:30', usuario: 'Filipe (Técnico 1ºT)', acao: 'Início em Máquina', detalhe: '65 peças usinadas no 1º turno.' },
@@ -232,7 +232,7 @@ let testDataStore = [
     chaoDeFabrica: { parametros: {}, registrosArestas: [] },
     fechamento: {},
     timeline: [
-      { dataHora: '2026-08-03 16:40', usuario: 'Gerenciador', acao: 'Solicitação Criada (D-2)', detalhe: 'Aguardando parecer da Engenharia.' }
+      { dataHora: '2026-08-03 16:40', usuario: 'Gerenciador', acao: 'Solicitação Criada', detalhe: 'Aguardando parecer da Engenharia.' }
     ],
     comentarios: []
   },
@@ -328,9 +328,64 @@ let chartStatusInstance = null;
 let chartSavingsInstance = null;
 
 // =========================================================================
+// GERENCIADOR DE TEMA (DARK / LIGHT MODE)
+// =========================================================================
+function initTheme() {
+  const savedTheme = localStorage.getItem('viemar_toolflow_theme') || 'light';
+  aplicarTema(savedTheme);
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  aplicarTema(newTheme);
+}
+
+function aplicarTema(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('viemar_toolflow_theme', theme);
+  
+  // Atualizar graficos com novas cores se já existirem
+  if (typeof Chart !== 'undefined' && chartStatusInstance) {
+    iniciarGraficos();
+  }
+}
+
+// =========================================================================
+// RESPONSIVIDADE MOBILE & GAVETA LATERAL
+// =========================================================================
+function toggleMobileSidebar(forceState) {
+  const sidebar = document.getElementById('appSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (!sidebar) return;
+
+  const isOpen = sidebar.classList.contains('open');
+  const shouldOpen = (forceState !== undefined) ? forceState : !isOpen;
+
+  if (shouldOpen) {
+    sidebar.classList.add('open');
+    if (overlay) overlay.classList.add('active');
+  } else {
+    sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+  }
+}
+
+function atualizarBottomNav(viewId) {
+  document.querySelectorAll('.mobile-bottom-nav .mobile-nav-item').forEach(btn => {
+    if (btn.getAttribute('data-nav') === viewId) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
+// =========================================================================
 // INICIALIZACAO & CICLO DE VIDA
 // =========================================================================
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   carregarDadosLocais();
   carregarUsuariosLocais();
 
@@ -383,7 +438,7 @@ function realizarLoginTela() {
 
   if (user) {
     if (user.password !== passwordInput) {
-      alert('Senha incorreta. Verifique a senha digitada ou entre em contato com o Administrador.');
+      alert('Senha incorreta. Verifique a senha digitada ou clique em "Esqueci minha senha" para redefinir.');
       return;
     }
 
@@ -441,7 +496,27 @@ function fazerLogout() {
 }
 
 function esqueciSenha() {
-  alert('Para redefinir sua senha ou solicitar acesso, entre em contato com o Administrador do ToolFlow (David) ou acesse como Visitante.');
+  const email = prompt('Digite seu e-mail cadastrado para redefinir a senha:');
+  if (!email) return;
+
+  const user = devflowUsersStore.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
+  if (!user) {
+    alert('E-mail não encontrado na base de usuários cadastrados.');
+    return;
+  }
+
+  const novaSenha = prompt(`Olá ${user.name}!\nDigite sua nova senha desejada (mínimo 4 caracteres):`);
+  if (!novaSenha) return;
+  if (novaSenha.length < 4) {
+    alert('A senha deve conter pelo menos 4 caracteres.');
+    return;
+  }
+
+  user.password = novaSenha;
+  salvarUsuariosLocais();
+  alert(`Senha redefinida com sucesso para ${user.name}!\nVocê já pode fazer o login com a nova senha.`);
+  document.getElementById('loginEmailField').value = user.email;
+  document.getElementById('loginPasswordField').value = novaSenha;
 }
 
 // =========================================================================
@@ -768,6 +843,10 @@ function navegarPara(viewId, breadcrumbLabel) {
     document.getElementById('breadcrumbCurrent').textContent = breadcrumbLabel;
   }
 
+  // Sincronizar barra mobile inferior e fechar gaveta lateral
+  atualizarBottomNav(viewId);
+  toggleMobileSidebar(false);
+
   if (viewId === 'viewKanban') renderizarKanban();
   aplicarPermissoesUI();
 
@@ -797,25 +876,42 @@ function renderizarDashboard() {
 function iniciarGraficos() {
   const ctxStatus = document.getElementById('chartStatus');
   const ctxSavings = document.getElementById('chartSavings');
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+  const doughnutBorder = isDark ? '#1e293b' : '#ffffff';
 
   if (ctxStatus && typeof Chart !== 'undefined') {
     if (chartStatusInstance) chartStatusInstance.destroy();
+    
+    const emAnalise = testDataStore.filter(t => t.stage === 'STAGE_1_SOLICITACAO' || t.stage === 'STAGE_2_ANALISE').length;
+    const emFabrica = testDataStore.filter(t => t.stage === 'STAGE_3_AGENDAMENTO' || t.stage === 'STAGE_4_EXECUCAO').length;
+    const homologados = testDataStore.filter(t => t.statusGeral === 'HOMOLOGADO').length;
+    const bloqueados = testDataStore.filter(t => t.statusGeral === 'BLOQUEADO_ESTOQUE').length;
+
     chartStatusInstance = new Chart(ctxStatus, {
       type: 'doughnut',
       data: {
-        labels: ['Em Analise (D-2)', 'Em Teste Fabrica', 'Homologados', 'Bloqueado Estoque'],
+        labels: ['Em Análise', 'Em Teste Fábrica', 'Homologados', 'Bloqueado Estoque'],
         datasets: [{
-          data: [1, 1, 0, 1],
-          backgroundColor: ['#2563eb', '#ff6600', '#059669', '#d97706'],
+          data: [emAnalise, emFabrica, homologados, bloqueados],
+          backgroundColor: ['#3b82f6', '#ff6600', '#10b981', '#f59e0b'],
           borderWidth: 2,
-          borderColor: '#ffffff'
+          borderColor: doughnutBorder
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+          legend: { 
+            position: 'bottom', 
+            labels: { 
+              boxWidth: 12, 
+              color: textColor,
+              font: { size: 11, family: 'Inter, sans-serif' } 
+            } 
+          }
         }
       }
     });
@@ -831,15 +927,22 @@ function iniciarGraficos() {
           label: 'Economia Estimada (R$ / Ano)',
           data: [38500, 19200, 42000],
           backgroundColor: '#ff6600',
-          borderRadius: 4
+          borderRadius: 6
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          y: { beginAtZero: true, ticks: { font: { size: 10 } } },
-          x: { ticks: { font: { size: 10 } } }
+          y: { 
+            beginAtZero: true, 
+            grid: { color: gridColor },
+            ticks: { color: textColor, font: { size: 10, family: 'Inter, sans-serif' } } 
+          },
+          x: { 
+            grid: { display: false },
+            ticks: { color: textColor, font: { size: 10, family: 'Inter, sans-serif' } } 
+          }
         },
         plugins: {
           legend: { display: false }
@@ -866,6 +969,7 @@ function atualizarGraficos() {
 // =========================================================================
 function renderizarTabelaPipeline() {
   const tbody = document.querySelector('#tabelaPipeline tbody');
+  const mobileCardsContainer = document.getElementById('mobilePipelineCards');
   if (!tbody) return;
 
   const termoBusca = (document.getElementById('inputBuscaTabela')?.value || '').toLowerCase();
@@ -894,9 +998,13 @@ function renderizarTabelaPipeline() {
   const paginaItens = filtrados.slice(inicio, inicio + ITEMS_PER_PAGE);
 
   tbody.innerHTML = '';
+  if (mobileCardsContainer) mobileCardsContainer.innerHTML = '';
 
   if (paginaItens.length === 0) {
     tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum teste encontrado para os filtros aplicados.</td></tr>`;
+    if (mobileCardsContainer) {
+      mobileCardsContainer.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum teste encontrado.</div>`;
+    }
   } else {
     paginaItens.forEach(t => {
       let badgeStatusClass = 'badge-blue';
@@ -904,6 +1012,7 @@ function renderizarTabelaPipeline() {
       else if (t.statusGeral === 'BLOQUEADO_ESTOQUE') badgeStatusClass = 'badge-amber';
       else if (t.statusGeral === 'REPROVADO') badgeStatusClass = 'badge-red';
 
+      // 1. Linha da tabela desktop
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td data-label="ID Teste"><strong>${t.id}</strong></td>
@@ -923,6 +1032,28 @@ function renderizarTabelaPipeline() {
         </td>
       `;
       tbody.appendChild(tr);
+
+      // 2. Card mobile
+      if (mobileCardsContainer) {
+        const card = document.createElement('div');
+        card.className = 'mobile-pipeline-card';
+        card.innerHTML = `
+          <div class="mobile-card-header">
+            <span class="mobile-card-id">${t.id}</span>
+            <span class="badge ${badgeStatusClass}">${formatarStatusVisual(t.statusGeral)}</span>
+          </div>
+          <div class="mobile-card-title">${t.solicitacao.descricaoPeca}</div>
+          <div class="mobile-card-detail"><strong>Código:</strong> ${t.solicitacao.codigoPeca || '-'}</div>
+          <div class="mobile-card-detail"><strong>Fornecedor:</strong> ${t.solicitacao.fornecedor}</div>
+          <div class="mobile-card-detail"><strong>Máquina:</strong> ${t.solicitacao.maquina}</div>
+          <div class="mobile-card-detail"><strong>Etapa:</strong> <span class="badge ${WORKFLOW_STAGES[t.stage]?.badgeClass || 'badge-gray'}">${WORKFLOW_STAGES[t.stage]?.label || t.stage}</span></div>
+          <div class="mobile-card-actions">
+            <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="abrirDetalhesWorkflow('${t.id}')">Acessar Teste</button>
+            ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" onclick="excluirTeste('${t.id}')">Excluir</button>` : ''}
+          </div>
+        `;
+        mobileCardsContainer.appendChild(card);
+      }
     });
   }
 
@@ -1660,7 +1791,7 @@ function adicionarComentario() {
 }
 
 // =========================================================================
-// MODAL DE NOVA SOLICITAÇÃO (D-2)
+// MODAL DE NOVA SOLICITAÇÃO
 // =========================================================================
 const TOOLFLOW_QUINZENA_BASE_ISO = '2026-08-06';
 
@@ -1819,7 +1950,7 @@ function submeterModalSolicitacao() {
     chaoDeFabrica: { parametros: {}, registrosArestas: [] },
     fechamento: {},
     timeline: [
-      { dataHora: `${hoje} 08:00`, usuario: solicitanteNome, acao: 'Solicita\u00E7\u00E3o Criada (D-2)', detalhe: 'Aguardando avalia\u00E7\u00E3o da Engenharia.' }
+      { dataHora: `${hoje} 08:00`, usuario: solicitanteNome, acao: 'Solicita\u00E7\u00E3o Criada', detalhe: 'Aguardando avalia\u00E7\u00E3o da Engenharia.' }
     ],
     comentarios: []
   };
