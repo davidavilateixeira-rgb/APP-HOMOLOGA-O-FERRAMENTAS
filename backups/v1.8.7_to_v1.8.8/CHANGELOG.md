@@ -4,12 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.8.8] - 2026-08-10
-### Corrigido
-- Removido botão duplicado `Nova Solicitação` do cabeçalho do Dashboard, mantendo apenas o botão global do topbar.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.8.7_to_v1.8.8/` antes das alterações.
 ## [v1.8.7] - 2026-08-10
 ### Corrigido
 - Corrigida quebra estrutural do layout principal causada por fechamento antecipado da `.app-main` no `index.html`.
