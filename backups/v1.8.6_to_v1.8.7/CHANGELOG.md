@@ -4,14 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.8.7] - 2026-08-10
-### Corrigido
-- Corrigida quebra estrutural do layout principal causada por fechamento antecipado da `.app-main` no `index.html`.
-- Removido botão solto `Fazer Login` que aparecia no topo da tela logada e deslocava o dashboard.
-- Substituída a trava de layout da v1.8.6 por regra mais segura para sidebar fixa e conteúdo ocupando o restante da tela sem espaço fantasma.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.8.6_to_v1.8.7/` antes das alterações.
 ## [v1.8.6] - 2026-08-10
 
 ### Corrigido
