@@ -4,13 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.9.1] - 2026-08-10
-### Corrigido
-- Corrigido salvamento de perfis novos no Firebase para criar/confirmar o usuário no Authentication por app secundário e gravar `firebaseUid` real antes de salvar em `toolflow_user_profiles`.
-- Evita que cadastros como `Preset / Solicitante` fiquem apenas no cache local quando o perfil precisa ser associado ao UID do Firebase Authentication.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.9.0_to_v1.9.1/` antes das alterações.
 ## [v1.9.0] - 2026-08-10
 ### Adicionado
 - Criado perfil `Preset / Solicitante` (`PRESET_SOLICITANTE`) para usuários que podem visualizar Dashboard, Pipeline e Kanban e criar Nova Solicitação.

@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.9.1 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.9.0 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -429,35 +429,6 @@ function mesclarUsuarioLocal(perfil) {
   return normalizado;
 }
 
-async function obterOuCriarUidAuthSecundario(perfil) {
-  if (!firebaseAuthDisponivel() || !perfil?.email || !perfil?.password) return perfil?.firebaseUid || null;
-  if (perfil.firebaseUid) return perfil.firebaseUid;
-
-  const appName = 'toolflow-secondary-auth';
-  let secondaryApp = null;
-  try {
-    secondaryApp = firebase.apps.find(app => app.name === appName) || firebase.initializeApp(window.firebaseConfig, appName);
-    const secondaryAuth = secondaryApp.auth();
-    let cred = null;
-
-    try {
-      cred = await secondaryAuth.createUserWithEmailAndPassword(perfil.email, perfil.password);
-    } catch (err) {
-      if (err?.code === 'auth/email-already-in-use') {
-        cred = await secondaryAuth.signInWithEmailAndPassword(perfil.email, perfil.password);
-      } else {
-        throw err;
-      }
-    }
-
-    const uid = cred?.user?.uid || null;
-    await secondaryAuth.signOut().catch(() => {});
-    return uid;
-  } catch (err) {
-    console.warn('[ToolFlow] Não foi possível obter/criar UID secundário para perfil:', err);
-    return perfil?.firebaseUid || null;
-  }
-}
 async function aguardarUsuarioFirebaseInicial() {
   if (!firebaseAuthDisponivel()) return null;
   return new Promise(resolve => {
@@ -485,21 +456,6 @@ async function salvarPerfilUsuarioFirebase(user) {
   if (!firebaseDisponivel() || !user || user.id === 'visitante') return false;
   const perfil = perfilUsuarioParaFirebase(user);
   if (perfil.role === TOOLFLOW_ROLES.LEITURA && (!currentUser || currentUser.role === TOOLFLOW_ROLES.LEITURA)) return false;
-
-  const authUid = await obterOuCriarUidAuthSecundario(perfil);
-  if (authUid) {
-    perfil.firebaseUid = authUid;
-    perfil.id = authUid;
-    const local = devflowUsersStore.find(u =>
-      (perfil.email && String(u.email || '').toLowerCase() === perfil.email) ||
-      (user.id && u.id === user.id)
-    );
-    if (local) {
-      local.firebaseUid = authUid;
-      local.id = authUid;
-    }
-  }
-
   const docId = perfil.firebaseUid || sanitizarDocId(perfil.email || perfil.id);
   try {
     await window.db.collection(FIREBASE_COLLECTIONS.userProfiles).doc(docId).set({
