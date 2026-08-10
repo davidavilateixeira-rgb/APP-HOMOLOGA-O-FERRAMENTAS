@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.7.3 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.7.2 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -415,25 +415,9 @@ function mostrarTelaLogin() {
   document.getElementById('appShell').style.display = 'none';
 }
 
-function normalizarSenhaDigitada(valor) {
-  return String(valor || '').trim();
-}
-
-function usuarioCorrespondeLogin(user, login) {
-  const valor = String(login || '').trim().toLowerCase();
-  if (!valor || !user) return false;
-
-  const email = String(user.email || '').trim().toLowerCase();
-  const prefixoEmail = email.includes('@') ? email.split('@')[0] : '';
-
-  return email === valor ||
-    prefixoEmail === valor ||
-    String(user.id || '').trim().toLowerCase() === valor ||
-    String(user.name || '').trim().toLowerCase() === valor;
-}
 function realizarLoginTela() {
   const emailInput = document.getElementById('loginEmailField').value.trim().toLowerCase();
-  const passwordInput = normalizarSenhaDigitada(document.getElementById('loginPasswordField').value);
+  const passwordInput = document.getElementById('loginPasswordField').value;
 
   if (!emailInput) {
     alert('Por favor, informe seu e-mail corporativo cadastrado.');
@@ -453,7 +437,7 @@ function realizarLoginTela() {
   );
 
   if (user) {
-    if (normalizarSenhaDigitada(user.password) !== passwordInput) {
+    if (user.password !== passwordInput) {
       alert('Senha incorreta. Verifique a senha digitada ou clique em "Esqueci minha senha" para redefinir.');
       return;
     }
@@ -633,7 +617,7 @@ function criarNovoUsuarioForm() {
 
   const nome = nomeInput.value.trim();
   const email = emailInput.value.trim().toLowerCase();
-  const senha = normalizarSenhaDigitada(senhaInput.value);
+  const senha = senhaInput.value;
   const papelKey = papelSelect.value;
 
   if (!nome || !email || !senha) {
@@ -800,7 +784,7 @@ function fecharModalAlterarSenha() {
 
 function salvarNovaSenhaUsuario() {
   const userId = document.getElementById('senhaUserId').value;
-  const novaSenha = normalizarSenhaDigitada(document.getElementById('novaSenhaInput').value);
+  const novaSenha = document.getElementById('novaSenhaInput').value;
 
   if (!novaSenha || novaSenha.length < 6) {
     alert('A nova senha deve ter no mínimo 6 caracteres.');

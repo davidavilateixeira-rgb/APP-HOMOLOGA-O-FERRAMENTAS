@@ -4,16 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.7.3] - 2026-08-10
-
-### Corrigido
-- Login passa a aceitar também o prefixo do e-mail corporativo, por exemplo `fgvieira` para `fgvieira@viemar.com.br`.
-- Senhas digitadas, cadastradas ou redefinidas passam a ignorar espaços acidentais no início/fim, evitando falha após salvar valores como `fvmr2026 `.
-- Edição de usuário passa a bloquear e-mail duplicado, evitando redefinir senha em um cadastro e tentar login em outro.
-- Atualizada a versão visível do sistema para v1.7.3.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.7.2_to_v1.7.3/` antes das alterações.
 ## [v1.7.2] - 2026-08-10
 
 ### Corrigido
