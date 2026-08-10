@@ -4,22 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.8.1] - 2026-08-10
-
-### Corrigido
-- Ajustado o modo Firebase para operar sem Firebase Storage pago/Blaze.
-- Anexos de imagem da Etapa 3 passam a ser compactados com limite para armazenamento via Firestore/cache local.
-- Removida a dependência prática do SDK de Storage no carregamento da aplicação.
-
-### Alterado
-- Atualizada a versão visível do sistema para v1.8.1.
-- Firebase permanece usando Authentication + Firestore como fonte principal multi-dispositivo.
-
-### Observação
-- Sem Firebase Storage, imagens muito grandes podem ser recusadas para evitar exceder o limite de documento do Firestore. Para fotos em alta resolução e muitos anexos por teste, o ideal futuro continua sendo ativar Storage.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.8.0_to_v1.8.1/` antes das alterações.
 ## [v1.8.0] - 2026-08-10
 
 ### Adicionado

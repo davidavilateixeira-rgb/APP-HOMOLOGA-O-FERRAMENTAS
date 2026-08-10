@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.8.1 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.8.0 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -340,7 +340,6 @@ let usuariosLocaisPersistidos = false;
 let firebaseSaveTimer = null;
 let firebaseSyncEmExecucao = false;
 let firebasePrimeiraCargaConcluida = false;
-const ANEXO_FIRESTORE_MAX_CHARS = 260000; // ~190 KB por imagem; evita estourar limite de 1 MiB do documento Firestore.
 
 function firebaseDisponivel() {
   return Boolean(window.isFirebaseConnected && window.db);
@@ -351,8 +350,7 @@ function firebaseAuthDisponivel() {
 }
 
 function firebaseStorageDisponivel() {
-  // Storage fica desativado para evitar dependencia do plano pago. Imagens usam Firestore compactado.
-  return false;
+  return Boolean(window.isFirebaseConnected && window.storage);
 }
 
 function montarEmailFirebase(login) {
@@ -1827,25 +1825,14 @@ function carregarImagem(dataUrl) {
 async function compactarImagemAnexo(file) {
   const dataUrlOriginal = await lerArquivoComoDataUrl(file);
   const img = await carregarImagem(dataUrlOriginal);
-  let maxWidth = 900;
-  let qualidade = 0.68;
-
-  for (let tentativa = 0; tentativa < 7; tentativa++) {
-    const scale = Math.min(1, maxWidth / img.width);
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.round(img.width * scale));
-    canvas.height = Math.max(1, Math.round(img.height * scale));
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-    const dataUrl = canvas.toDataURL('image/jpeg', qualidade);
-    if (dataUrl.length <= ANEXO_FIRESTORE_MAX_CHARS) return dataUrl;
-
-    maxWidth = Math.max(520, Math.round(maxWidth * 0.82));
-    qualidade = Math.max(0.42, qualidade - 0.06);
-  }
-
-  throw new Error('ANEXO_MUITO_GRANDE_FIRESTORE');
+  const maxWidth = 1280;
+  const scale = Math.min(1, maxWidth / img.width);
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(img.width * scale));
+  canvas.height = Math.max(1, Math.round(img.height * scale));
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL('image/jpeg', 0.78);
 }
 
 async function processarAnexoCavaco(tipo, input) {
@@ -1895,11 +1882,7 @@ async function processarAnexoCavaco(tipo, input) {
     renderizarTimeline(teste);
   } catch (e) {
     console.error(e);
-    if (e && e.message === 'ANEXO_MUITO_GRANDE_FIRESTORE') {
-      alert('A foto ficou grande demais para salvar sem Firebase Storage. Tente cortar a imagem ou enviar uma foto mais simples.');
-    } else {
-      alert('Não foi possível anexar a imagem. Tente outra foto ou um arquivo menor.');
-    }
+    alert('Não foi possível anexar a imagem. Tente outra foto ou um arquivo menor.');
   }
 }
 
