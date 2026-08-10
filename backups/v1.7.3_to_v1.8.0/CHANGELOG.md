@@ -4,30 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.8.0] - 2026-08-10
-
-### Adicionado
-- Integração real com Firebase usando a configuração do projeto `viemar-tool-flow`.
-- Login preferencial via Firebase Authentication com e-mail/senha, mantendo fallback local/offline para compatibilidade.
-- Sincronização dos cadastros de teste no Cloud Firestore pela coleção `toolflow_tests`.
-- Sincronização de perfis de usuários no Firestore pela coleção `toolflow_user_profiles`, sem publicar senhas no banco.
-- Upload de anexos de imagem da Etapa 3 no Firebase Storage quando disponível, mantendo cache local apenas como fallback.
-- Exclusão remota do cadastro no Firestore quando Admin apaga um teste no pipeline.
-
-### Alterado
-- Atualizada a versão visível do sistema para v1.8.0.
-- Atualizado `firebase-config.js` com a configuração real enviada para o projeto Firebase.
-- Adicionado carregamento do SDK `firebase-storage-compat.js` no HTML.
-- Cadastro de usuários agora salva o perfil na nuvem e orienta criar o usuário correspondente no Firebase Authentication.
-- Alteração de senha local agora avisa que a senha multi-dispositivo deve ser atualizada no Firebase Authentication.
-
-### Segurança
-- Senhas não são gravadas no Firestore; a autenticação multi-dispositivo passa a depender do Firebase Authentication.
-- Perfis Visitante continuam bloqueados para mutações no app e sincronização remota.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.7.3_to_v1.8.0/` antes das alterações.
-
 ## [v1.7.3] - 2026-08-10
 
 ### Corrigido

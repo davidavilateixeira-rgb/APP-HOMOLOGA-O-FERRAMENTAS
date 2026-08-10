@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.8.0 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.7.3 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -328,352 +328,6 @@ let chartStatusInstance = null;
 let chartSavingsInstance = null;
 
 // =========================================================================
-// FIREBASE CLOUD SYNC (AUTH + FIRESTORE + STORAGE)
-// =========================================================================
-const FIREBASE_COLLECTIONS = {
-  tests: 'toolflow_tests',
-  userProfiles: 'toolflow_user_profiles'
-};
-
-let dadosLocaisPersistidos = false;
-let usuariosLocaisPersistidos = false;
-let firebaseSaveTimer = null;
-let firebaseSyncEmExecucao = false;
-let firebasePrimeiraCargaConcluida = false;
-
-function firebaseDisponivel() {
-  return Boolean(window.isFirebaseConnected && window.db);
-}
-
-function firebaseAuthDisponivel() {
-  return Boolean(window.isFirebaseConnected && window.auth);
-}
-
-function firebaseStorageDisponivel() {
-  return Boolean(window.isFirebaseConnected && window.storage);
-}
-
-function montarEmailFirebase(login) {
-  const valor = String(login || '').trim().toLowerCase();
-  if (!valor) return '';
-  return valor.includes('@') ? valor : `${valor}@viemar.com.br`;
-}
-
-function sanitizarDocId(valor) {
-  return String(valor || 'sem-id')
-    .trim()
-    .replace(/[^a-zA-Z0-9_-]/g, '_')
-    .slice(0, 120) || `doc_${Date.now()}`;
-}
-
-function obterRoleConfig(roleKey) {
-  return USER_ROLES_CONFIG[roleKey] || USER_ROLES_CONFIG.VISITANTE;
-}
-
-function normalizarPerfilUsuario(perfil) {
-  const roleKey = perfil.roleKey || perfil.perfil || 'VISITANTE';
-  const roleConfig = obterRoleConfig(roleKey);
-  return {
-    id: perfil.id || perfil.firebaseUid || sanitizarDocId(perfil.email || perfil.name),
-    firebaseUid: perfil.firebaseUid || perfil.uid || null,
-    name: perfil.name || perfil.nome || perfil.email || 'Usuário',
-    email: String(perfil.email || '').trim().toLowerCase(),
-    password: perfil.password || '',
-    roleKey,
-    roleTitle: roleConfig.label,
-    role: roleConfig.role,
-    avatarBg: perfil.avatarBg || roleConfig.avatarBg,
-    ativo: perfil.ativo !== false
-  };
-}
-
-function perfilUsuarioParaFirebase(user) {
-  const perfil = normalizarPerfilUsuario(user);
-  return {
-    id: perfil.id,
-    firebaseUid: perfil.firebaseUid || null,
-    name: perfil.name,
-    email: perfil.email,
-    roleKey: perfil.roleKey,
-    roleTitle: perfil.roleTitle,
-    role: perfil.role,
-    avatarBg: perfil.avatarBg,
-    ativo: perfil.ativo !== false,
-    updatedAtLocal: new Date().toISOString()
-  };
-}
-
-function mesclarUsuarioLocal(perfil) {
-  const normalizado = normalizarPerfilUsuario(perfil);
-  const idx = devflowUsersStore.findIndex(u =>
-    (normalizado.firebaseUid && u.firebaseUid === normalizado.firebaseUid) ||
-    (normalizado.email && String(u.email || '').toLowerCase() === normalizado.email) ||
-    (normalizado.id && u.id === normalizado.id)
-  );
-
-  if (idx >= 0) {
-    const senhaLocal = devflowUsersStore[idx].password || '';
-    devflowUsersStore[idx] = { ...devflowUsersStore[idx], ...normalizado, password: senhaLocal };
-    return devflowUsersStore[idx];
-  }
-
-  devflowUsersStore.push(normalizado);
-  return normalizado;
-}
-
-async function aguardarUsuarioFirebaseInicial() {
-  if (!firebaseAuthDisponivel()) return null;
-  return new Promise(resolve => {
-    let resolvido = false;
-    const finalizar = user => {
-      if (resolvido) return;
-      resolvido = true;
-      resolve(user || null);
-    };
-
-    const timer = setTimeout(() => finalizar(window.auth.currentUser || null), 1800);
-    const unsubscribe = window.auth.onAuthStateChanged(user => {
-      clearTimeout(timer);
-      if (typeof unsubscribe === 'function') unsubscribe();
-      finalizar(user);
-    }, () => {
-      clearTimeout(timer);
-      if (typeof unsubscribe === 'function') unsubscribe();
-      finalizar(null);
-    });
-  });
-}
-
-async function salvarPerfilUsuarioFirebase(user) {
-  if (!firebaseDisponivel() || !user || user.id === 'visitante') return false;
-  const perfil = perfilUsuarioParaFirebase(user);
-  const docId = perfil.firebaseUid || sanitizarDocId(perfil.email || perfil.id);
-  try {
-    await window.db.collection(FIREBASE_COLLECTIONS.userProfiles).doc(docId).set({
-      ...perfil,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-    return true;
-  } catch (err) {
-    console.warn('[ToolFlow] Falha ao salvar perfil no Firebase:', err);
-    return false;
-  }
-}
-
-async function carregarPerfisUsuariosFirebase() {
-  if (!firebaseDisponivel()) return false;
-  try {
-    const snapshot = await window.db.collection(FIREBASE_COLLECTIONS.userProfiles).get();
-    snapshot.forEach(doc => mesclarUsuarioLocal({ id: doc.id, ...doc.data() }));
-    if (!snapshot.empty) salvarUsuariosLocais(false);
-    return !snapshot.empty;
-  } catch (err) {
-    console.warn('[ToolFlow] Falha ao carregar perfis do Firebase:', err);
-    return false;
-  }
-}
-
-async function obterPerfilUsuarioFirebase(firebaseUser) {
-  if (!firebaseUser) return null;
-  const email = String(firebaseUser.email || '').trim().toLowerCase();
-  const uid = firebaseUser.uid;
-
-  try {
-    const docUid = await window.db.collection(FIREBASE_COLLECTIONS.userProfiles).doc(uid).get();
-    if (docUid.exists) {
-      return mesclarUsuarioLocal({ id: uid, firebaseUid: uid, ...docUid.data(), email: docUid.data().email || email });
-    }
-
-    const queryEmail = await window.db.collection(FIREBASE_COLLECTIONS.userProfiles).where('email', '==', email).limit(1).get();
-    if (!queryEmail.empty) {
-      const doc = queryEmail.docs[0];
-      const perfil = mesclarUsuarioLocal({ id: doc.id, firebaseUid: uid, ...doc.data(), email });
-      await salvarPerfilUsuarioFirebase(perfil);
-      return perfil;
-    }
-  } catch (err) {
-    console.warn('[ToolFlow] Falha ao consultar perfil Firebase:', err);
-  }
-
-  const local = devflowUsersStore.find(u => String(u.email || '').toLowerCase() === email);
-  if (local) {
-    local.firebaseUid = uid;
-    await salvarPerfilUsuarioFirebase(local);
-    salvarUsuariosLocais(false);
-    return local;
-  }
-
-  const perfilLeitura = normalizarPerfilUsuario({
-    id: uid,
-    firebaseUid: uid,
-    name: firebaseUser.displayName || email.split('@')[0] || 'Usuário',
-    email,
-    roleKey: 'VISITANTE'
-  });
-  mesclarUsuarioLocal(perfilLeitura);
-  await salvarPerfilUsuarioFirebase(perfilLeitura);
-  salvarUsuariosLocais(false);
-  return perfilLeitura;
-}
-
-async function tentarLoginFirebase(login, senha) {
-  if (!firebaseAuthDisponivel()) return { status: 'skip' };
-  const email = montarEmailFirebase(login);
-  if (!email) return { status: 'skip' };
-
-  try {
-    const cred = await window.auth.signInWithEmailAndPassword(email, senha);
-    const perfil = await obterPerfilUsuarioFirebase(cred.user);
-    return { status: 'ok', user: perfil };
-  } catch (err) {
-    const code = err && err.code ? err.code : '';
-    const podeFallbackLocal = ['auth/user-not-found', 'auth/invalid-email'].includes(code);
-    if (podeFallbackLocal) return { status: 'skip' };
-    console.warn('[ToolFlow] Login Firebase recusado:', code || err);
-    return { status: 'error', message: 'Login Firebase recusado. Confira e-mail e senha cadastrados no Firebase Authentication.' };
-  }
-}
-
-function prepararTesteParaFirebase(teste) {
-  const clone = JSON.parse(JSON.stringify(teste));
-  const anexos = clone?.chaoDeFabrica?.anexosCavaco;
-  if (anexos) {
-    Object.values(anexos).forEach(anexo => {
-      if (anexo && anexo.url) delete anexo.dataUrl;
-    });
-  }
-  return clone;
-}
-
-async function salvarDadosFirestore() {
-  if (!firebaseDisponivel() || !currentUser || currentUser.id === 'visitante') return false;
-  if (firebaseSyncEmExecucao) return false;
-  firebaseSyncEmExecucao = true;
-  try {
-    const batch = window.db.batch();
-    testDataStore.forEach((teste, index) => {
-      const ref = window.db.collection(FIREBASE_COLLECTIONS.tests).doc(sanitizarDocId(teste.id));
-      batch.set(ref, {
-        id: teste.id,
-        ordem: index,
-        payload: prepararTesteParaFirebase(teste),
-        updatedBy: currentUser.email || currentUser.name || 'sistema',
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-    });
-    await batch.commit();
-    return true;
-  } catch (err) {
-    console.warn('[ToolFlow] Falha ao sincronizar testes no Firestore:', err);
-    return false;
-  } finally {
-    firebaseSyncEmExecucao = false;
-  }
-}
-
-function agendarSyncFirebase() {
-  if (!firebaseDisponivel() || !currentUser || currentUser.id === 'visitante') return;
-  clearTimeout(firebaseSaveTimer);
-  firebaseSaveTimer = setTimeout(() => {
-    salvarDadosFirestore().catch(err => console.warn('[ToolFlow] Sync Firebase pendente falhou:', err));
-  }, 700);
-}
-
-async function carregarDadosFirestore() {
-  if (!firebaseDisponivel()) return false;
-  try {
-    const snapshot = await window.db.collection(FIREBASE_COLLECTIONS.tests).get();
-    if (snapshot.empty) {
-      if (dadosLocaisPersistidos && currentUser && currentUser.id !== 'visitante') {
-        await salvarDadosFirestore();
-      }
-      firebasePrimeiraCargaConcluida = true;
-      return false;
-    }
-
-    testDataStore = snapshot.docs
-      .map(doc => ({ ordem: Number(doc.data().ordem || 0), payload: doc.data().payload }))
-      .filter(item => item.payload && item.payload.id)
-      .sort((a, b) => a.ordem - b.ordem)
-      .map(item => item.payload);
-
-    currentSelectedTestId = testDataStore[0]?.id || null;
-    localStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
-    dadosLocaisPersistidos = true;
-    firebasePrimeiraCargaConcluida = true;
-    return true;
-  } catch (err) {
-    console.warn('[ToolFlow] Falha ao carregar testes do Firestore:', err);
-    return false;
-  }
-}
-
-async function sincronizarFirebaseAposLogin() {
-  if (!firebaseDisponivel() || !currentUser || currentUser.id === 'visitante') return;
-  await carregarPerfisUsuariosFirebase();
-  await salvarPerfilUsuarioFirebase(currentUser);
-  const carregouNuvem = await carregarDadosFirestore();
-  if (carregouNuvem) {
-    renderizarDashboard();
-    renderizarTabelaPipeline();
-    renderizarKanban();
-    renderizarListaUsuariosCadastrados();
-    if (currentSelectedTestId && document.getElementById('viewWorkflow')?.classList.contains('active-view')) {
-      abrirDetalhesWorkflow(currentSelectedTestId);
-    }
-  }
-}
-
-async function excluirTesteFirestore(testeId) {
-  if (!firebaseDisponivel() || !currentUser || currentUser.id === 'visitante') return;
-  try {
-    await window.db.collection(FIREBASE_COLLECTIONS.tests).doc(sanitizarDocId(testeId)).delete();
-  } catch (err) {
-    console.warn('[ToolFlow] Falha ao excluir teste no Firestore:', err);
-  }
-}
-
-function dataUrlParaBlob(dataUrl) {
-  const partes = String(dataUrl || '').split(',');
-  const mime = (partes[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
-  const binario = atob(partes[1] || '');
-  const bytes = new Uint8Array(binario.length);
-  for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i);
-  return new Blob([bytes], { type: mime });
-}
-
-async function enviarAnexoFirebaseStorage(testeId, tipo, dataUrl, nomeArquivo) {
-  if (!firebaseStorageDisponivel() || !currentUser || currentUser.id === 'visitante') return null;
-  try {
-    const docId = sanitizarDocId(testeId);
-    const nomeSeguro = sanitizarDocId(nomeArquivo || `${tipo}.jpg`);
-    const caminho = `toolflow/testes/${docId}/anexos/${Date.now()}_${tipo}_${nomeSeguro}.jpg`;
-    const ref = window.storage.ref().child(caminho);
-    await ref.put(dataUrlParaBlob(dataUrl), {
-      contentType: 'image/jpeg',
-      customMetadata: {
-        testeId: String(testeId),
-        tipo,
-        usuario: currentUser.email || currentUser.name || 'sistema'
-      }
-    });
-    const url = await ref.getDownloadURL();
-    return { url, storagePath: caminho };
-  } catch (err) {
-    console.warn('[ToolFlow] Falha ao enviar anexo para Storage. Usando cache local:', err);
-    return null;
-  }
-}
-
-async function removerAnexoFirebaseStorage(storagePath) {
-  if (!firebaseStorageDisponivel() || !storagePath) return;
-  try {
-    await window.storage.ref().child(storagePath).delete();
-  } catch (err) {
-    console.warn('[ToolFlow] Falha ao remover arquivo do Storage:', err);
-  }
-}
-// =========================================================================
 // GERENCIADOR DE TEMA (DARK / LIGHT MODE)
 // =========================================================================
 function initTheme() {
@@ -731,30 +385,17 @@ function atualizarBottomNav(viewId) {
 // INICIALIZACAO & CICLO DE VIDA
 // =========================================================================
 document.addEventListener('DOMContentLoaded', () => {
-  inicializarAplicacao();
-});
-
-async function inicializarAplicacao() {
   initTheme();
   carregarDadosLocais();
   carregarUsuariosLocais();
 
-  const firebaseUser = await aguardarUsuarioFirebaseInicial();
-  if (firebaseUser && firebaseDisponivel()) {
-    const perfil = await obterPerfilUsuarioFirebase(firebaseUser);
-    if (perfil && perfil.ativo !== false) {
-      entrarNoApp(perfil);
-      return;
-    }
-  }
-
-  // Verificar se ha sessao ativa local para fallback/offline
+  // Verificar se ha sessao ativa
   const sessaoId = localStorage.getItem('viemar_toolflow_current_user_id') || localStorage.getItem('viemar_devflow_current_user_id');
   if (sessaoId) {
     if (sessaoId === 'visitante') {
       entrarComoVisitante();
     } else {
-      const user = devflowUsersStore.find(u => u.id === sessaoId || u.firebaseUid === sessaoId);
+      const user = devflowUsersStore.find(u => u.id === sessaoId);
       if (user) {
         entrarNoApp(user);
       } else {
@@ -764,7 +405,8 @@ async function inicializarAplicacao() {
   } else {
     mostrarTelaLogin();
   }
-}
+});
+
 // =========================================================================
 // CONTROLADORES DA TELA DE LOGIN DEDICADA
 // =========================================================================
@@ -789,7 +431,7 @@ function usuarioCorrespondeLogin(user, login) {
     String(user.id || '').trim().toLowerCase() === valor ||
     String(user.name || '').trim().toLowerCase() === valor;
 }
-async function realizarLoginTela() {
+function realizarLoginTela() {
   const emailInput = document.getElementById('loginEmailField').value.trim().toLowerCase();
   const passwordInput = normalizarSenhaDigitada(document.getElementById('loginPasswordField').value);
 
@@ -803,19 +445,12 @@ async function realizarLoginTela() {
     return;
   }
 
-  const loginFirebase = await tentarLoginFirebase(emailInput, passwordInput);
-  if (loginFirebase.status === 'ok' && loginFirebase.user) {
-    entrarNoApp(loginFirebase.user);
-    return;
-  }
-
-  if (loginFirebase.status === 'error') {
-    alert(loginFirebase.message || 'Não foi possível autenticar pelo Firebase.');
-    return;
-  }
-
-  // Fallback local/offline para manter compatibilidade com navegadores antigos
-  const user = devflowUsersStore.find(u => usuarioCorrespondeLogin(u, emailInput));
+  // Buscar usuario no banco de dados local/nuvem
+  const user = devflowUsersStore.find(u => 
+    u.email.toLowerCase() === emailInput || 
+    (u.id && u.id.toLowerCase() === emailInput) ||
+    (u.name && u.name.toLowerCase() === emailInput)
+  );
 
   if (user) {
     if (normalizarSenhaDigitada(user.password) !== passwordInput) {
@@ -825,9 +460,10 @@ async function realizarLoginTela() {
 
     entrarNoApp(user);
   } else {
-    alert('Usuário não encontrado. Confirme se ele foi criado no Firebase Authentication e se o perfil está cadastrado no ToolFlow.');
+    alert('Usuário não encontrado na base. Solicite seu cadastro ao Administrador (David) ou acesse como Visitante.');
   }
 }
+
 function entrarComoVisitante() {
   const visitanteUser = {
     id: 'visitante',
@@ -844,7 +480,7 @@ function entrarComoVisitante() {
 
 function entrarNoApp(user) {
   currentUser = user;
-  localStorage.setItem('viemar_toolflow_current_user_id', user.firebaseUid || user.id);
+  localStorage.setItem('viemar_toolflow_current_user_id', user.id);
 
   // Alternar telas
   document.getElementById('screenLogin').style.display = 'none';
@@ -863,15 +499,11 @@ function entrarNoApp(user) {
   renderizarTabelaPipeline();
   renderizarListaUsuariosCadastrados();
   iniciarGraficos();
-  sincronizarFirebaseAposLogin();
 }
 
 function fazerLogout() {
   localStorage.removeItem('viemar_toolflow_current_user_id');
   localStorage.removeItem('viemar_devflow_current_user_id');
-  if (firebaseAuthDisponivel()) {
-    window.auth.signOut().catch(err => console.warn('[ToolFlow] Falha ao encerrar sessão Firebase:', err));
-  }
   currentUser = null;
   
   document.getElementById('loginEmailField').value = '';
@@ -992,7 +624,7 @@ function aplicarPermissoesUI() {
 // =========================================================================
 // GESTAO E CADASTRO DINAMICO DE USUARIOS (MOCKUP OFICIAL)
 // =========================================================================
-async function criarNovoUsuarioForm() {
+function criarNovoUsuarioForm() {
   if (bloquearMutacaoVisitante()) return;
   const nomeInput = document.getElementById('novoUserNome');
   const emailInput = document.getElementById('novoUserEmail');
@@ -1014,7 +646,7 @@ async function criarNovoUsuarioForm() {
     return;
   }
 
-  if (devflowUsersStore.some(u => String(u.email || '').toLowerCase() === email)) {
+  if (devflowUsersStore.some(u => u.email.toLowerCase() === email)) {
     alert('Este e-mail já está cadastrado no sistema.');
     return;
   }
@@ -1029,13 +661,11 @@ async function criarNovoUsuarioForm() {
     roleKey: papelKey,
     roleTitle: roleConfig.label,
     role: roleConfig.role,
-    avatarBg: roleConfig.avatarBg,
-    ativo: true
+    avatarBg: roleConfig.avatarBg
   };
 
   devflowUsersStore.push(novoUsuario);
   salvarUsuariosLocais();
-  const perfilNaNuvem = await salvarPerfilUsuarioFirebase(novoUsuario);
 
   // Limpar formulário
   nomeInput.value = '';
@@ -1044,13 +674,9 @@ async function criarNovoUsuarioForm() {
   papelSelect.value = 'TECNICO_USINAGEM';
 
   renderizarListaUsuariosCadastrados();
-  const avisoFirebase = firebaseDisponivel()
-    ? (perfilNaNuvem
-      ? '\n\nPerfil salvo no Firebase. Para login em outros dispositivos, crie também este e-mail em Firebase Authentication > Users com a senha definida.'
-      : '\n\nNão foi possível salvar o perfil no Firebase agora. O cadastro ficou no cache local e poderá ser reenviado depois.')
-    : '';
-  alert(`Usuário "${nome}" (${roleConfig.label}) cadastrado com sucesso!${avisoFirebase}`);
+  alert(`Usuário "${nome}" (${roleConfig.label}) cadastrado com sucesso!`);
 }
+
 function renderizarListaUsuariosCadastrados() {
   const container = document.getElementById('listaUsuariosCadastradosContainer');
   const contador = document.getElementById('contagemUsuariosCadastrados');
@@ -1181,18 +807,16 @@ function salvarNovaSenhaUsuario() {
     return;
   }
 
-  const user = devflowUsersStore.find(u => u.id === userId || u.firebaseUid === userId);
+  const user = devflowUsersStore.find(u => u.id === userId);
   if (!user) return;
 
   user.password = novaSenha;
   salvarUsuariosLocais();
   fecharModalAlterarSenha();
 
-  const msgFirebase = firebaseDisponivel()
-    ? '\n\nAtenção: para login em outros dispositivos, atualize a senha desse e-mail também no Firebase Authentication.'
-    : '';
-  alert(`Senha local de "${user.name}" atualizada com sucesso!${msgFirebase}`);
+  alert(`Senha de "${user.name}" atualizada com sucesso!`);
 }
+
 function desativarUsuario(userId) {
   const user = devflowUsersStore.find(u => u.id === userId);
   if (!user) return;
@@ -1205,7 +829,6 @@ function desativarUsuario(userId) {
   if (confirm(`Tem certeza que deseja desativar o usuário "${user.name}" (${user.email})?`)) {
     devflowUsersStore = devflowUsersStore.filter(u => u.id !== userId);
     salvarUsuariosLocais();
-    salvarPerfilUsuarioFirebase({ ...user, ativo: false });
     renderizarListaUsuariosCadastrados();
     alert(`Usuário "${user.name}" desativado com sucesso.`);
   }
@@ -1557,7 +1180,6 @@ function excluirTeste(testeId) {
   if (currentSelectedTestId === testeId) currentSelectedTestId = null;
 
   salvarDadosLocais();
-  excluirTesteFirestore(testeId);
   renderizarDashboard();
   renderizarTabelaPipeline();
   renderizarKanban();
@@ -1785,11 +1407,10 @@ function renderizarAnexosCavaco(anexos = {}) {
     if (!preview) return;
 
     const anexo = anexos[tipo];
-    const src = anexo?.url || anexo?.dataUrl;
-    if (src) {
+    if (anexo?.dataUrl) {
       preview.classList.add('has-image');
       preview.innerHTML = `
-        <img src="${src}" alt="${cfg.label}">
+        <img src="${anexo.dataUrl}" alt="${cfg.label}">
         <div class="chip-preview-meta">
           <strong>${cfg.label}</strong>
           <span>${anexo.nome || 'imagem anexada'} · ${anexo.usuario || 'Sistema'}</span>
@@ -1804,6 +1425,7 @@ function renderizarAnexosCavaco(anexos = {}) {
   limparInputsAnexosCavaco();
   aplicarBloqueioSomenteLeitura();
 }
+
 function lerArquivoComoDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -1851,9 +1473,8 @@ async function processarAnexoCavaco(tipo, input) {
     return;
   }
 
-  const maxSizeMb = 8;
-  if (file.size > maxSizeMb * 1024 * 1024) {
-    alert(`Imagem muito grande. Use uma foto de até ${maxSizeMb} MB.`);
+  if (file.size > 12 * 1024 * 1024) {
+    alert('Imagem muito grande. Use uma foto com até 12 MB.');
     input.value = '';
     return;
   }
@@ -1863,7 +1484,6 @@ async function processarAnexoCavaco(tipo, input) {
 
   try {
     const dataUrl = await compactarImagemAnexo(file);
-    const uploadFirebase = await enviarAnexoFirebaseStorage(teste.id, tipo, dataUrl, file.name);
     const anexos = obterAnexosCavaco(teste);
     anexos[tipo] = {
       nome: file.name,
@@ -1871,9 +1491,7 @@ async function processarAnexoCavaco(tipo, input) {
       tamanhoOriginal: file.size,
       registradoEm: new Date().toISOString(),
       usuario: currentUser ? currentUser.name : 'Sistema',
-      dataUrl: uploadFirebase ? null : dataUrl,
-      url: uploadFirebase ? uploadFirebase.url : null,
-      storagePath: uploadFirebase ? uploadFirebase.storagePath : null
+      dataUrl
     };
 
     registrarTimeline(teste, 'Evidência fotográfica anexada', `${cfg.label} registrada por ${currentUser ? currentUser.name : 'Sistema'}.`);
@@ -1886,7 +1504,7 @@ async function processarAnexoCavaco(tipo, input) {
   }
 }
 
-async function removerAnexoCavaco(tipo) {
+function removerAnexoCavaco(tipo) {
   if (bloquearMutacaoVisitante()) return;
 
   const cfg = ANEXOS_CAVACO_CONFIG[tipo];
@@ -1897,9 +1515,7 @@ async function removerAnexoCavaco(tipo) {
   if (!anexos[tipo]) return;
   if (!confirm(`Remover ${cfg.label.toLowerCase()} deste teste?`)) return;
 
-  const storagePath = anexos[tipo].storagePath;
   delete anexos[tipo];
-  await removerAnexoFirebaseStorage(storagePath);
   registrarTimeline(teste, 'Evidência fotográfica removida', `${cfg.label} removida por ${currentUser ? currentUser.name : 'Sistema'}.`);
   salvarDadosLocais();
   renderizarAnexosCavaco(anexos);
@@ -2386,13 +2002,11 @@ function copiarWhatsAppWorkflow() {
 }
 
 // =========================================================================
-// PERSISTENCIA LOCAL / FIREBASE / USUARIOS / SESSAO
+// PERSISTENCIA LOCAL / USUARIOS / SESSAO
 // =========================================================================
-function salvarDadosLocais(dispararSync = true) {
+function salvarDadosLocais() {
   try {
     localStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
-    dadosLocaisPersistidos = true;
-    if (dispararSync) agendarSyncFirebase();
   } catch (e) {
     console.error(e);
     alert('Não foi possível salvar os dados locais. Remova anexos muito grandes ou libere espaço do navegador.');
@@ -2403,22 +2017,16 @@ function salvarDadosLocais(dispararSync = true) {
 function carregarDadosLocais() {
   const salvos = localStorage.getItem('viemar_toolflow_store_v1') || localStorage.getItem('viemar_devflow_store_v1');
   if (salvos) {
-    dadosLocaisPersistidos = true;
     try {
       testDataStore = JSON.parse(salvos);
-      currentSelectedTestId = testDataStore[0]?.id || null;
     } catch (e) {
       console.error(e);
     }
   }
 }
 
-function salvarUsuariosLocais(dispararSync = true) {
+function salvarUsuariosLocais() {
   localStorage.setItem('viemar_toolflow_users_v3', JSON.stringify(devflowUsersStore));
-  usuariosLocaisPersistidos = true;
-  if (dispararSync && firebaseDisponivel() && currentUser && currentUser.id !== 'visitante') {
-    devflowUsersStore.forEach(user => salvarPerfilUsuarioFirebase(user));
-  }
 }
 
 function carregarUsuariosLocais() {
@@ -2427,15 +2035,14 @@ function carregarUsuariosLocais() {
 
   const salvos = localStorage.getItem('viemar_toolflow_users_v3');
   if (salvos) {
-    usuariosLocaisPersistidos = true;
     try {
-      devflowUsersStore = JSON.parse(salvos).map(normalizarPerfilUsuario);
+      devflowUsersStore = JSON.parse(salvos);
     } catch (e) {
       console.error(e);
       devflowUsersStore = [...INITIAL_USERS_STORE];
     }
   } else {
     devflowUsersStore = [...INITIAL_USERS_STORE];
-    salvarUsuariosLocais(false);
+    salvarUsuariosLocais();
   }
 }
