@@ -4,13 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.8.9] - 2026-08-10
-### Corrigido
-- Ocultada a aba `Workflow Ativo` para o perfil Visitante no menu lateral e na barra inferior mobile.
-- Adicionada proteção de navegação para impedir acesso direto do Visitante à view de Workflow, redirecionando para o Dashboard.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.8.8_to_v1.8.9/` antes das alterações.
 ## [v1.8.8] - 2026-08-10
 ### Corrigido
 - Removido botão duplicado `Nova Solicitação` do cabeçalho do Dashboard, mantendo apenas o botão global do topbar.

@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.8.9 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.8.8 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -980,14 +980,6 @@ function aplicarPermissoesUI() {
     el.style.display = isLeitura ? 'none' : '';
   });
 
-  document.querySelectorAll('[data-non-visitor-only="true"]').forEach(el => {
-    el.style.display = isLeitura ? 'none' : '';
-  });
-
-  if (isLeitura && document.getElementById('viewWorkflow')?.classList.contains('active-view')) {
-    navegarPara('viewDashboard', 'Dashboard & Métricas');
-  }
-
   // Botoes do Workflow
   const btnAnalise = document.getElementById('btnSalvarAnaliseEng');
   const btnChao = document.getElementById('btnSalvarChaoFabrica');
@@ -1261,12 +1253,6 @@ function desativarUsuario(userId) {
 // GESTAO DE NAVEGACAO E VIEWS (SPA)
 // =========================================================================
 function navegarPara(viewId, breadcrumbLabel) {
-  if (viewId === 'viewWorkflow' && usuarioSomenteLeitura()) {
-    alert('Acesso ao Workflow Ativo restrito a usuários autenticados. Visitante visualiza apenas Dashboard, Pipeline e Kanban.');
-    viewId = 'viewDashboard';
-    breadcrumbLabel = 'Dashboard & Métricas';
-  }
-
   if ((viewId === 'viewUsuarios' || viewId === 'viewAuditoria') && !usuarioAdmin()) {
     alert('Acesso restrito ao perfil Administrador.');
     viewId = 'viewDashboard';
