@@ -4,15 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.8.3] - 2026-08-10
-
-### Corrigido
-- Entrada como Visitante passa a limpar o cache local de testes e exibir base vazia, evitando reaparecimento dos 3 testes demo/antigos em navegadores com `localStorage` antigo.
-- Menu **Configuração & Governança**, incluindo **Usuários** e **Auditoria Global**, passa a ficar visível apenas para perfil Admin/Engenharia.
-- Adicionada proteção de navegação para impedir acesso manual às abas de Usuários/Auditoria por perfis não-admin.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.8.2_to_v1.8.3/` antes das alterações.
 ## [v1.8.2] - 2026-08-10
 
 ### Corrigido

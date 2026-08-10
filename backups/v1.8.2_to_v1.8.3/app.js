@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.8.3 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.8.2 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -842,17 +842,6 @@ function entrarComoVisitante() {
     avatarBg: '#94a3b8'
   };
 
-  // Visitante não autentica no Firebase. Para não exibir base demo/cache antiga,
-  // sempre inicia em visão limpa e limpa o cache local de testes neste navegador.
-  testDataStore = [];
-  currentSelectedTestId = null;
-  try {
-    localStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
-    localStorage.removeItem('viemar_devflow_store_v1');
-  } catch (e) {
-    console.warn('[ToolFlow] Não foi possível limpar cache local do Visitante:', e);
-  }
-
   entrarNoApp(visitanteUser);
 }
 
@@ -957,18 +946,6 @@ function aplicarPermissoesUI() {
   const bannerVisitante = document.getElementById('bannerModoVisitante');
   if (bannerVisitante) {
     bannerVisitante.style.display = isLeitura ? 'flex' : 'none';
-  }
-
-  // Menu de Governança: somente Admin/Engenharia
-  document.querySelectorAll('[data-admin-only="true"]').forEach(el => {
-    el.style.display = isAdmin ? '' : 'none';
-  });
-
-  if (!isAdmin && document.getElementById('viewUsuarios')?.classList.contains('active-view')) {
-    navegarPara('viewDashboard', 'Dashboard & Métricas');
-  }
-  if (!isAdmin && document.getElementById('viewAuditoria')?.classList.contains('active-view')) {
-    navegarPara('viewDashboard', 'Dashboard & Métricas');
   }
 
   // Botoes de Nova Solicitacao
@@ -1252,12 +1229,6 @@ function desativarUsuario(userId) {
 // GESTAO DE NAVEGACAO E VIEWS (SPA)
 // =========================================================================
 function navegarPara(viewId, breadcrumbLabel) {
-  if ((viewId === 'viewUsuarios' || viewId === 'viewAuditoria') && !usuarioAdmin()) {
-    alert('Acesso restrito ao perfil Administrador.');
-    viewId = 'viewDashboard';
-    breadcrumbLabel = 'Dashboard & Métricas';
-  }
-
   document.querySelectorAll('.app-view').forEach(view => {
     view.classList.remove('active-view');
   });
