@@ -4,16 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.9.0] - 2026-08-10
-### Adicionado
-- Criado perfil `Preset / Solicitante` (`PRESET_SOLICITANTE`) para usuários que podem visualizar Dashboard, Pipeline e Kanban e criar Nova Solicitação.
-- Adicionada opção `Preset / Solicitante` nos cadastros/edições de usuários.
-
-### Corrigido
-- Bloqueado acesso do perfil `Preset / Solicitante` ao `Workflow Ativo`, incluindo menu lateral, barra mobile, botão `Acessar` do Pipeline/Kanban e tentativa de acesso direto.
-
-### Backup
-- Backup da versão anterior salvo em `backups/v1.8.9_to_v1.9.0/` antes das alterações.
 ## [v1.8.9] - 2026-08-10
 ### Corrigido
 - Ocultada a aba `Workflow Ativo` para o perfil Visitante no menu lateral e na barra inferior mobile.

@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.9.0 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.8.9 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -48,12 +48,6 @@ const USER_ROLES_CONFIG = {
     role: TOOLFLOW_ROLES.SOLICITANTE,
     badgeStyle: 'background: #f0fdfa; color: #0d9488; border: 1px solid #99f6e4;',
     avatarBg: '#0d9488'
-  },
-  PRESET_SOLICITANTE: {
-    label: 'Preset / Solicitante',
-    role: TOOLFLOW_ROLES.SOLICITANTE,
-    badgeStyle: 'background: #ecfeff; color: #0891b2; border: 1px solid #a5f3fc;',
-    avatarBg: '#0891b2'
   },
   GERENCIADOR: {
     label: 'Gerenciador de Ferramentas',
@@ -938,10 +932,6 @@ function usuarioPodeEscreverFirebase() {
   return Boolean(currentUser && currentUser.id !== 'visitante' && currentUser.role !== TOOLFLOW_ROLES.LEITURA);
 }
 
-function usuarioSemAcessoWorkflow() {
-  return usuarioSomenteLeitura() || currentUser?.roleKey === 'PRESET_SOLICITANTE';
-}
-
 function bloquearMutacaoVisitante() {
   if (!usuarioSomenteLeitura()) return false;
   alert('Perfil Visitante é somente leitura. Faça login com um perfil autorizado para alterar dados.');
@@ -962,7 +952,6 @@ function aplicarPermissoesUI() {
   const isAdmin = (currentUser.role === TOOLFLOW_ROLES.ADMIN);
   const isTecnico = (currentUser.role === TOOLFLOW_ROLES.TECNICO);
   const isSolicitante = (currentUser.role === TOOLFLOW_ROLES.SOLICITANTE);
-  const isSemAcessoWorkflow = usuarioSemAcessoWorkflow();
 
   // Banner Visitante removido da interface operacional.
   const bannerVisitante = document.getElementById('bannerModoVisitante');
@@ -992,10 +981,10 @@ function aplicarPermissoesUI() {
   });
 
   document.querySelectorAll('[data-non-visitor-only="true"]').forEach(el => {
-    el.style.display = isSemAcessoWorkflow ? 'none' : '';
+    el.style.display = isLeitura ? 'none' : '';
   });
 
-  if (isSemAcessoWorkflow && document.getElementById('viewWorkflow')?.classList.contains('active-view')) {
+  if (isLeitura && document.getElementById('viewWorkflow')?.classList.contains('active-view')) {
     navegarPara('viewDashboard', 'Dashboard & Métricas');
   }
 
@@ -1272,8 +1261,8 @@ function desativarUsuario(userId) {
 // GESTAO DE NAVEGACAO E VIEWS (SPA)
 // =========================================================================
 function navegarPara(viewId, breadcrumbLabel) {
-  if (viewId === 'viewWorkflow' && usuarioSemAcessoWorkflow()) {
-    alert('Acesso ao Workflow Ativo restrito a perfis operacionais. Este perfil visualiza Dashboard, Pipeline e Kanban, e pode criar Nova Solicitação.');
+  if (viewId === 'viewWorkflow' && usuarioSomenteLeitura()) {
+    alert('Acesso ao Workflow Ativo restrito a usuários autenticados. Visitante visualiza apenas Dashboard, Pipeline e Kanban.');
     viewId = 'viewDashboard';
     breadcrumbLabel = 'Dashboard & Métricas';
   }
@@ -1507,14 +1496,6 @@ function renderizarTabelaPipeline() {
       else if (t.statusGeral === 'BLOQUEADO_ESTOQUE') badgeStatusClass = 'badge-amber';
       else if (t.statusGeral === 'REPROVADO') badgeStatusClass = 'badge-red';
 
-      const podeAbrirWorkflow = !usuarioSemAcessoWorkflow();
-      const acaoWorkflowDesktop = podeAbrirWorkflow
-        ? `<button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${t.id}')">Acessar</button>`
-        : '<span class="badge badge-gray">Somente consulta</span>';
-      const acaoWorkflowMobile = podeAbrirWorkflow
-        ? `<button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="abrirDetalhesWorkflow('${t.id}')">Acessar Teste</button>`
-        : '<span class="badge badge-gray" style="flex: 1; justify-content: center;">Somente consulta</span>';
-
       // 1. Linha da tabela desktop
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -1529,7 +1510,7 @@ function renderizarTabelaPipeline() {
         <td data-label="Status"><span class="badge ${badgeStatusClass}">${formatarStatusVisual(t.statusGeral)}</span></td>
         <td data-label="Ações" style="text-align: right;">
           <div class="table-action-row">
-            ${acaoWorkflowDesktop}
+            <button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${t.id}')">Acessar</button>
             ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" onclick="excluirTeste('${t.id}')">Excluir</button>` : ''}
           </div>
         </td>
@@ -1551,7 +1532,7 @@ function renderizarTabelaPipeline() {
           <div class="mobile-card-detail"><strong>Máquina:</strong> ${t.solicitacao.maquina}</div>
           <div class="mobile-card-detail"><strong>Etapa:</strong> <span class="badge ${WORKFLOW_STAGES[t.stage]?.badgeClass || 'badge-gray'}">${WORKFLOW_STAGES[t.stage]?.label || t.stage}</span></div>
           <div class="mobile-card-actions">
-            ${acaoWorkflowMobile}
+            <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="abrirDetalhesWorkflow('${t.id}')">Acessar Teste</button>
             ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" onclick="excluirTeste('${t.id}')">Excluir</button>` : ''}
           </div>
         `;
@@ -1595,11 +1576,6 @@ function criarCardKanban(teste) {
     teste.statusGeral === 'BLOQUEADO_ESTOQUE' ? 'badge-amber' :
     teste.statusGeral === 'REPROVADO' ? 'badge-red' : 'badge-blue';
 
-  const podeAbrirWorkflow = !usuarioSemAcessoWorkflow();
-  const acaoWorkflow = podeAbrirWorkflow
-    ? `<button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${teste.id}')">Acessar</button>`
-    : '<span class="badge badge-gray">Somente consulta</span>';
-
   return `
     <div class="kanban-card">
       <div class="kanban-card-top">
@@ -1612,7 +1588,7 @@ function criarCardKanban(teste) {
       <div class="kanban-card-footer">
         <span class="badge ${badgeStatusClass}">${formatarStatusVisual(teste.statusGeral)}</span>
         <div class="kanban-card-actions">
-          ${acaoWorkflow}
+          <button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${teste.id}')">Acessar</button>
           ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" onclick="excluirTeste('${teste.id}')">Excluir</button>` : ''}
         </div>
       </div>
@@ -1687,12 +1663,6 @@ function excluirTeste(testeId) {
 // WORKFLOW DE 4 ETAPAS (DETALHES E EDICAO)
 // =========================================================================
 function abrirDetalhesWorkflow(testeId) {
-  if (usuarioSemAcessoWorkflow()) {
-    alert('Este perfil não acessa o Workflow Ativo. Use Dashboard, Pipeline, Kanban ou abra uma Nova Solicitação.');
-    navegarPara('viewDashboard', 'Dashboard & Métricas');
-    return;
-  }
-
   currentSelectedTestId = testeId;
   const teste = testDataStore.find(t => t.id === testeId);
   if (!teste) return;
