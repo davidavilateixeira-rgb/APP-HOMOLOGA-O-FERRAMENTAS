@@ -209,6 +209,11 @@ test('experiencia do solicitante possui navegacao contextual e filtro por respon
   assert.match(bodyOf('aplicarPermissoesUI'), /usuarioSolicitante\s*\(\)/);
   assert.match(bodyOf('abrirMinhasSolicitacoes'), /filtroSomenteMinhasSolicitacoes\s*=\s*true/);
   assert.match(bodyOf('renderizarTabelaPipeline'), /solicitacao\.solicitante/);
+  const permissions = bodyOf('aplicarPermissoesUI');
+  assert.match(permissions, /btnTop\.style\.display\s*=\s*\(isLeitura\s*\|\|\s*isSolicitantePreset\)/);
+  assert.match(permissions, /btnPipe\.style\.display\s*=\s*\(isLeitura\s*\|\|\s*isSolicitantePreset\)/);
+  assert.match(permissions, /duplicadoSolicitante/);
+  assert.match(permissions, /pipelineTitle\.textContent\s*=\s*isSolicitantePreset\s*\?\s*['"]Minhas solicitações['"]/);
 });
 
 test('solicitante recebe feedback integrado e nao e enviado ao workflow proibido', () => {

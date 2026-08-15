@@ -648,7 +648,6 @@
               <h2>Acompanhe seus pedidos de teste</h2>
               <p>Veja o andamento, a próxima etapa e as devolutivas da Engenharia em um só lugar.</p>
             </div>
-            <button type="button" data-write-only="true" class="btn btn-primary" onclick="abrirModalNovaSolicitacao()">Nova solicitação</button>
           </div>
           <div class="requester-status-guide" id="requesterStatusGuide" hidden aria-label="Etapas de uma solicitação">
             <span><i class="status-guide-dot status-guide-blue" aria-hidden="true"></i>Em análise</span>
@@ -657,8 +656,8 @@
           </div>
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Pipeline Geral de Testes</h2>
-              <p>Pesquisa, filtragem avançada e acompanhamento de todos os testes de ferramentas.</p>
+              <h2 id="pipelineTitle">Pipeline Geral de Testes</h2>
+              <p id="pipelineDescription">Pesquisa, filtragem avançada e acompanhamento de todos os testes de ferramentas.</p>
             </div>
             <button id="btnNovaSolicitacaoPipeline" data-write-only="true" class="btn btn-primary" onclick="abrirModalNovaSolicitacao()">Nova Solicitação</button>
           </div>
