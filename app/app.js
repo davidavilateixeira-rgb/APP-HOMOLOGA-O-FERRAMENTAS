@@ -318,6 +318,8 @@ let testDataStore = [
 let currentUser = null;
 let currentSelectedTestId = testDataStore[0].id;
 let currentPage = 1;
+let filtroSomenteMinhasSolicitacoes = false;
+let ultimoGatilhoModalSolicitacao = null;
 const ITEMS_PER_PAGE = 6;
 
 // Instancias de Graficos
@@ -651,11 +653,30 @@ async function salvarDadosFirestore() {
   }
 }
 
-function agendarSyncFirebase() {
+async function salvarTesteFirestore(teste) {
+  if (!firebaseDisponivel() || !usuarioPodeEscreverFirebase() || !teste?.id) return false;
+  try {
+    const ordem = Math.max(0, testDataStore.findIndex(item => item.id === teste.id));
+    await window.db.collection(FIREBASE_COLLECTIONS.tests).doc(sanitizarDocId(teste.id)).set({
+      id: teste.id,
+      ordem,
+      payload: prepararTesteParaFirebase(teste),
+      updatedBy: currentUser.email || currentUser.name || 'sistema',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    return true;
+  } catch (err) {
+    console.warn('[ToolFlow] Falha ao sincronizar teste no Firestore:', err);
+    return false;
+  }
+}
+
+function agendarSyncFirebase(testeAlterado = null) {
   if (!firebaseDisponivel() || !usuarioPodeEscreverFirebase()) return;
   clearTimeout(firebaseSaveTimer);
   firebaseSaveTimer = setTimeout(() => {
-    salvarDadosFirestore().catch(err => console.warn('[ToolFlow] Sync Firebase pendente falhou:', err));
+    const sync = testeAlterado ? salvarTesteFirestore(testeAlterado) : salvarDadosFirestore();
+    sync.catch(err => console.warn('[ToolFlow] Sync Firebase pendente falhou:', err));
   }, 700);
 }
 
@@ -969,11 +990,45 @@ function usuarioSemAcessoWorkflow() {
   return usuarioSomenteLeitura() || currentUser?.roleKey === 'PRESET_SOLICITANTE';
 }
 
+function usuarioSolicitante() {
+  return currentUser?.roleKey === 'PRESET_SOLICITANTE';
+}
+
+function mostrarToast(mensagem, tipo = 'info') {
+  const regiao = document.getElementById('toastRegion');
+  if (!regiao) {
+    alert(mensagem);
+    return;
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `toast-message toast-${tipo}`;
+  toast.setAttribute('role', tipo === 'error' ? 'alert' : 'status');
+
+  const icone = document.createElement('span');
+  icone.className = 'toast-icon';
+  icone.setAttribute('aria-hidden', 'true');
+  icone.textContent = tipo === 'success' ? '✓' : tipo === 'error' ? '!' : 'i';
+
+  const texto = document.createElement('p');
+  texto.textContent = mensagem;
+
+  const fechar = document.createElement('button');
+  fechar.type = 'button';
+  fechar.setAttribute('aria-label', 'Fechar notificação');
+  fechar.textContent = '×';
+  fechar.addEventListener('click', () => toast.remove());
+
+  toast.append(icone, texto, fechar);
+  regiao.appendChild(toast);
+  window.setTimeout(() => toast.remove(), 6000);
+}
+
 function bloquearMutacaoVisitante() {
   if (!usuarioSomenteLeitura() && !falhaSincronizacaoFirebase) return false;
-  alert(falhaSincronizacaoFirebase
+  mostrarToast(falhaSincronizacaoFirebase
     ? 'Alteracoes bloqueadas: o Firestore nao esta sincronizado.'
-    : 'Perfil Visitante e somente leitura. Faca login com um perfil autorizado para alterar dados.');
+    : 'Perfil Visitante e somente leitura. Faca login com um perfil autorizado para alterar dados.', 'error');
   return true;
 }
 
@@ -992,6 +1047,16 @@ function aplicarPermissoesUI() {
   const isTecnico = (currentUser.role === TOOLFLOW_ROLES.TECNICO);
   const isSolicitante = (currentUser.role === TOOLFLOW_ROLES.SOLICITANTE);
   const isSemAcessoWorkflow = usuarioSemAcessoWorkflow();
+  const isSolicitantePreset = usuarioSolicitante();
+
+  const requesterNav = document.getElementById('requesterNav');
+  const requesterWelcome = document.getElementById('requesterWelcome');
+  const requesterStatusGuide = document.getElementById('requesterStatusGuide');
+  const standardNav = document.querySelector('.standard-nav');
+  if (requesterNav) requesterNav.hidden = !isSolicitantePreset;
+  if (requesterWelcome) requesterWelcome.hidden = !isSolicitantePreset;
+  if (requesterStatusGuide) requesterStatusGuide.hidden = !isSolicitantePreset;
+  if (standardNav) standardNav.hidden = isSolicitantePreset;
 
   // Banner Visitante removido da interface operacional.
   const bannerVisitante = document.getElementById('bannerModoVisitante');
@@ -1311,6 +1376,8 @@ function navegarPara(viewId, breadcrumbLabel) {
     breadcrumbLabel = 'Dashboard & Métricas';
   }
 
+  if (viewId !== 'viewPipeline') filtroSomenteMinhasSolicitacoes = false;
+
   document.querySelectorAll('.app-view').forEach(view => {
     view.classList.remove('active-view');
   });
@@ -1337,10 +1404,17 @@ function navegarPara(viewId, breadcrumbLabel) {
   toggleMobileSidebar(false);
 
   if (viewId === 'viewKanban') renderizarKanban();
+  if (viewId === 'viewPipeline') renderizarTabelaPipeline();
   aplicarPermissoesUI();
 
   const mainArea = document.querySelector('.app-main');
   if (mainArea) mainArea.scrollTop = 0;
+}
+
+function abrirMinhasSolicitacoes() {
+  filtroSomenteMinhasSolicitacoes = true;
+  currentPage = 1;
+  navegarPara('viewPipeline', 'Minhas Solicitações');
 }
 
 // =========================================================================
@@ -1498,17 +1572,21 @@ function renderizarTabelaPipeline() {
   const filtroStatus = document.getElementById('selectFiltroStatus')?.value || 'TODOS';
 
   let filtrados = testDataStore.filter(teste => {
-    const matchTexto = teste.id.toLowerCase().includes(termoBusca) ||
-                       teste.solicitacao.descricaoPeca.toLowerCase().includes(termoBusca) ||
-                       teste.solicitacao.fornecedor.toLowerCase().includes(termoBusca) ||
-                       teste.solicitacao.maquina.toLowerCase().includes(termoBusca);
+    const solicitacao = teste.solicitacao || {};
+    const matchTexto = String(teste.id || '').toLowerCase().includes(termoBusca) ||
+                       String(solicitacao.descricaoPeca || '').toLowerCase().includes(termoBusca) ||
+                       String(solicitacao.fornecedor || '').toLowerCase().includes(termoBusca) ||
+                       String(solicitacao.maquina || '').toLowerCase().includes(termoBusca);
 
     let matchStatus = true;
     if (filtroStatus === 'HOMOLOGADO') matchStatus = (teste.statusGeral === 'HOMOLOGADO');
     else if (filtroStatus === 'BLOQUEADO_ESTOQUE') matchStatus = (teste.statusGeral === 'BLOQUEADO_ESTOQUE');
     else if (filtroStatus !== 'TODOS') matchStatus = (teste.stage === filtroStatus);
 
-    return matchTexto && matchStatus;
+    const dono = String(solicitacao.solicitante || '').trim().toLocaleUpperCase('pt-BR');
+    const usuarioAtual = String(currentUser?.name || '').trim().toLocaleUpperCase('pt-BR');
+    const matchDono = !filtroSomenteMinhasSolicitacoes || Boolean(usuarioAtual && dono === usuarioAtual);
+    return matchTexto && matchStatus && matchDono;
   });
 
   const total = filtrados.length;
@@ -2425,16 +2503,36 @@ function preencherDatasPrevistasTeste() {
 function coletarValoresMarcados(nome) {
   return Array.from(document.querySelectorAll(`input[name="${nome}"]:checked`)).map(input => input.value);
 }
+
+function limparModalNovaSolicitacao() {
+  const modal = document.getElementById('modalNovaSolicitacao');
+  const formulario = modal?.querySelector('form');
+  if (formulario) formulario.reset();
+  modal?.querySelectorAll('[aria-invalid="true"]').forEach(campo => campo.removeAttribute('aria-invalid'));
+}
+
 function abrirModalNovaSolicitacao() {
   if (bloquearMutacaoVisitante()) return;
+  ultimoGatilhoModalSolicitacao = document.activeElement;
+  limparModalNovaSolicitacao();
   preencherDatasPrevistasTeste();
+  const modal = document.getElementById('modalNovaSolicitacao');
   const solicitante = document.getElementById('modalSolicitanteNome');
-  if (solicitante) solicitante.value = '';
-  document.getElementById('modalNovaSolicitacao').style.display = 'flex';
+  if (solicitante) {
+    solicitante.value = currentUser?.name || '';
+    solicitante.readOnly = usuarioSolicitante();
+    solicitante.toggleAttribute('readonly', usuarioSolicitante());
+  }
+  modal.style.display = 'flex';
+  modal.querySelector('.modal-content')?.focus();
 }
 
 function fecharModalNovaSolicitacao() {
-  document.getElementById('modalNovaSolicitacao').style.display = 'none';
+  const modal = document.getElementById('modalNovaSolicitacao');
+  modal.style.display = 'none';
+  limparModalNovaSolicitacao();
+  if (ultimoGatilhoModalSolicitacao instanceof HTMLElement) ultimoGatilhoModalSolicitacao.focus();
+  ultimoGatilhoModalSolicitacao = null;
 }
 
 function textoCadastroMaiusculo(id) {
@@ -2444,9 +2542,65 @@ function textoCadastroMaiusculo(id) {
   elemento.value = valor;
   return valor;
 }
+
+function gerarIdSolicitacao() {
+  const agora = new Date();
+  const pad = valor => String(valor).padStart(2, '0');
+  const dataHora = `${agora.getFullYear()}${pad(agora.getMonth() + 1)}${pad(agora.getDate())}-${pad(agora.getHours())}${pad(agora.getMinutes())}${pad(agora.getSeconds())}`;
+  const bytes = new Uint8Array(6);
+  if (globalThis.crypto?.getRandomValues) {
+    globalThis.crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < bytes.length; i += 1) bytes[i] = Math.floor(Math.random() * 256);
+  }
+  const sufixo = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase();
+  return `TESTE-${dataHora}-${sufixo}`;
+}
+
+function validarCamposObrigatoriosSolicitacao() {
+  const camposTexto = [
+    ['modalSolicitanteNome', 'Informe o solicitante.'],
+    ['modalFornecedor', 'Informe o fornecedor.'],
+    ['modalFerrAtual', 'Informe o código da ferramenta atual.'],
+    ['modalFerrTeste', 'Informe o código da ferramenta de teste.'],
+    ['modalJustificativa', 'Informe o motivo do teste.']
+  ];
+  const camposPositivos = [
+    ['modalVidaAtual', 'Informe uma vida atual maior que zero.'],
+    ['modalMetaVida', 'Informe uma vida proposta maior que zero.'],
+    ['modalAmostras', 'Informe uma quantidade de amostras maior que zero.'],
+    ['modalLeadTime', 'Informe um lead time maior que zero.']
+  ];
+
+  for (const [id, mensagem] of camposTexto) {
+    const campo = document.getElementById(id);
+    if (!String(campo?.value || '').trim()) {
+      campo?.setAttribute('aria-invalid', 'true');
+      campo?.closest('details')?.setAttribute('open', '');
+      campo?.focus();
+      mostrarToast(mensagem, 'error');
+      return false;
+    }
+    campo.removeAttribute('aria-invalid');
+  }
+  for (const [id, mensagem] of camposPositivos) {
+    const campo = document.getElementById(id);
+    if (!Number.isFinite(Number(campo?.value)) || Number(campo.value) <= 0) {
+      campo?.setAttribute('aria-invalid', 'true');
+      campo?.closest('details')?.setAttribute('open', '');
+      campo?.focus();
+      mostrarToast(mensagem, 'error');
+      return false;
+    }
+    campo.removeAttribute('aria-invalid');
+  }
+  return true;
+}
+
 function submeterModalSolicitacao() {
   if (bloquearMutacaoVisitante()) return;
-  const idNovo = `TESTE-00${testDataStore.length + 1}/2026`;
+  if (!validarCamposObrigatoriosSolicitacao()) return;
+  const idNovo = gerarIdSolicitacao();
   const hoje = new Date().toISOString().split('T')[0];
   const dataPrevistaTeste = document.getElementById('modalDataPrevista').value;
   const processos = coletarValoresMarcados('modalProcessos');
@@ -2454,11 +2608,11 @@ function submeterModalSolicitacao() {
   const indicadoresAtacados = coletarValoresMarcados('modalIndicadores');
   const tipoOutra = textoCadastroMaiusculo('modalTipoOutra');
 
-  if (!ehQuintaQuinzenalValida(dataPrevistaTeste)) { alert('Selecione uma quinta-feira quinzenal v\u00E1lida, com pelo menos D+2.'); return; }
-  if (processos.length === 0) { alert('Selecione pelo menos um processo.'); return; }
-  if (tiposFerramenta.length === 0) { alert('Selecione pelo menos um tipo de ferramenta.'); return; }
-  if (tiposFerramenta.includes('Outra') && !tipoOutra) { alert('Informe qual \u00E9 o outro tipo de ferramenta.'); return; }
-  if (indicadoresAtacados.length === 0) { alert('Selecione pelo menos um indicador.'); return; }
+  if (!ehQuintaQuinzenalValida(dataPrevistaTeste)) { mostrarToast('Selecione uma quinta-feira quinzenal v\u00E1lida, com pelo menos D+2.', 'error'); return; }
+  if (processos.length === 0) { mostrarToast('Selecione pelo menos um processo.', 'error'); return; }
+  if (tiposFerramenta.length === 0) { mostrarToast('Selecione pelo menos um tipo de ferramenta.', 'error'); return; }
+  if (tiposFerramenta.includes('Outra') && !tipoOutra) { mostrarToast('Informe qual \u00E9 o outro tipo de ferramenta.', 'error'); return; }
+  if (indicadoresAtacados.length === 0) { mostrarToast('Selecione pelo menos um indicador.', 'error'); return; }
 
   const codigoFerramenta = textoCadastroMaiusculo('modalFerrTeste');
   const solicitanteNome = textoCadastroMaiusculo('modalSolicitanteNome') || 'SOLICITANTE';
@@ -2493,7 +2647,7 @@ function submeterModalSolicitacao() {
         vc: parseFloat(document.getElementById('modalAtualVc').value) || '',
         rpm: parseFloat(document.getElementById('modalAtualRpm').value) || ''
       },
-      vidaAtual: parseFloat(document.getElementById('modalVidaAtual').value) || 80,
+      vidaAtual: parseFloat(document.getElementById('modalVidaAtual').value),
       cicloAtual: parseFloat(document.getElementById('modalCicloAtual').value) || 120,
       custoAtual: parseFloat(document.getElementById('modalCustoAtual').value) || 40,
       arestasAtual: 2,
@@ -2508,11 +2662,11 @@ function submeterModalSolicitacao() {
         vc: parseFloat(document.getElementById('modalRecVc').value) || '',
         rpm: parseFloat(document.getElementById('modalRecRpm').value) || ''
       },
-      metaVida: parseFloat(document.getElementById('modalMetaVida').value) || 120,
-      amostrasBonificadas: parseFloat(document.getElementById('modalAmostras').value) || 10,
+      metaVida: parseFloat(document.getElementById('modalMetaVida').value),
+      amostrasBonificadas: parseFloat(document.getElementById('modalAmostras').value),
       precoTeste: parseFloat(document.getElementById('modalPrecoTeste').value) || 35,
       arestasTeste: 4,
-      leadTimeDias: parseFloat(document.getElementById('modalLeadTime').value) || 15,
+      leadTimeDias: parseFloat(document.getElementById('modalLeadTime').value),
       estoqueLocal: document.getElementById('modalEstoqueLocal').value,
       quantidadeEstoque: parseFloat(document.getElementById('modalQtdEstoque').value) || 0,
       giroMensal: parseFloat(document.getElementById('modalGiroMensal').value) || 0,
@@ -2531,12 +2685,13 @@ function submeterModalSolicitacao() {
   };
 
   testDataStore.unshift(novoTeste);
-  salvarDadosLocais();
+  salvarDadosLocais(true, novoTeste);
   fecharModalNovaSolicitacao();
-  alert(`Solicita\u00E7\u00E3o ${idNovo} cadastrada com sucesso!`);
   renderizarDashboard();
   renderizarTabelaPipeline();
-  abrirDetalhesWorkflow(idNovo);
+  mostrarToast(`Solicita\u00E7\u00E3o ${idNovo} cadastrada com sucesso!`, 'success');
+  if (usuarioSolicitante()) abrirMinhasSolicitacoes();
+  else abrirDetalhesWorkflow(idNovo);
 }
 
 // =========================================================================
@@ -2563,11 +2718,11 @@ function copiarWhatsAppWorkflow() {
 // =========================================================================
 // PERSISTENCIA LOCAL / FIREBASE / USUARIOS / SESSAO
 // =========================================================================
-function salvarDadosLocais(dispararSync = true) {
+function salvarDadosLocais(dispararSync = true, testeAlterado = null) {
   try {
     sessionStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
     dadosLocaisPersistidos = true;
-    if (dispararSync) agendarSyncFirebase();
+    if (dispararSync) agendarSyncFirebase(testeAlterado);
   } catch (e) {
     console.error(e);
     alert('Não foi possível salvar os dados locais. Remova anexos muito grandes ou libere espaço do navegador.');

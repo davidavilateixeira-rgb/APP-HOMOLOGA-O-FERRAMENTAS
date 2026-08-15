@@ -29,8 +29,13 @@ service cloud.firestore {
         && ownProfile().data.roleKey in [
           'ADMIN', 'ENG_PROCESSO', 'ENG_PRODUTO',
           'TECNICO_USINAGEM', 'TECNICO_MONTAGEM',
-          'PRESET', 'PRESET_SOLICITANTE', 'GERENCIADOR', 'FORNECEDOR'
+          'PRESET', 'GERENCIADOR', 'FORNECEDOR'
         ];
+    }
+
+    function isRequester() {
+      return activeProfile()
+        && ownProfile().data.roleKey == 'PRESET_SOLICITANTE';
     }
 
     function validProfile() {
@@ -48,7 +53,7 @@ service cloud.firestore {
         ];
     }
 
-    function validTest() {
+    function validTest(testId) {
       return request.resource.data.keys().hasOnly([
           'id', 'ordem', 'payload', 'updatedBy', 'updatedAt'
         ])
@@ -56,8 +61,30 @@ service cloud.firestore {
         && request.resource.data.ordem is int
         && request.resource.data.payload is map
         && request.resource.data.payload.id is string
+        && request.resource.data.payload.id == request.resource.data.id
         && request.resource.data.updatedBy == request.auth.token.email
         && request.resource.data.updatedAt == request.time;
+    }
+
+    function validRequesterSubmission(testId) {
+      return validTest(testId)
+        && request.resource.data.payload.stage == 'STAGE_2_ANALISE'
+        && request.resource.data.payload.statusGeral == 'AGUARDANDO_ANALISE'
+        && request.resource.data.payload.solicitacao is map
+        && request.resource.data.payload.analiseEngenharia is map
+        && request.resource.data.payload.analiseEngenharia.size() == 0
+        && request.resource.data.payload.agendamento is map
+        && request.resource.data.payload.agendamento.size() == 0
+        && request.resource.data.payload.chaoDeFabrica is map
+        && request.resource.data.payload.chaoDeFabrica.keys().hasOnly([
+          'parametros', 'registrosArestas'
+        ])
+        && request.resource.data.payload.chaoDeFabrica.parametros is map
+        && request.resource.data.payload.chaoDeFabrica.parametros.size() == 0
+        && request.resource.data.payload.chaoDeFabrica.registrosArestas is list
+        && request.resource.data.payload.chaoDeFabrica.registrosArestas.size() == 0
+        && request.resource.data.payload.fechamento is map
+        && request.resource.data.payload.fechamento.size() == 0;
     }
 
     match /toolflow_user_profiles/{userId} {
@@ -74,9 +101,11 @@ service cloud.firestore {
 
     match /toolflow_tests/{testId} {
       allow read: if activeProfile() || isBootstrapAdmin();
-      allow create: if (canOperate() || isBootstrapAdmin()) && validTest();
+      allow create: if (canOperate() && validTest(testId))
+        || (isRequester() && validRequesterSubmission(testId))
+        || (isBootstrapAdmin() && validTest(testId));
       allow update: if (canOperate() || isBootstrapAdmin())
-        && validTest()
+        && validTest(testId)
         && request.resource.data.id == resource.data.id;
       allow delete: if isStoredAdmin();
     }

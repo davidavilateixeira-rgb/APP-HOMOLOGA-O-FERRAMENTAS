@@ -29,6 +29,32 @@ function bodyOf(functionName) {
   assert.fail(`Função ${functionName} não foi encerrada`);
 }
 
+function rulesBodyOf(functionName) {
+  const marker = new RegExp(`function\\s+${functionName}\\s*\\([^)]*\\)\\s*\\{`, 'm');
+  const match = marker.exec(rules);
+  assert.ok(match, `Funcao de regras ${functionName} nao encontrada`);
+  const start = match.index + match[0].length;
+  let depth = 1;
+  for (let i = start; i < rules.length; i += 1) {
+    if (rules[i] === '{') depth += 1;
+    else if (rules[i] === '}' && --depth === 0) return rules.slice(start, i);
+  }
+  assert.fail(`Funcao de regras ${functionName} nao foi encerrada`);
+}
+
+function testsRulesMatchBody() {
+  const marker = /match\s+\/toolflow_tests\/\{testId\}\s*\{/m;
+  const match = marker.exec(rules);
+  assert.ok(match, 'Bloco match /toolflow_tests/{testId} nao encontrado');
+  const start = match.index + match[0].length;
+  let depth = 1;
+  for (let i = start; i < rules.length; i += 1) {
+    if (rules[i] === '{') depth += 1;
+    else if (rules[i] === '}' && --depth === 0) return rules.slice(start, i);
+  }
+  assert.fail('Bloco match /toolflow_tests/{testId} nao foi encerrado');
+}
+
 test('não existe usuário inicial com senha embutida', () => {
   const initialStore = app.match(/const\s+INITIAL_USERS_STORE\s*=\s*\[[\s\S]*?\];/);
   assert.ok(initialStore, 'INITIAL_USERS_STORE não encontrado');
@@ -92,4 +118,111 @@ test('Firestore nega acesso por padrão e exige autenticação', () => {
   assert.match(rules, /request\.auth\s*!=\s*null/);
   assert.match(rules, /match\s+\/\{document=\*\*\}[\s\S]*?allow\s+read\s*,\s*write\s*:\s*if\s+false/);
   assert.doesNotMatch(rules, /allow\s+(?:read|write|read\s*,\s*write)\s*:\s*if\s+true/);
+});
+
+test('solicitante ativo pode ler e criar, mas nao integra os perfis que atualizam testes', () => {
+  const requester = rulesBodyOf('isRequester');
+  const operators = rulesBodyOf('canOperate');
+  const testsMatch = testsRulesMatchBody();
+
+  assert.match(requester, /activeProfile\s*\(\s*\)/);
+  assert.match(requester, /roleKey\s*==\s*['"]PRESET_SOLICITANTE['"]/);
+  assert.doesNotMatch(operators, /PRESET_SOLICITANTE/);
+  assert.match(testsMatch, /allow\s+read\s*:\s*if\s+activeProfile\s*\(\s*\)/);
+  assert.match(testsMatch, /allow\s+create\s*:[\s\S]*?isRequester\s*\(\s*\)[\s\S]*?validRequesterSubmission\s*\(\s*testId\s*\)/);
+
+  const updateRule = testsMatch.match(/allow\s+update\s*:\s*if([\s\S]*?);/);
+  assert.ok(updateRule, 'Regra de update de testes nao encontrada');
+  assert.match(updateRule[1], /canOperate\s*\(\s*\)/);
+  assert.doesNotMatch(updateRule[1], /isRequester|PRESET_SOLICITANTE/);
+
+  const deleteRule = testsMatch.match(/allow\s+delete\s*:\s*if([\s\S]*?);/);
+  assert.ok(deleteRule, 'Regra de delete de testes nao encontrada');
+  assert.match(deleteRule[1], /isStoredAdmin\s*\(\s*\)/);
+  assert.doesNotMatch(deleteRule[1], /isRequester|canOperate/);
+});
+
+test('nova solicitacao nao pode nascer em etapa tecnica nem carregar resultados', () => {
+  const submission = rulesBodyOf('validRequesterSubmission');
+  assert.match(submission, /validTest\s*\(\s*testId\s*\)/);
+  assert.match(submission, /stage\s*==\s*['"]STAGE_2_ANALISE['"]/);
+  assert.match(submission, /statusGeral\s*==\s*['"]AGUARDANDO_ANALISE['"]/);
+  for (const technicalMap of ['analiseEngenharia', 'agendamento', 'fechamento']) {
+    assert.match(submission, new RegExp(`${technicalMap}\\.size\\(\\)\\s*==\\s*0`));
+  }
+  assert.match(submission, /chaoDeFabrica\.keys\s*\(\s*\)\.hasOnly/);
+  assert.match(submission, /chaoDeFabrica\.parametros\.size\s*\(\s*\)\s*==\s*0/);
+  assert.match(submission, /registrosArestas\.size\s*\(\s*\)\s*==\s*0/);
+});
+
+test('documento de teste vincula IDs do envelope e payload', () => {
+  const validTest = rulesBodyOf('validTest');
+  assert.match(validTest, /request\.resource\.data\.payload\.id\s*==\s*request\.resource\.data\.id/);
+  assert.match(validTest, /updatedBy\s*==\s*request\.auth\.token\.email/);
+  assert.match(validTest, /updatedAt\s*==\s*request\.time/);
+});
+
+test('ID de solicitação usa ano dinâmico e entropia, sem depender do tamanho da lista', () => {
+  const generate = bodyOf('gerarIdSolicitacao');
+  assert.match(generate, /getFullYear\s*\(/);
+  assert.match(generate, /getRandomValues|Math\.random/);
+  assert.doesNotMatch(generate, /testDataStore|\.length\s*\+\s*1|\/2026/);
+
+  const submit = bodyOf('submeterModalSolicitacao');
+  assert.match(submit, /gerarIdSolicitacao\s*\(/);
+  assert.doesNotMatch(submit, /testDataStore\.length\s*\+\s*1|\/2026/);
+});
+
+test('solicitação valida textos e números obrigatórios sem defaults silenciosos', () => {
+  const validate = bodyOf('validarCamposObrigatoriosSolicitacao');
+  for (const id of ['modalSolicitanteNome', 'modalFornecedor', 'modalFerrAtual', 'modalFerrTeste', 'modalJustificativa', 'modalVidaAtual', 'modalMetaVida', 'modalAmostras', 'modalLeadTime']) {
+    assert.match(validate, new RegExp(id));
+  }
+  assert.match(validate, /Number\.isFinite/);
+  assert.match(validate, /<=\s*0/);
+
+  const submit = bodyOf('submeterModalSolicitacao');
+  assert.match(submit, /validarCamposObrigatoriosSolicitacao\s*\(\)/);
+  assert.doesNotMatch(submit, /modalVidaAtual[^\n]*\|\||modalMetaVida[^\n]*\|\||modalAmostras[^\n]*\|\||modalLeadTime[^\n]*\|\|/);
+});
+
+test('modal é limpo tanto ao abrir quanto ao fechar', () => {
+  const clean = bodyOf('limparModalNovaSolicitacao');
+  assert.match(clean, /\.reset\s*\(\)/);
+  assert.match(bodyOf('abrirModalNovaSolicitacao'), /limparModalNovaSolicitacao\s*\(\)/);
+  assert.match(bodyOf('fecharModalNovaSolicitacao'), /limparModalNovaSolicitacao\s*\(\)/);
+});
+
+test('nova solicitação agenda persistência somente do documento alterado', () => {
+  const submit = bodyOf('submeterModalSolicitacao');
+  assert.match(submit, /salvarDadosLocais\s*\(\s*true\s*,\s*novoTeste\s*\)/);
+  const schedule = bodyOf('agendarSyncFirebase');
+  assert.match(schedule, /salvarTesteFirestore\s*\(\s*testeAlterado\s*\)/);
+  const single = bodyOf('salvarTesteFirestore');
+  assert.match(single, /\.doc\s*\(\s*sanitizarDocId\s*\(\s*teste\.id\s*\)\s*\)\.set/);
+  assert.doesNotMatch(single, /testDataStore\.forEach|batch\s*\(/);
+});
+
+test('experiencia do solicitante possui navegacao contextual e filtro por responsavel', () => {
+  assert.match(html, /id=["']requesterNav["']/);
+  assert.match(html, /onclick=["']abrirMinhasSolicitacoes\(\)["']/);
+  assert.match(bodyOf('aplicarPermissoesUI'), /usuarioSolicitante\s*\(\)/);
+  assert.match(bodyOf('abrirMinhasSolicitacoes'), /filtroSomenteMinhasSolicitacoes\s*=\s*true/);
+  assert.match(bodyOf('renderizarTabelaPipeline'), /solicitacao\.solicitante/);
+});
+
+test('solicitante recebe feedback integrado e nao e enviado ao workflow proibido', () => {
+  assert.match(html, /id=["']toastRegion["']/);
+  assert.match(bodyOf('mostrarToast'), /textContent\s*=\s*mensagem/);
+  const submit = bodyOf('submeterModalSolicitacao');
+  assert.match(submit, /mostrarToast\s*\(/);
+  assert.match(submit, /if\s*\(usuarioSolicitante\(\)\)\s*abrirMinhasSolicitacoes\(\)/);
+  assert.match(submit, /else\s*abrirDetalhesWorkflow\s*\(\s*idNovo\s*\)/);
+});
+
+test('formulario de solicitacao usa secoes acessiveis e preserva foco', () => {
+  assert.equal((html.match(/<details\b[^>]*class=["'][^"']*request-form-section/g) || []).length, 3);
+  assert.match(bodyOf('abrirModalNovaSolicitacao'), /modal-content/);
+  assert.match(bodyOf('fecharModalNovaSolicitacao'), /ultimoGatilhoModalSolicitacao\.focus\s*\(\)/);
+  assert.match(bodyOf('validarCamposObrigatoriosSolicitacao'), /closest\s*\(\s*['"]details['"]\s*\)/);
 });
