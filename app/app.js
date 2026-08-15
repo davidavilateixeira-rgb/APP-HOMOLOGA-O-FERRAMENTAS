@@ -1053,10 +1053,16 @@ function aplicarPermissoesUI() {
   const requesterWelcome = document.getElementById('requesterWelcome');
   const requesterStatusGuide = document.getElementById('requesterStatusGuide');
   const standardNav = document.querySelector('.standard-nav');
+  const pipelineTitle = document.getElementById('pipelineTitle');
+  const pipelineDescription = document.getElementById('pipelineDescription');
   if (requesterNav) requesterNav.hidden = !isSolicitantePreset;
   if (requesterWelcome) requesterWelcome.hidden = !isSolicitantePreset;
   if (requesterStatusGuide) requesterStatusGuide.hidden = !isSolicitantePreset;
   if (standardNav) standardNav.hidden = isSolicitantePreset;
+  if (pipelineTitle) pipelineTitle.textContent = isSolicitantePreset ? 'Minhas solicitações' : 'Pipeline Geral de Testes';
+  if (pipelineDescription) pipelineDescription.textContent = isSolicitantePreset
+    ? 'Consulte o andamento e as devolutivas das solicitações abertas por você.'
+    : 'Pesquisa, filtragem avançada e acompanhamento de todos os testes de ferramentas.';
 
   // Banner Visitante removido da interface operacional.
   const bannerVisitante = document.getElementById('bannerModoVisitante');
@@ -1078,11 +1084,12 @@ function aplicarPermissoesUI() {
   const btnTop = document.getElementById('btnNovaSolicitacaoTopbar');
   const btnPipe = document.getElementById('btnNovaSolicitacaoPipeline');
   const btnMobileNovo = document.getElementById('btnMobileNovaSolicitacao');
-  if (btnTop) btnTop.style.display = isLeitura ? 'none' : 'flex';
-  if (btnPipe) btnPipe.style.display = isLeitura ? 'none' : 'block';
+  if (btnTop) btnTop.style.display = (isLeitura || isSolicitantePreset) ? 'none' : 'flex';
+  if (btnPipe) btnPipe.style.display = (isLeitura || isSolicitantePreset) ? 'none' : 'block';
   if (btnMobileNovo) btnMobileNovo.style.display = isLeitura ? 'none' : 'flex';
   document.querySelectorAll('[data-write-only="true"]').forEach(el => {
-    el.style.display = isLeitura ? 'none' : '';
+    const duplicadoSolicitante = isSolicitantePreset && (el.id === 'btnNovaSolicitacaoTopbar' || el.id === 'btnNovaSolicitacaoPipeline');
+    el.style.display = (isLeitura || duplicadoSolicitante) ? 'none' : '';
   });
 
   document.querySelectorAll('[data-non-visitor-only="true"]').forEach(el => {
