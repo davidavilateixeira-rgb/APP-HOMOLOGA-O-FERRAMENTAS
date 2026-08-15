@@ -352,16 +352,13 @@ function atualizarStatusConexao(status, mensagem) {
   const statusSidebar = document.getElementById('cloudStatusLabel');
   const statusDashboard = document.getElementById('dashboardConnectionStatus');
   const conectado = status === 'online';
-  const visitante = status === 'visitante';
   if (statusSidebar) {
-    statusSidebar.textContent = mensagem || (conectado
-      ? 'Firebase sincronizado'
-      : visitante ? 'Modo visitante - dados protegidos' : 'Somente leitura - sem sincronizacao');
-    statusSidebar.classList.toggle('sync-error', !conectado && !visitante);
+    statusSidebar.textContent = mensagem || (conectado ? 'Firebase sincronizado' : 'Somente leitura - sem sincronizacao');
+    statusSidebar.classList.toggle('sync-error', !conectado);
   }
   if (statusDashboard) {
-    statusDashboard.textContent = conectado ? 'Online' : visitante ? 'Modo visitante' : 'Sem sincronizacao';
-    statusDashboard.closest('.live-pill')?.classList.toggle('sync-error', !conectado && !visitante);
+    statusDashboard.textContent = conectado ? 'Online' : 'Sem sincronizacao';
+    statusDashboard.closest('.live-pill')?.classList.toggle('sync-error', !conectado);
   }
 }
 
@@ -510,7 +507,7 @@ async function aguardarUsuarioFirebaseInicial() {
 }
 
 async function salvarPerfilUsuarioFirebase(user) {
-  if (!firebaseDisponivel() || !user || user.id === 'visitante') return false;
+  if (!firebaseDisponivel() || !user) return false;
   const perfil = perfilUsuarioParaFirebase(user);
   if (perfil.role === TOOLFLOW_ROLES.LEITURA && (!currentUser || currentUser.role === TOOLFLOW_ROLES.LEITURA)) return false;
 
@@ -699,7 +696,7 @@ async function carregarDadosFirestore() {
 }
 
 async function sincronizarFirebaseAposLogin() {
-  if (!firebaseDisponivel() || !currentUser || currentUser.id === 'visitante') return;
+  if (!firebaseDisponivel() || !currentUser) return;
   await carregarPerfisUsuariosFirebase();
   await salvarPerfilUsuarioFirebase(currentUser);
   const carregouNuvem = await carregarDadosFirestore();
@@ -717,7 +714,7 @@ async function sincronizarFirebaseAposLogin() {
 }
 
 async function excluirTesteFirestore(testeId) {
-  if (!firebaseDisponivel() || !currentUser || currentUser.id === 'visitante') return;
+  if (!firebaseDisponivel() || !currentUser) return;
   try {
     await window.db.collection(FIREBASE_COLLECTIONS.tests).doc(sanitizarDocId(testeId)).delete();
   } catch (err) {
@@ -735,7 +732,7 @@ function dataUrlParaBlob(dataUrl) {
 }
 
 async function enviarAnexoFirebaseStorage(testeId, tipo, dataUrl, nomeArquivo) {
-  if (!firebaseStorageDisponivel() || !currentUser || currentUser.id === 'visitante') return null;
+  if (!firebaseStorageDisponivel() || !currentUser) return null;
   try {
     const docId = sanitizarDocId(testeId);
     const nomeSeguro = sanitizarDocId(nomeArquivo || `${tipo}.jpg`);
@@ -899,25 +896,6 @@ async function realizarLoginTela() {
 
   alert(loginFirebase.message || 'Nao foi possivel autenticar pelo Firebase.');
 }
-function entrarComoVisitante() {
-  const visitanteUser = {
-    id: 'visitante',
-    name: 'Visitante',
-    email: 'visitante@viemar.com.br',
-    roleKey: 'VISITANTE',
-    roleTitle: 'Modo Leitura / Consulta',
-    role: TOOLFLOW_ROLES.LEITURA,
-    avatarBg: '#94a3b8'
-  };
-
-  // Visitante nao autentica no Firebase e nunca recebe dados do cache autenticado.
-  testDataStore = [];
-  currentSelectedTestId = null;
-
-  entrarNoApp(visitanteUser);
-  atualizarStatusConexao('visitante', 'Modo visitante - dados protegidos');
-}
-
 function entrarNoApp(user) {
   currentUser = user;
 
@@ -984,7 +962,7 @@ function usuarioAdmin() {
 }
 
 function usuarioPodeEscreverFirebase() {
-  return Boolean(currentUser && currentUser.id !== 'visitante' && currentUser.role !== TOOLFLOW_ROLES.LEITURA);
+  return Boolean(currentUser && currentUser.role !== TOOLFLOW_ROLES.LEITURA);
 }
 
 function usuarioSemAcessoWorkflow() {

@@ -70,9 +70,9 @@ test('recuperação de senha usa e-mail do Firebase', () => {
   assert.doesNotMatch(reset, /localStorage|\.password\s*=/);
 });
 
-test('modo visitante informa que os dados protegidos nao sao sincronizados', () => {
-  assert.match(app, /atualizarStatusConexao\('visitante', 'Modo visitante - dados protegidos'\)/);
-  assert.match(app, /statusDashboard\.textContent = conectado \? 'Online' : visitante \? 'Modo visitante'/);
+test('acesso publico de visitante foi removido', () => {
+  assert.doesNotMatch(html, /Entrar como visitante|entrarComoVisitante\s*\(/);
+  assert.doesNotMatch(app, /function\s+entrarComoVisitante\s*\(/);
 });
 
 test('falha ao carregar Firestore não semeia a nuvem com cache local', () => {
