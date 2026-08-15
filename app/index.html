@@ -111,6 +111,23 @@
       </div>
 
       <nav class="sidebar-nav" aria-label="Navegação principal">
+        <div class="requester-nav" id="requesterNav" hidden aria-label="Área do solicitante">
+          <div class="nav-section-label">Minha área</div>
+          <button type="button" class="sidebar-link requester-primary-action" onclick="abrirModalNovaSolicitacao()">
+            <span class="requester-nav-icon" aria-hidden="true">+</span>
+            <span>Nova solicitação</span>
+          </button>
+          <button type="button" class="sidebar-link" data-view="viewPipeline" onclick="abrirMinhasSolicitacoes()">
+            <span class="requester-nav-icon" aria-hidden="true">≡</span>
+            <span>Minhas solicitações</span>
+          </button>
+          <button type="button" class="sidebar-link" data-view="viewDashboard" onclick="navegarPara('viewDashboard', 'Status das Solicitações')">
+            <span class="requester-nav-icon" aria-hidden="true">●</span>
+            <span>Acompanhar status</span>
+          </button>
+        </div>
+
+        <div class="standard-nav">
         <div class="nav-section-label">Gestão & Homologação</div>
         
         <button class="sidebar-link active" data-view="viewDashboard" onclick="navegarPara('viewDashboard', 'Dashboard & Métricas')">
@@ -143,6 +160,7 @@
           <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           <span>Auditoria Global</span>
         </button>
+        </div>
       </nav>
 
       <div class="sidebar-footer">
@@ -624,6 +642,19 @@
         <!-- VIEW 2: PIPELINE DE TESTES (TABELA FILTRAVEL & PAGINADA)              -->
         <!-- ===================================================================== -->
         <section id="viewPipeline" class="app-view">
+          <div class="requester-welcome" id="requesterWelcome" hidden>
+            <div>
+              <span class="requester-eyebrow">Área do solicitante</span>
+              <h2>Acompanhe seus pedidos de teste</h2>
+              <p>Veja o andamento, a próxima etapa e as devolutivas da Engenharia em um só lugar.</p>
+            </div>
+            <button type="button" data-write-only="true" class="btn btn-primary" onclick="abrirModalNovaSolicitacao()">Nova solicitação</button>
+          </div>
+          <div class="requester-status-guide" id="requesterStatusGuide" hidden aria-label="Etapas de uma solicitação">
+            <span><i class="status-guide-dot status-guide-blue" aria-hidden="true"></i>Em análise</span>
+            <span><i class="status-guide-dot status-guide-orange" aria-hidden="true"></i>Teste programado</span>
+            <span><i class="status-guide-dot status-guide-green" aria-hidden="true"></i>Concluído</span>
+          </div>
           <div class="view-header">
             <div class="view-title-group">
               <h2>Pipeline Geral de Testes</h2>
@@ -1468,6 +1499,16 @@
       </div>
 
       <form onsubmit="event.preventDefault(); submeterModalSolicitacao();">
+        <ol class="request-form-progress" aria-label="Etapas do formulário">
+          <li><span>1</span>Identificação</li>
+          <li><span>2</span>Ferramentas</li>
+          <li><span>3</span>Objetivo e envio</li>
+        </ol>
+        <p class="request-form-help" id="requestFormHelp">Preencha primeiro os dados essenciais. As seções podem ser abertas e fechadas sem perder o conteúdo.</p>
+
+        <details class="request-form-section" open>
+          <summary><span><strong>1. Identificação do teste</strong><small>Data, solicitante, fornecedor e processo</small></span></summary>
+          <div class="request-form-section-body">
         <div class="grid grid-3 modal-form-grid">
           <div class="form-group">
             <label for="modalDataPrevista">Data prevista do teste (quinta-feira) <span class="required">*</span></label>
@@ -1520,7 +1561,12 @@
             </div>
           </div>
         </div>
+          </div>
+        </details>
 
+        <details class="request-form-section" open>
+          <summary><span><strong>2. Comparação de ferramentas</strong><small>Condição atual e proposta do fornecedor</small></span></summary>
+          <div class="request-form-section-body">
         <div class="grid grid-2" style="margin-top: 1rem;">
           <div style="background: #f8fafc; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
             <h4 style="font-size: 0.75rem; color: var(--status-blue-text); margin-bottom: 0.4rem; font-weight: 700;">Ferramenta Atual</h4>
@@ -1590,7 +1636,12 @@
             </div>
           </div>
         </div>
+          </div>
+        </details>
 
+        <details class="request-form-section" open>
+          <summary><span><strong>3. Abastecimento e objetivo</strong><small>Disponibilidade, retorno esperado e indicadores</small></span></summary>
+          <div class="request-form-section-body">
         <div class="grid grid-5 modal-form-grid" style="margin-top: 0.75rem;">
           <div class="form-group">
             <label for="modalLeadTime">Lead time (dias) <span class="required">*</span></label>
@@ -1633,14 +1684,18 @@
             </div>
           </div>
         </div>
+          </div>
+        </details>
 
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem;">
+        <div class="request-form-actions">
           <button type="button" class="btn btn-secondary" onclick="fecharModalNovaSolicitacao()">Cancelar</button>
           <button type="submit" class="btn btn-primary">Enviar para análise técnica</button>
         </div>
       </form>
     </div>
   </div>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="false" aria-label="Notificações"></div>
 
   <script src="app.js"></script>
 </body>

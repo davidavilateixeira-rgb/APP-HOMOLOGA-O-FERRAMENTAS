@@ -3003,6 +3003,187 @@ textarea.form-control {
   display: none;
 }
 
+/* Experiência simplificada do perfil solicitante. A classe é ativada pela UI. */
+.requester-nav[hidden],
+.requester-welcome[hidden],
+.requester-status-guide[hidden] {
+  display: none !important;
+}
+
+.requester-nav {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.requester-primary-action {
+  color: #fff !important;
+  background: linear-gradient(135deg, var(--viemar-orange), #e65300) !important;
+  border-color: transparent !important;
+  box-shadow: 0 8px 18px rgba(255, 102, 0, 0.22);
+}
+
+.requester-nav-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  font-weight: 900;
+}
+
+.requester-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--viemar-orange-border);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--bg-card), var(--viemar-orange-light));
+}
+
+.requester-welcome h2 { margin: 0.1rem 0 0.25rem; font-size: 1.15rem; }
+.requester-welcome p { margin: 0; color: var(--text-secondary); font-size: 0.82rem; }
+.requester-eyebrow { color: var(--viemar-orange); font-size: 0.68rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.requester-status-guide {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 1rem;
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.requester-status-guide span { display: inline-flex; align-items: center; gap: 0.4rem; }
+.status-guide-dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; }
+.status-guide-blue { background: var(--status-blue); }
+.status-guide-orange { background: var(--viemar-orange); }
+.status-guide-green { background: var(--status-green); }
+
+/* Formulário em etapas recolhíveis, nativo e navegável por teclado. */
+.request-form-progress {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  list-style: none;
+}
+
+.request-form-progress li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.request-form-progress li span {
+  width: 1.55rem;
+  height: 1.55rem;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--viemar-orange);
+}
+
+.request-form-help { margin: 0 0 0.8rem; color: var(--text-muted); font-size: 0.76rem; }
+
+.request-form-section {
+  margin-top: 0.65rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  overflow: clip;
+}
+
+.request-form-section summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.8rem 0.9rem;
+  color: var(--text-main);
+  background: var(--bg-subtle);
+  cursor: pointer;
+  user-select: none;
+}
+
+.request-form-section summary::after { content: '+'; color: var(--viemar-orange); font-size: 1.15rem; font-weight: 900; }
+.request-form-section[open] summary::after { content: '−'; }
+.request-form-section summary span { display: grid; gap: 0.1rem; }
+.request-form-section summary strong { font-size: 0.84rem; }
+.request-form-section summary small { color: var(--text-muted); font-size: 0.7rem; font-weight: 500; }
+.request-form-section-body { padding: 0.9rem; }
+.request-form-section-body > :first-child { margin-top: 0 !important; }
+
+.request-form-actions {
+  position: sticky;
+  bottom: -1rem;
+  z-index: 3;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin: 1rem -1rem -1rem;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-card) 94%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+/* Região de mensagens integrada; o JS cria .toast-message dentro dela. */
+.toast-region {
+  position: fixed;
+  z-index: 10000;
+  top: 1rem;
+  right: 1rem;
+  display: grid;
+  gap: 0.55rem;
+  width: min(380px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.toast-message {
+  pointer-events: auto;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.65rem;
+  align-items: start;
+  padding: 0.8rem 0.9rem;
+  color: var(--text-main);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--status-blue);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.toast-message.toast-success { border-left-color: var(--status-green); }
+.toast-message.toast-error { border-left-color: var(--status-red); }
+.toast-message.toast-warning { border-left-color: var(--status-amber); }
+.toast-message p { margin: 0; font-size: 0.8rem; line-height: 1.45; }
+.toast-message button { border: 0; color: var(--text-muted); background: transparent; cursor: pointer; }
+
+@media (max-width: 600px) {
+  .requester-welcome { align-items: stretch; flex-direction: column; }
+  .requester-welcome .btn { width: 100%; justify-content: center; }
+  .request-form-progress { grid-template-columns: 1fr; }
+  .request-form-progress li { display: none; }
+  .request-form-progress li:first-child { display: flex; }
+  .request-form-actions { flex-direction: column-reverse; }
+  .request-form-actions .btn { width: 100%; justify-content: center; }
+  .toast-region { top: auto; right: 0.75rem; bottom: 5rem; width: calc(100vw - 1.5rem); }
+}
+
 /* Acessibilidade: texto apenas para leitores de tela e foco de teclado consistente. */
 .sr-only {
   position: absolute !important;
