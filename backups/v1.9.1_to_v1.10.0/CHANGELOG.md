@@ -4,41 +4,6 @@ Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamen
 
 ---
 
-## [v1.10.0] - 2026-08-15
-
-### Adicionado
-- Criada experiência contextual para o perfil `Preset / Solicitante`, com navegação simplificada para **Nova solicitação**, **Minhas solicitações** e **Acompanhar status**.
-- Adicionados cabeçalho, legenda de status e filtro das solicitações pertencentes ao usuário conectado.
-- Formulário de solicitação reorganizado em três seções acessíveis e recolhíveis: identificação, comparação de ferramentas e abastecimento/objetivo.
-- Adicionadas notificações integradas do tipo toast para validações, bloqueios e confirmações de cadastro.
-- Criados testes regressivos para autenticação, permissões do solicitante, IDs, sincronização individual, formulário e acessibilidade.
-
-### Segurança
-- Removido o acesso público por perfil Visitante; a aplicação agora exige autenticação pelo Firebase.
-- Endurecidas as regras do Firestore para negar acesso por padrão e exigir perfil ativo.
-- O perfil `PRESET_SOLICITANTE` pode ler testes e criar uma nova solicitação, mas não pode atualizar nem excluir testes existentes.
-- Novas solicitações do solicitante devem nascer em `STAGE_2_ANALISE`, com status `AGUARDANDO_ANALISE` e estruturas técnicas vazias.
-- Perfis e documentos de testes passaram a ter validação de campos, autoria e consistência entre o ID do envelope e o payload.
-
-### Alterado
-- Nova solicitação passa a sincronizar somente o documento criado, reduzindo conflitos e gravações desnecessárias.
-- IDs de solicitação agora usam data, hora, ano dinâmico e sufixo aleatório, sem depender da quantidade de registros.
-- Nome do solicitante é preenchido automaticamente e bloqueado para o perfil `PRESET_SOLICITANTE`.
-- Interface mobile preserva a ação inferior de nova solicitação quando o menu lateral está recolhido.
-
-### Corrigido
-- Corrigida a entrada de usuários autenticados sem perfil Firestore, que anteriormente recebiam permissão local de Visitante.
-- Corrigido o fluxo pós-cadastro que tentava abrir o Workflow técnico proibido para solicitantes.
-- Corrigida a validação dos campos obrigatórios e removidos valores padrão silenciosos em campos numéricos essenciais.
-- Formulário passa a ser completamente limpo ao abrir e fechar, preservando foco e abrindo automaticamente a seção com erro.
-- Removidos botões duplicados de **Nova solicitação** na experiência desktop do solicitante.
-- Tela do solicitante passa a usar o título **Minhas solicitações** em vez de **Pipeline Geral de Testes**.
-
-### Governança
-- Alterações funcionais consolidadas a partir dos PRs `#1`, `#2`, `#3` e `#5`.
-- Backup integral da versão anterior salvo em `backups/v1.9.1_to_v1.10.0/` antes da atualização.
-- Versão visível, manifests, changelog, tag Git e GitHub Release passam a compartilhar o identificador `v1.10.0`.
-
 ## [v1.9.1] - 2026-08-10
 ### Corrigido
 - Corrigido salvamento de perfis novos no Firebase para criar/confirmar o usuário no Authentication por app secundário e gravar `firebaseUid` real antes de salvar em `toolflow_user_profiles`.

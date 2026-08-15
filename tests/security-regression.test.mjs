@@ -129,7 +129,7 @@ test('solicitante ativo pode ler e criar, mas nao integra os perfis que atualiza
   assert.match(requester, /roleKey\s*==\s*['"]PRESET_SOLICITANTE['"]/);
   assert.doesNotMatch(operators, /PRESET_SOLICITANTE/);
   assert.match(testsMatch, /allow\s+read\s*:\s*if\s+activeProfile\s*\(\s*\)/);
-  assert.match(testsMatch, /allow\s+create\s*:[\s\S]*?isRequester\s*\(\s*\)[\s\S]*?validRequesterSubmission\s*\(\s*testId\s*\)/);
+  assert.match(testsMatch, /allow\s+create\s*:[\s\S]*?isRequester\s*\(\s*\)[\s\S]*?validRequesterSubmission\s*\(\s*\)/);
 
   const updateRule = testsMatch.match(/allow\s+update\s*:\s*if([\s\S]*?);/);
   assert.ok(updateRule, 'Regra de update de testes nao encontrada');
@@ -144,7 +144,7 @@ test('solicitante ativo pode ler e criar, mas nao integra os perfis que atualiza
 
 test('nova solicitacao nao pode nascer em etapa tecnica nem carregar resultados', () => {
   const submission = rulesBodyOf('validRequesterSubmission');
-  assert.match(submission, /validTest\s*\(\s*testId\s*\)/);
+  assert.match(submission, /validTest\s*\(\s*\)/);
   assert.match(submission, /stage\s*==\s*['"]STAGE_2_ANALISE['"]/);
   assert.match(submission, /statusGeral\s*==\s*['"]AGUARDANDO_ANALISE['"]/);
   for (const technicalMap of ['analiseEngenharia', 'agendamento', 'fechamento']) {
