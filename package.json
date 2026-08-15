@@ -1,0 +1,14 @@
+{
+  "name": "viemar-toolflow",
+  "version": "1.9.1",
+  "private": true,
+  "description": "Portal estático para gestão e homologação de testes de ferramentas.",
+  "scripts": {
+    "check": "npm run check:syntax && npm test",
+    "check:syntax": "node --check app/app.js && node --check app/firebase-config.js",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

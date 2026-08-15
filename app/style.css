@@ -3002,6 +3002,56 @@ textarea.form-control {
 .print-header {
   display: none;
 }
+
+/* Acessibilidade: texto apenas para leitores de tela e foco de teclado consistente. */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--viemar-orange);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--bg-card);
+}
+
+:where(button, input, select, textarea):disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.sync-status-badge:has(.sync-error),
+.live-pill.sync-error {
+  color: var(--status-red-text);
+  background: var(--status-red-bg);
+  border-color: var(--status-red-border);
+}
+
+.sync-status-badge:has(.sync-error) .sync-dot,
+.live-pill.sync-error .live-dot {
+  background: var(--status-red);
+  box-shadow: 0 0 0 3px var(--status-red-bg);
+}
+
+.modal-backdrop[role="dialog"] .modal-content:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 /* ========================================================================= */
 /* Responsividade tabelas iPhone/tablet v1.7.2 - sem estouro horizontal       */
 /* ========================================================================= */
