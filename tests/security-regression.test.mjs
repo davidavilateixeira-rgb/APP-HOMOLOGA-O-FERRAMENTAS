@@ -70,6 +70,11 @@ test('recuperação de senha usa e-mail do Firebase', () => {
   assert.doesNotMatch(reset, /localStorage|\.password\s*=/);
 });
 
+test('acesso publico de visitante foi removido', () => {
+  assert.doesNotMatch(html, /Entrar como visitante|entrarComoVisitante\s*\(/);
+  assert.doesNotMatch(app, /function\s+entrarComoVisitante\s*\(/);
+});
+
 test('falha ao carregar Firestore não semeia a nuvem com cache local', () => {
   const load = bodyOf('carregarDadosFirestore');
   const catchBlock = load.slice(load.lastIndexOf('catch'));
