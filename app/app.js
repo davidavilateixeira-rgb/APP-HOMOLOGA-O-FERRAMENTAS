@@ -10,6 +10,7 @@ const DEVFLOW_ROLES = {
   LEITURA: 'LEITURA'          // Visitante - Somente Visualizacao
 };
 const TOOLFLOW_ROLES = DEVFLOW_ROLES;
+const TOOLFLOW_BOOTSTRAP_ADMIN_EMAIL = 'dteixeira@viemar.com.br';
 
 // Configuracao de Papeis e Badges Visuais (Padrao Oficial DevFlow / Viemar)
 const USER_ROLES_CONFIG = {
@@ -75,19 +76,9 @@ const USER_ROLES_CONFIG = {
   }
 };
 
-// Base de Usuarios Cadastrados (Inicia limpa com David como Administrador)
-const INITIAL_USERS_STORE = [
-  {
-    id: 'user_david_admin',
-    name: 'David Teixeira',
-    email: 'dteixeira@viemar.com.br',
-    password: 'admin',
-    roleKey: 'ADMIN',
-    roleTitle: 'Administrador',
-    role: TOOLFLOW_ROLES.ADMIN,
-    avatarBg: '#ea580c'
-  }
-];
+// Os perfis sao carregados do Firestore depois da autenticacao. Nunca inclua
+// credenciais ou administradores padrao no bundle publico da aplicacao.
+const INITIAL_USERS_STORE = [];
 
 let devflowUsersStore = [...INITIAL_USERS_STORE];
 
@@ -346,6 +337,7 @@ let usuariosLocaisPersistidos = false;
 let firebaseSaveTimer = null;
 let firebaseSyncEmExecucao = false;
 let firebasePrimeiraCargaConcluida = false;
+let falhaSincronizacaoFirebase = false;
 const ANEXO_FIRESTORE_MAX_CHARS = 260000; // ~190 KB por imagem; evita estourar limite de 1 MiB do documento Firestore.
 
 function firebaseDisponivel() {
@@ -354,6 +346,20 @@ function firebaseDisponivel() {
 
 function firebaseAuthDisponivel() {
   return Boolean(window.isFirebaseConnected && window.auth);
+}
+
+function atualizarStatusConexao(status, mensagem) {
+  const statusSidebar = document.getElementById('cloudStatusLabel');
+  const statusDashboard = document.getElementById('dashboardConnectionStatus');
+  const conectado = status === 'online';
+  if (statusSidebar) {
+    statusSidebar.textContent = mensagem || (conectado ? 'Firebase sincronizado' : 'Somente leitura - sem sincronizacao');
+    statusSidebar.classList.toggle('sync-error', !conectado);
+  }
+  if (statusDashboard) {
+    statusDashboard.textContent = conectado ? 'Online' : 'Sem sincronizacao';
+    statusDashboard.closest('.live-pill')?.classList.toggle('sync-error', !conectado);
+  }
 }
 
 function firebaseStorageDisponivel() {
@@ -374,6 +380,36 @@ function sanitizarDocId(valor) {
     .slice(0, 120) || `doc_${Date.now()}`;
 }
 
+function escaparHTML(valor) {
+  return String(valor ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function corSegura(valor, fallback = '#64748b') {
+  const cor = String(valor || '').trim();
+  return /^(#[0-9a-f]{3,8}|rgb\([\d\s,.%]+\)|rgba\([\d\s,.%]+\))$/i.test(cor) ? cor : fallback;
+}
+
+function classeCssSegura(valor, fallback = '') {
+  const classe = String(valor || '').trim();
+  return /^[a-z0-9_-]+$/i.test(classe) ? classe : fallback;
+}
+
+function urlSeguraImagem(valor) {
+  const url = String(valor || '').trim();
+  if (/^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=\s]+$/i.test(url)) return url;
+  try {
+    const parsed = new URL(url, window.location.origin);
+    return parsed.protocol === 'https:' ? parsed.href : '';
+  } catch (_) {
+    return '';
+  }
+}
+
 function obterRoleConfig(roleKey) {
   return USER_ROLES_CONFIG[roleKey] || USER_ROLES_CONFIG.VISITANTE;
 }
@@ -386,7 +422,6 @@ function normalizarPerfilUsuario(perfil) {
     firebaseUid: perfil.firebaseUid || perfil.uid || null,
     name: perfil.name || perfil.nome || perfil.email || 'Usuário',
     email: String(perfil.email || '').trim().toLowerCase(),
-    password: perfil.password || '',
     roleKey,
     roleTitle: roleConfig.label,
     role: roleConfig.role,
@@ -420,8 +455,8 @@ function mesclarUsuarioLocal(perfil) {
   );
 
   if (idx >= 0) {
-    const senhaLocal = devflowUsersStore[idx].password || '';
-    devflowUsersStore[idx] = { ...devflowUsersStore[idx], ...normalizado, password: senhaLocal };
+    const { password, ...perfilExistente } = devflowUsersStore[idx];
+    devflowUsersStore[idx] = { ...perfilExistente, ...normalizado };
     return devflowUsersStore[idx];
   }
 
@@ -438,17 +473,7 @@ async function obterOuCriarUidAuthSecundario(perfil) {
   try {
     secondaryApp = firebase.apps.find(app => app.name === appName) || firebase.initializeApp(window.firebaseConfig, appName);
     const secondaryAuth = secondaryApp.auth();
-    let cred = null;
-
-    try {
-      cred = await secondaryAuth.createUserWithEmailAndPassword(perfil.email, perfil.password);
-    } catch (err) {
-      if (err?.code === 'auth/email-already-in-use') {
-        cred = await secondaryAuth.signInWithEmailAndPassword(perfil.email, perfil.password);
-      } else {
-        throw err;
-      }
-    }
+    const cred = await secondaryAuth.createUserWithEmailAndPassword(perfil.email, perfil.password);
 
     const uid = cred?.user?.uid || null;
     await secondaryAuth.signOut().catch(() => {});
@@ -486,7 +511,8 @@ async function salvarPerfilUsuarioFirebase(user) {
   const perfil = perfilUsuarioParaFirebase(user);
   if (perfil.role === TOOLFLOW_ROLES.LEITURA && (!currentUser || currentUser.role === TOOLFLOW_ROLES.LEITURA)) return false;
 
-  const authUid = await obterOuCriarUidAuthSecundario(perfil);
+  const authUid = await obterOuCriarUidAuthSecundario({ ...perfil, password: user.password });
+  if (user.password && !authUid) return false;
   if (authUid) {
     perfil.firebaseUid = authUid;
     perfil.id = authUid;
@@ -522,6 +548,8 @@ async function carregarPerfisUsuariosFirebase() {
     return !snapshot.empty;
   } catch (err) {
     console.warn('[ToolFlow] Falha ao carregar perfis do Firebase:', err);
+    falhaSincronizacaoFirebase = true;
+    atualizarStatusConexao('erro', 'Firestore sem permissao');
     return false;
   }
 }
@@ -561,7 +589,7 @@ async function obterPerfilUsuarioFirebase(firebaseUser) {
     firebaseUid: uid,
     name: firebaseUser.displayName || email.split('@')[0] || 'Usuário',
     email,
-    roleKey: 'VISITANTE'
+    roleKey: email === TOOLFLOW_BOOTSTRAP_ADMIN_EMAIL ? 'ADMIN' : 'VISITANTE'
   });
   mesclarUsuarioLocal(perfilLeitura);
   salvarUsuariosLocais(false);
@@ -569,7 +597,9 @@ async function obterPerfilUsuarioFirebase(firebaseUser) {
 }
 
 async function tentarLoginFirebase(login, senha) {
-  if (!firebaseAuthDisponivel()) return { status: 'skip' };
+  if (!firebaseAuthDisponivel()) {
+    return { status: 'error', message: 'Firebase Authentication indisponivel. O acesso local foi desativado por seguranca.' };
+  }
   const email = montarEmailFirebase(login);
   if (!email) return { status: 'skip' };
 
@@ -579,10 +609,8 @@ async function tentarLoginFirebase(login, senha) {
     return { status: 'ok', user: perfil };
   } catch (err) {
     const code = err && err.code ? err.code : '';
-    const podeFallbackLocal = ['auth/user-not-found', 'auth/invalid-email'].includes(code);
-    if (podeFallbackLocal) return { status: 'skip' };
     console.warn('[ToolFlow] Login Firebase recusado:', code || err);
-    return { status: 'error', message: 'Login Firebase recusado. Confira e-mail e senha cadastrados no Firebase Authentication.' };
+    return { status: 'error', message: 'Nao foi possivel autenticar. Confira o e-mail e a senha ou use a recuperacao por e-mail.' };
   }
 }
 
@@ -640,7 +668,9 @@ async function carregarDadosFirestore() {
       firebasePrimeiraCargaConcluida = true;
       testDataStore = [];
       currentSelectedTestId = null;
-      localStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
+      sessionStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
+      falhaSincronizacaoFirebase = false;
+      atualizarStatusConexao('online', 'Firebase sincronizado');
       return true;
     }
 
@@ -651,12 +681,16 @@ async function carregarDadosFirestore() {
       .map(item => item.payload);
 
     currentSelectedTestId = testDataStore[0]?.id || null;
-    localStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
+    sessionStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
     dadosLocaisPersistidos = true;
     firebasePrimeiraCargaConcluida = true;
+    falhaSincronizacaoFirebase = false;
+    atualizarStatusConexao('online', 'Firebase sincronizado');
     return true;
   } catch (err) {
     console.warn('[ToolFlow] Falha ao carregar testes do Firestore:', err);
+    falhaSincronizacaoFirebase = true;
+    atualizarStatusConexao('erro', 'Firestore sem permissao');
     return false;
   }
 }
@@ -674,6 +708,8 @@ async function sincronizarFirebaseAposLogin() {
     if (currentSelectedTestId && document.getElementById('viewWorkflow')?.classList.contains('active-view')) {
       abrirDetalhesWorkflow(currentSelectedTestId);
     }
+  } else {
+    alert('Nao foi possivel sincronizar com o Firestore. O sistema permanecera somente para consulta para evitar dados divergentes.');
   }
 }
 
@@ -789,11 +825,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function inicializarAplicacao() {
   initTheme();
-  carregarDadosLocais();
-  carregarUsuariosLocais();
 
   const firebaseUser = await aguardarUsuarioFirebaseInicial();
   if (firebaseUser && firebaseDisponivel()) {
+    carregarDadosLocais();
+    carregarUsuariosLocais();
     const perfil = await obterPerfilUsuarioFirebase(firebaseUser);
     if (perfil && perfil.ativo !== false) {
       entrarNoApp(perfil);
@@ -801,22 +837,11 @@ async function inicializarAplicacao() {
     }
   }
 
-  // Verificar se ha sessao ativa local para fallback/offline
-  const sessaoId = localStorage.getItem('viemar_toolflow_current_user_id') || localStorage.getItem('viemar_devflow_current_user_id');
-  if (sessaoId) {
-    if (sessaoId === 'visitante') {
-      entrarComoVisitante();
-    } else {
-      const user = devflowUsersStore.find(u => u.id === sessaoId || u.firebaseUid === sessaoId);
-      if (user) {
-        entrarNoApp(user);
-      } else {
-        mostrarTelaLogin();
-      }
-    }
-  } else {
-    mostrarTelaLogin();
-  }
+  // Uma identidade no localStorage nao e uma sessao autenticada. Sem usuario
+  // Firebase valido, sempre exibir login (ou visitante somente leitura).
+  localStorage.removeItem('viemar_toolflow_current_user_id');
+  localStorage.removeItem('viemar_devflow_current_user_id');
+  mostrarTelaLogin();
 }
 // =========================================================================
 // CONTROLADORES DA TELA DE LOGIN DEDICADA
@@ -858,6 +883,8 @@ async function realizarLoginTela() {
 
   const loginFirebase = await tentarLoginFirebase(emailInput, passwordInput);
   if (loginFirebase.status === 'ok' && loginFirebase.user) {
+    carregarDadosLocais();
+    carregarUsuariosLocais();
     entrarNoApp(loginFirebase.user);
     return;
   }
@@ -867,19 +894,7 @@ async function realizarLoginTela() {
     return;
   }
 
-  // Fallback local/offline para manter compatibilidade com navegadores antigos
-  const user = devflowUsersStore.find(u => usuarioCorrespondeLogin(u, emailInput));
-
-  if (user) {
-    if (normalizarSenhaDigitada(user.password) !== passwordInput) {
-      alert('Senha incorreta. Verifique a senha digitada ou clique em "Esqueci minha senha" para redefinir.');
-      return;
-    }
-
-    entrarNoApp(user);
-  } else {
-    alert('Usuário não encontrado. Confirme se ele foi criado no Firebase Authentication e se o perfil está cadastrado no ToolFlow.');
-  }
+  alert(loginFirebase.message || 'Nao foi possivel autenticar pelo Firebase.');
 }
 function entrarComoVisitante() {
   const visitanteUser = {
@@ -892,23 +907,15 @@ function entrarComoVisitante() {
     avatarBg: '#94a3b8'
   };
 
-  // Visitante não autentica no Firebase. Para não exibir base demo/cache antiga,
-  // sempre inicia em visão limpa e limpa o cache local de testes neste navegador.
+  // Visitante nao autentica no Firebase e nunca recebe dados do cache autenticado.
   testDataStore = [];
   currentSelectedTestId = null;
-  try {
-    localStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
-    localStorage.removeItem('viemar_devflow_store_v1');
-  } catch (e) {
-    console.warn('[ToolFlow] Não foi possível limpar cache local do Visitante:', e);
-  }
 
   entrarNoApp(visitanteUser);
 }
 
 function entrarNoApp(user) {
   currentUser = user;
-  localStorage.setItem('viemar_toolflow_current_user_id', user.firebaseUid || user.id);
 
   // Alternar telas
   document.getElementById('screenLogin').style.display = 'none';
@@ -933,6 +940,8 @@ function entrarNoApp(user) {
 function fazerLogout() {
   localStorage.removeItem('viemar_toolflow_current_user_id');
   localStorage.removeItem('viemar_devflow_current_user_id');
+  sessionStorage.removeItem('viemar_toolflow_store_v1');
+  sessionStorage.removeItem('viemar_toolflow_users_v3');
   if (firebaseAuthDisponivel()) {
     window.auth.signOut().catch(err => console.warn('[ToolFlow] Falha ao encerrar sessão Firebase:', err));
   }
@@ -944,27 +953,19 @@ function fazerLogout() {
 }
 
 function esqueciSenha() {
-  const email = prompt('Digite seu e-mail cadastrado para redefinir a senha:');
+  if (!firebaseAuthDisponivel()) {
+    alert('A recuperacao de senha esta indisponivel porque o Firebase Authentication nao foi carregado.');
+    return;
+  }
+  const email = prompt('Digite seu e-mail cadastrado. Enviaremos um link seguro para redefinir a senha:');
   if (!email) return;
 
-  const user = devflowUsersStore.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
-  if (!user) {
-    alert('E-mail não encontrado na base de usuários cadastrados.');
-    return;
-  }
-
-  const novaSenha = prompt(`Olá ${user.name}!\nDigite sua nova senha desejada (mínimo 4 caracteres):`);
-  if (!novaSenha) return;
-  if (novaSenha.length < 4) {
-    alert('A senha deve conter pelo menos 4 caracteres.');
-    return;
-  }
-
-  user.password = novaSenha;
-  salvarUsuariosLocais();
-  alert(`Senha redefinida com sucesso para ${user.name}!\nVocê já pode fazer o login com a nova senha.`);
-  document.getElementById('loginEmailField').value = user.email;
-  document.getElementById('loginPasswordField').value = novaSenha;
+  window.auth.sendPasswordResetEmail(email.trim().toLowerCase())
+    .then(() => alert('Se o e-mail estiver cadastrado, o Firebase enviara as instrucoes de recuperacao.'))
+    .catch(err => {
+      console.warn('[ToolFlow] Falha ao solicitar recuperacao de senha:', err);
+      alert('Nao foi possivel enviar a recuperacao agora. Verifique o e-mail e tente novamente.');
+    });
 }
 
 // =========================================================================
@@ -987,8 +988,10 @@ function usuarioSemAcessoWorkflow() {
 }
 
 function bloquearMutacaoVisitante() {
-  if (!usuarioSomenteLeitura()) return false;
-  alert('Perfil Visitante é somente leitura. Faça login com um perfil autorizado para alterar dados.');
+  if (!usuarioSomenteLeitura() && !falhaSincronizacaoFirebase) return false;
+  alert(falhaSincronizacaoFirebase
+    ? 'Alteracoes bloqueadas: o Firestore nao esta sincronizado.'
+    : 'Perfil Visitante e somente leitura. Faca login com um perfil autorizado para alterar dados.');
   return true;
 }
 
@@ -1090,6 +1093,7 @@ function aplicarPermissoesUI() {
 // =========================================================================
 async function criarNovoUsuarioForm() {
   if (bloquearMutacaoVisitante()) return;
+  if (!usuarioAdmin()) { alert('Apenas Administrador pode cadastrar usuarios.'); return; }
   const nomeInput = document.getElementById('novoUserNome');
   const emailInput = document.getElementById('novoUserEmail');
   const senhaInput = document.getElementById('novoUserSenha');
@@ -1098,15 +1102,20 @@ async function criarNovoUsuarioForm() {
   const nome = nomeInput.value.trim();
   const email = emailInput.value.trim().toLowerCase();
   const senha = normalizarSenhaDigitada(senhaInput.value);
-  const papelKey = papelSelect.value;
+  const papelKey = Object.prototype.hasOwnProperty.call(USER_ROLES_CONFIG, papelSelect.value) ? papelSelect.value : '';
 
-  if (!nome || !email || !senha) {
+  if (!nome || !email || !senha || !papelKey) {
     alert('Por favor, preencha todos os campos obrigatórios.');
     return;
   }
 
   if (senha.length < 6) {
     alert('A senha deve possuir no mínimo 6 caracteres.');
+    return;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert('Informe um e-mail valido.');
     return;
   }
 
@@ -1129,9 +1138,14 @@ async function criarNovoUsuarioForm() {
     ativo: true
   };
 
-  devflowUsersStore.push(novoUsuario);
-  salvarUsuariosLocais();
   const perfilNaNuvem = await salvarPerfilUsuarioFirebase(novoUsuario);
+  delete novoUsuario.password;
+  if (!perfilNaNuvem) {
+    alert('Nao foi possivel criar a conta no Firebase Authentication e salvar o perfil. Nenhum cadastro local foi mantido.');
+    return;
+  }
+  devflowUsersStore.push(novoUsuario);
+  salvarUsuariosLocais(false);
 
   // Limpar formulário
   nomeInput.value = '';
@@ -1140,12 +1154,7 @@ async function criarNovoUsuarioForm() {
   papelSelect.value = 'TECNICO_USINAGEM';
 
   renderizarListaUsuariosCadastrados();
-  const avisoFirebase = firebaseDisponivel()
-    ? (perfilNaNuvem
-      ? '\n\nPerfil salvo no Firebase. Para login em outros dispositivos, crie também este e-mail em Firebase Authentication > Users com a senha definida.'
-      : '\n\nNão foi possível salvar o perfil no Firebase agora. O cadastro ficou no cache local e poderá ser reenviado depois.')
-    : '';
-  alert(`Usuário "${nome}" (${roleConfig.label}) cadastrado com sucesso!${avisoFirebase}`);
+  alert(`Usuário "${nome}" (${roleConfig.label}) cadastrado com sucesso no Firebase Authentication.`);
 }
 function renderizarListaUsuariosCadastrados() {
   const container = document.getElementById('listaUsuariosCadastradosContainer');
@@ -1172,34 +1181,33 @@ function renderizarListaUsuariosCadastrados() {
     row.className = 'user-item-row';
     row.innerHTML = `
       <div style="display: flex; align-items: center; min-width: 0;">
-        <div class="user-avatar-circle" style="background-color: ${u.avatarBg || roleConfig.avatarBg};">
-          ${initial}
+        <div class="user-avatar-circle" style="background-color: ${corSegura(u.avatarBg || roleConfig.avatarBg)};">
+          ${escaparHTML(initial)}
         </div>
         <div class="user-info-text">
           <div class="user-name-title">
-            <span>${u.name}</span>
+            <span>${escaparHTML(u.name)}</span>
             ${isCurrent ? '<span class="badge-voce">(você)</span>' : ''}
           </div>
-          <div class="user-email-subtitle">${u.email}</div>
+          <div class="user-email-subtitle">${escaparHTML(u.email)}</div>
         </div>
       </div>
 
       <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <span class="user-role-badge" style="${roleConfig.badgeStyle}">${roleConfig.label}</span>
+        <span class="user-role-badge" style="${roleConfig.badgeStyle}">${escaparHTML(roleConfig.label)}</span>
         <div class="user-actions-group">
-          <button type="button" class="btn-icon-user" title="Editar Usuário" onclick="abrirModalEditarUsuario('${u.id}')">
+          <button type="button" class="btn-icon-user" data-action="editar-usuario" title="Editar Usuário">
             <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
           </button>
-          <button type="button" class="btn-icon-user" title="Alterar Senha" onclick="abrirModalAlterarSenha('${u.id}')">
-            <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
-          </button>
-          <button type="button" class="btn-desativar-user" title="Desativar Usuário" onclick="desativarUsuario('${u.id}')">
+          <button type="button" class="btn-desativar-user" data-action="desativar-usuario" title="Desativar Usuário">
             Desativar
           </button>
         </div>
       </div>
     `;
 
+    row.querySelector('[data-action="editar-usuario"]')?.addEventListener('click', () => abrirModalEditarUsuario(u.id));
+    row.querySelector('[data-action="desativar-usuario"]')?.addEventListener('click', () => desativarUsuario(u.id));
     container.appendChild(row);
   });
 }
@@ -1222,11 +1230,22 @@ function fecharModalEditarUsuario() {
 }
 
 function salvarEdicaoUsuario() {
+  if (bloquearMutacaoVisitante()) return;
   if (!usuarioAdmin()) { alert('Apenas Administrador pode editar usuários.'); return; }
   const userId = document.getElementById('editUserId').value;
   const nome = document.getElementById('editUserNome').value.trim();
   const email = document.getElementById('editUserEmail').value.trim().toLowerCase();
-  const papelKey = document.getElementById('editUserPapel').value;
+  const papelSelecionado = document.getElementById('editUserPapel').value;
+  const papelKey = Object.prototype.hasOwnProperty.call(USER_ROLES_CONFIG, papelSelecionado) ? papelSelecionado : '';
+
+  if (!nome || !papelKey || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert('Preencha nome, e-mail valido e perfil autorizado.');
+    return;
+  }
+  if (devflowUsersStore.some(u => u.id !== userId && String(u.email || '').toLowerCase() === email)) {
+    alert('Este e-mail ja esta cadastrado no sistema.');
+    return;
+  }
 
   const user = devflowUsersStore.find(u => u.id === userId);
   if (!user) return;
@@ -1272,28 +1291,10 @@ function fecharModalAlterarSenha() {
 }
 
 function salvarNovaSenhaUsuario() {
-  if (!usuarioAdmin()) { alert('Apenas Administrador pode alterar senhas.'); return; }
-  const userId = document.getElementById('senhaUserId').value;
-  const novaSenha = normalizarSenhaDigitada(document.getElementById('novaSenhaInput').value);
-
-  if (!novaSenha || novaSenha.length < 6) {
-    alert('A nova senha deve ter no mínimo 6 caracteres.');
-    return;
-  }
-
-  const user = devflowUsersStore.find(u => u.id === userId || u.firebaseUid === userId);
-  if (!user) return;
-
-  user.password = novaSenha;
-  salvarUsuariosLocais();
-  fecharModalAlterarSenha();
-
-  const msgFirebase = firebaseDisponivel()
-    ? '\n\nAtenção: para login em outros dispositivos, atualize a senha desse e-mail também no Firebase Authentication.'
-    : '';
-  alert(`Senha local de "${user.name}" atualizada com sucesso!${msgFirebase}`);
+  alert('Senhas nao podem ser alteradas localmente. Use o link de recuperacao por e-mail na tela de login.');
 }
 function desativarUsuario(userId) {
+  if (bloquearMutacaoVisitante()) return;
   if (!usuarioAdmin()) { alert('Apenas Administrador pode desativar usuários.'); return; }
   const user = devflowUsersStore.find(u => u.id === userId);
   if (!user) return;
@@ -1553,31 +1554,33 @@ function renderizarTabelaPipeline() {
 
       const podeAbrirWorkflow = !usuarioSemAcessoWorkflow();
       const acaoWorkflowDesktop = podeAbrirWorkflow
-        ? `<button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${t.id}')">Acessar</button>`
+        ? '<button class="btn btn-secondary btn-sm" data-action="abrir-workflow">Acessar</button>'
         : '<span class="badge badge-gray">Somente consulta</span>';
       const acaoWorkflowMobile = podeAbrirWorkflow
-        ? `<button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="abrirDetalhesWorkflow('${t.id}')">Acessar Teste</button>`
+        ? '<button class="btn btn-secondary btn-sm" style="flex: 1;" data-action="abrir-workflow">Acessar Teste</button>'
         : '<span class="badge badge-gray" style="flex: 1; justify-content: center;">Somente consulta</span>';
 
       // 1. Linha da tabela desktop
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td data-label="ID Teste"><strong>${t.id}</strong></td>
+        <td data-label="ID Teste"><strong>${escaparHTML(t.id)}</strong></td>
         <td data-label="Peça / Código">
-          <div style="font-weight: 600; color: var(--text-main);">${t.solicitacao.descricaoPeca}</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">${t.solicitacao.codigoPeca}</div>
+          <div style="font-weight: 600; color: var(--text-main);">${escaparHTML(t.solicitacao.descricaoPeca)}</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">${escaparHTML(t.solicitacao.codigoPeca)}</div>
         </td>
-        <td data-label="Fornecedor">${t.solicitacao.fornecedor}</td>
-        <td data-label="Máquina CNC">${t.solicitacao.maquina}</td>
-        <td data-label="Etapa"><span class="badge ${WORKFLOW_STAGES[t.stage]?.badgeClass || 'badge-gray'}">${WORKFLOW_STAGES[t.stage]?.label || t.stage}</span></td>
-        <td data-label="Status"><span class="badge ${badgeStatusClass}">${formatarStatusVisual(t.statusGeral)}</span></td>
+        <td data-label="Fornecedor">${escaparHTML(t.solicitacao.fornecedor)}</td>
+        <td data-label="Máquina CNC">${escaparHTML(t.solicitacao.maquina)}</td>
+        <td data-label="Etapa"><span class="badge ${classeCssSegura(WORKFLOW_STAGES[t.stage]?.badgeClass, 'badge-gray')}">${escaparHTML(WORKFLOW_STAGES[t.stage]?.label || t.stage)}</span></td>
+        <td data-label="Status"><span class="badge ${badgeStatusClass}">${escaparHTML(formatarStatusVisual(t.statusGeral))}</span></td>
         <td data-label="Ações" style="text-align: right;">
           <div class="table-action-row">
             ${acaoWorkflowDesktop}
-            ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" onclick="excluirTeste('${t.id}')">Excluir</button>` : ''}
+            ${usuarioAdmin() ? '<button class="btn btn-danger btn-sm btn-admin-delete" data-action="excluir-teste">Excluir</button>' : ''}
           </div>
         </td>
       `;
+      tr.querySelector('[data-action="abrir-workflow"]')?.addEventListener('click', () => abrirDetalhesWorkflow(t.id));
+      tr.querySelector('[data-action="excluir-teste"]')?.addEventListener('click', () => excluirTeste(t.id));
       tbody.appendChild(tr);
 
       // 2. Card mobile
@@ -1586,19 +1589,21 @@ function renderizarTabelaPipeline() {
         card.className = 'mobile-pipeline-card';
         card.innerHTML = `
           <div class="mobile-card-header">
-            <span class="mobile-card-id">${t.id}</span>
-            <span class="badge ${badgeStatusClass}">${formatarStatusVisual(t.statusGeral)}</span>
+            <span class="mobile-card-id">${escaparHTML(t.id)}</span>
+            <span class="badge ${badgeStatusClass}">${escaparHTML(formatarStatusVisual(t.statusGeral))}</span>
           </div>
-          <div class="mobile-card-title">${t.solicitacao.descricaoPeca}</div>
-          <div class="mobile-card-detail"><strong>Código:</strong> ${t.solicitacao.codigoPeca || '-'}</div>
-          <div class="mobile-card-detail"><strong>Fornecedor:</strong> ${t.solicitacao.fornecedor}</div>
-          <div class="mobile-card-detail"><strong>Máquina:</strong> ${t.solicitacao.maquina}</div>
-          <div class="mobile-card-detail"><strong>Etapa:</strong> <span class="badge ${WORKFLOW_STAGES[t.stage]?.badgeClass || 'badge-gray'}">${WORKFLOW_STAGES[t.stage]?.label || t.stage}</span></div>
+          <div class="mobile-card-title">${escaparHTML(t.solicitacao.descricaoPeca)}</div>
+          <div class="mobile-card-detail"><strong>Código:</strong> ${escaparHTML(t.solicitacao.codigoPeca || '-')}</div>
+          <div class="mobile-card-detail"><strong>Fornecedor:</strong> ${escaparHTML(t.solicitacao.fornecedor)}</div>
+          <div class="mobile-card-detail"><strong>Máquina:</strong> ${escaparHTML(t.solicitacao.maquina)}</div>
+          <div class="mobile-card-detail"><strong>Etapa:</strong> <span class="badge ${classeCssSegura(WORKFLOW_STAGES[t.stage]?.badgeClass, 'badge-gray')}">${escaparHTML(WORKFLOW_STAGES[t.stage]?.label || t.stage)}</span></div>
           <div class="mobile-card-actions">
             ${acaoWorkflowMobile}
-            ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" onclick="excluirTeste('${t.id}')">Excluir</button>` : ''}
+            ${usuarioAdmin() ? '<button class="btn btn-danger btn-sm btn-admin-delete" data-action="excluir-teste">Excluir</button>' : ''}
           </div>
         `;
+        card.querySelector('[data-action="abrir-workflow"]')?.addEventListener('click', () => abrirDetalhesWorkflow(t.id));
+        card.querySelector('[data-action="excluir-teste"]')?.addEventListener('click', () => excluirTeste(t.id));
         mobileCardsContainer.appendChild(card);
       }
     });
@@ -1641,23 +1646,23 @@ function criarCardKanban(teste) {
 
   const podeAbrirWorkflow = !usuarioSemAcessoWorkflow();
   const acaoWorkflow = podeAbrirWorkflow
-    ? `<button class="btn btn-secondary btn-sm" onclick="abrirDetalhesWorkflow('${teste.id}')">Acessar</button>`
+    ? `<button class="btn btn-secondary btn-sm" data-action="abrir-workflow" data-test-id="${escaparHTML(teste.id)}">Acessar</button>`
     : '<span class="badge badge-gray">Somente consulta</span>';
 
   return `
     <div class="kanban-card">
       <div class="kanban-card-top">
-        <strong>${teste.id}</strong>
-        <span class="badge ${stage.badgeClass}">${stage.label}</span>
+        <strong>${escaparHTML(teste.id)}</strong>
+        <span class="badge ${classeCssSegura(stage.badgeClass, 'badge-gray')}">${escaparHTML(stage.label)}</span>
       </div>
-      <div class="kanban-card-title">${teste.solicitacao.descricaoPeca}</div>
-      <div class="kanban-card-meta">${teste.solicitacao.codigoPeca || '-'} · ${teste.solicitacao.fornecedor}</div>
-      <div class="kanban-card-meta">${teste.solicitacao.maquina || '-'}</div>
+      <div class="kanban-card-title">${escaparHTML(teste.solicitacao.descricaoPeca)}</div>
+      <div class="kanban-card-meta">${escaparHTML(teste.solicitacao.codigoPeca || '-')} · ${escaparHTML(teste.solicitacao.fornecedor)}</div>
+      <div class="kanban-card-meta">${escaparHTML(teste.solicitacao.maquina || '-')}</div>
       <div class="kanban-card-footer">
-        <span class="badge ${badgeStatusClass}">${formatarStatusVisual(teste.statusGeral)}</span>
+        <span class="badge ${badgeStatusClass}">${escaparHTML(formatarStatusVisual(teste.statusGeral))}</span>
         <div class="kanban-card-actions">
           ${acaoWorkflow}
-          ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" onclick="excluirTeste('${teste.id}')">Excluir</button>` : ''}
+          ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" data-action="excluir-teste" data-test-id="${escaparHTML(teste.id)}">Excluir</button>` : ''}
         </div>
       </div>
     </div>
@@ -1683,6 +1688,8 @@ function renderizarKanban() {
     el.innerHTML = itens.length
       ? itens.map(criarCardKanban).join('')
       : '<div class="kanban-empty">Nenhum teste nesta etapa.</div>';
+    el.querySelectorAll('[data-action="abrir-workflow"]').forEach(btn => btn.addEventListener('click', () => abrirDetalhesWorkflow(btn.dataset.testId)));
+    el.querySelectorAll('[data-action="excluir-teste"]').forEach(btn => btn.addEventListener('click', () => excluirTeste(btn.dataset.testId)));
   });
 
   const contadores = {
@@ -1950,16 +1957,21 @@ function renderizarAnexosCavaco(anexos = {}) {
     if (!preview) return;
 
     const anexo = anexos[tipo];
-    const src = anexo?.url || anexo?.dataUrl;
+    const src = urlSeguraImagem(anexo?.url || anexo?.dataUrl);
     if (src) {
       preview.classList.add('has-image');
-      preview.innerHTML = `
-        <img src="${src}" alt="${cfg.label}">
-        <div class="chip-preview-meta">
-          <strong>${cfg.label}</strong>
-          <span>${anexo.nome || 'imagem anexada'} · ${anexo.usuario || 'Sistema'}</span>
-        </div>
-      `;
+      preview.replaceChildren();
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = cfg.label;
+      const meta = document.createElement('div');
+      meta.className = 'chip-preview-meta';
+      const titulo = document.createElement('strong');
+      titulo.textContent = cfg.label;
+      const detalhe = document.createElement('span');
+      detalhe.textContent = `${anexo.nome || 'imagem anexada'} · ${anexo.usuario || 'Sistema'}`;
+      meta.append(titulo, detalhe);
+      preview.append(img, meta);
     } else {
       preview.classList.remove('has-image');
       preview.innerHTML = '<span>Nenhuma imagem anexada.</span>';
@@ -2098,12 +2110,12 @@ function renderizarTabelaArestas(registros) {
   registros.forEach(r => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td data-label="Aresta"><strong>${r.aresta}</strong></td>
-      <td data-label="Turno">${r.turno}</td>
-      <td data-label="Técnico">${r.tecnico}</td>
-      <td data-label="Peças usinadas"><strong>${r.pecas} pe\u00E7as</strong></td>
-      <td data-label="Rugosidade (RA)">${r.ra}</td>
-      <td data-label="Desgaste">${r.desgaste}</td>
+      <td data-label="Aresta"><strong>${escaparHTML(r.aresta)}</strong></td>
+      <td data-label="Turno">${escaparHTML(r.turno)}</td>
+      <td data-label="Técnico">${escaparHTML(r.tecnico)}</td>
+      <td data-label="Peças usinadas"><strong>${escaparHTML(r.pecas)} pe\u00E7as</strong></td>
+      <td data-label="Rugosidade (RA)">${escaparHTML(r.ra)}</td>
+      <td data-label="Desgaste">${escaparHTML(r.desgaste)}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -2312,11 +2324,11 @@ function renderizarTimeline(teste) {
       <div class="timeline-dot ${isLast ? 'green' : ''}"></div>
       <div class="timeline-content">
         <div class="timeline-header">
-          <span><strong>${item.usuario}</strong></span>
-          <span>${item.dataHora}</span>
+          <span><strong>${escaparHTML(item.usuario)}</strong></span>
+          <span>${escaparHTML(item.dataHora)}</span>
         </div>
-        <div class="timeline-title">${item.acao}</div>
-        <div class="timeline-body">${item.detalhe}</div>
+        <div class="timeline-title">${escaparHTML(item.acao)}</div>
+        <div class="timeline-body">${escaparHTML(item.detalhe)}</div>
       </div>
     `;
     container.appendChild(div);
@@ -2341,10 +2353,10 @@ function renderizarComentarios(teste) {
     div.className = 'comment-card';
     div.innerHTML = `
       <div class="comment-header">
-        <span><strong>${c.usuario}</strong></span>
-        <span>${c.dataHora}</span>
+        <span><strong>${escaparHTML(c.usuario)}</strong></span>
+        <span>${escaparHTML(c.dataHora)}</span>
       </div>
-      <div style="font-size: 0.825rem; color: var(--text-main);">${c.texto}</div>
+      <div style="font-size: 0.825rem; color: var(--text-main);">${escaparHTML(c.texto)}</div>
     `;
     container.appendChild(div);
   });
@@ -2571,7 +2583,7 @@ function copiarWhatsAppWorkflow() {
 // =========================================================================
 function salvarDadosLocais(dispararSync = true) {
   try {
-    localStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
+    sessionStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
     dadosLocaisPersistidos = true;
     if (dispararSync) agendarSyncFirebase();
   } catch (e) {
@@ -2582,11 +2594,14 @@ function salvarDadosLocais(dispararSync = true) {
 }
 
 function carregarDadosLocais() {
-  const salvos = localStorage.getItem('viemar_toolflow_store_v1') || localStorage.getItem('viemar_devflow_store_v1');
+  const salvos = sessionStorage.getItem('viemar_toolflow_store_v1') || localStorage.getItem('viemar_toolflow_store_v1') || localStorage.getItem('viemar_devflow_store_v1');
   if (salvos) {
     dadosLocaisPersistidos = true;
     try {
       testDataStore = JSON.parse(salvos);
+      sessionStorage.setItem('viemar_toolflow_store_v1', JSON.stringify(testDataStore));
+      localStorage.removeItem('viemar_toolflow_store_v1');
+      localStorage.removeItem('viemar_devflow_store_v1');
       currentSelectedTestId = testDataStore[0]?.id || null;
     } catch (e) {
       console.error(e);
@@ -2595,10 +2610,11 @@ function carregarDadosLocais() {
 }
 
 function salvarUsuariosLocais(dispararSync = true) {
-  localStorage.setItem('viemar_toolflow_users_v3', JSON.stringify(devflowUsersStore));
+  const perfisSemCredenciais = devflowUsersStore.map(({ password, ...perfil }) => perfil);
+  sessionStorage.setItem('viemar_toolflow_users_v3', JSON.stringify(perfisSemCredenciais));
   usuariosLocaisPersistidos = true;
   if (dispararSync && firebaseDisponivel() && usuarioPodeEscreverFirebase()) {
-    devflowUsersStore.forEach(user => salvarPerfilUsuarioFirebase(user));
+    perfisSemCredenciais.forEach(user => salvarPerfilUsuarioFirebase(user));
   }
 }
 
@@ -2606,11 +2622,13 @@ function carregarUsuariosLocais() {
   // Limpar chave antiga v2 para forcar migracao
   localStorage.removeItem('viemar_toolflow_users_v2');
 
-  const salvos = localStorage.getItem('viemar_toolflow_users_v3');
+  const salvos = sessionStorage.getItem('viemar_toolflow_users_v3') || localStorage.getItem('viemar_toolflow_users_v3');
   if (salvos) {
     usuariosLocaisPersistidos = true;
     try {
-      devflowUsersStore = JSON.parse(salvos).map(normalizarPerfilUsuario);
+      devflowUsersStore = JSON.parse(salvos).map(({ password, ...perfil }) => normalizarPerfilUsuario(perfil));
+      sessionStorage.setItem('viemar_toolflow_users_v3', JSON.stringify(devflowUsersStore));
+      localStorage.removeItem('viemar_toolflow_users_v3');
     } catch (e) {
       console.error(e);
       devflowUsersStore = [...INITIAL_USERS_STORE];

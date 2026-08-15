@@ -62,12 +62,12 @@
       <!-- Formulario de Login -->
       <form id="formTelaLogin" onsubmit="event.preventDefault(); realizarLoginTela();">
         <div class="login-form-group">
-          <label class="login-label">E-MAIL</label>
-          <input type="text" id="loginEmailField" class="login-input" placeholder="seuemail@empresa.com" required autocomplete="username">
+          <label class="login-label" for="loginEmailField">E-MAIL</label>
+          <input type="email" id="loginEmailField" class="login-input" placeholder="seuemail@empresa.com" required autocomplete="username" inputmode="email">
         </div>
 
         <div class="login-form-group">
-          <label class="login-label">SENHA</label>
+          <label class="login-label" for="loginPasswordField">SENHA</label>
           <input type="password" id="loginPasswordField" class="login-input" placeholder="********" required autocomplete="current-password">
         </div>
 
@@ -92,7 +92,7 @@
   <!-- ========================================================================= -->
   <div class="app-container" id="appShell" style="display: none;">
     <!-- Overlay para fechar gaveta mobile -->
-    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleMobileSidebar(false)"></div>
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleMobileSidebar(false)" aria-hidden="true"></div>
     
     <!-- ========================================================================= -->
     <!-- TOOLFLOW SIDEBAR LATERAL                                                  -->
@@ -108,13 +108,13 @@
         </div>
         <div class="version-badge-container">
           <span class="version-badge">v1.9.1</span>
-          <div class="sync-status-badge" title="Vercel & Cache Local Ativos">
-            <span class="sync-dot"></span> Vercel Cloud
+          <div class="sync-status-badge" title="Status da sincronização" role="status" aria-live="polite" aria-atomic="true">
+            <span class="sync-dot"></span> <span id="cloudStatusLabel">Conectando ao Firebase...</span>
           </div>
         </div>
       </div>
 
-      <nav class="sidebar-nav">
+      <nav class="sidebar-nav" aria-label="Navegação principal">
         <div class="nav-section-label">Gestão & Homologação</div>
         
         <button class="sidebar-link active" data-view="viewDashboard" onclick="navegarPara('viewDashboard', 'Dashboard & Métricas')">
@@ -190,7 +190,8 @@
         <div class="topbar-actions">
           <div class="search-input-wrapper">
             <svg class="search-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            <input type="text" class="search-input" id="inputBuscaGlobal" placeholder="Buscar peça, máquina, ID..." oninput="document.getElementById('inputBuscaTabela').value = this.value; renderizarTabelaPipeline();">
+            <label class="sr-only" for="inputBuscaGlobal">Buscar em todos os testes</label>
+            <input type="search" class="search-input" id="inputBuscaGlobal" placeholder="Buscar peça, máquina, ID..." aria-label="Buscar em todos os testes" oninput="document.getElementById('inputBuscaTabela').value = this.value; renderizarTabelaPipeline();">
           </div>
 
           <!-- Alternador de Tema -->
@@ -220,7 +221,7 @@
             <div class="view-title-group">
               <div style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.25rem;">
                 <h2>Painel de Controle e Homologação</h2>
-                <span class="live-pill"><span class="live-dot"></span> Online</span>
+                <span class="live-pill" role="status" aria-live="polite" aria-atomic="true"><span class="live-dot" aria-hidden="true"></span> <span id="dashboardConnectionStatus">Conectando...</span></span>
               </div>
               <p>Visão executiva do pipeline de ferramentas, homologações industriais e travas de abastecimento.</p>
             </div>
@@ -639,9 +640,11 @@
             <!-- Barra de Filtros e Busca -->
             <div class="table-filter-bar">
               <div class="filter-group">
-                <input type="text" id="inputBuscaTabela" class="form-control" style="width: 280px;" placeholder="Filtrar por peça, ID, fornecedor..." oninput="renderizarTabelaPipeline()">
+                <label class="sr-only" for="inputBuscaTabela">Filtrar testes</label>
+                <input type="search" id="inputBuscaTabela" class="form-control" style="width: 280px;" placeholder="Filtrar por peça, ID, fornecedor..." aria-label="Filtrar testes por peça, ID ou fornecedor" oninput="renderizarTabelaPipeline()">
                 
-                <select id="selectFiltroStatus" class="form-control" style="width: 200px;" onchange="renderizarTabelaPipeline()">
+                <label class="sr-only" for="selectFiltroStatus">Filtrar por status</label>
+                <select id="selectFiltroStatus" class="form-control" style="width: 200px;" aria-label="Filtrar testes por status" onchange="renderizarTabelaPipeline()">
                   <option value="TODOS">Todos os Status</option>
                   <option value="STAGE_1_SOLICITACAO">1. Solicitação Inicial</option>
                   <option value="STAGE_2_ANALISE">2. Análise Engenharia</option>
@@ -684,7 +687,7 @@
 
             <!-- Paginacao -->
             <div class="pagination-container">
-              <span id="pipelinePageIndicator">Exibindo 0 testes</span>
+              <span id="pipelinePageIndicator" role="status" aria-live="polite">Exibindo 0 testes</span>
               <div class="pagination-controls">
                 <button class="btn btn-secondary btn-sm" onclick="paginaAnterior()">Anterior</button>
                 <button class="btn btn-secondary btn-sm" onclick="proximaPagina()">Próxima</button>
@@ -1389,25 +1392,25 @@
   <!-- ========================================================================= -->
   <!-- MODAL: EDITAR USUARIO                                                     -->
   <!-- ========================================================================= -->
-  <div id="modalEditarUsuario" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalEditarUsuario()">
-    <div class="modal-content" style="max-width: 460px;">
+  <div id="modalEditarUsuario" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="tituloModalEditarUsuario" onclick="if(event.target===this) fecharModalEditarUsuario()">
+    <div class="modal-content" style="max-width: 460px;" tabindex="-1">
       <div class="modal-header">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Editar Usuário</h3>
-        <button onclick="fecharModalEditarUsuario()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">&times;</button>
+        <h3 id="tituloModalEditarUsuario" style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Editar Usuário</h3>
+        <button type="button" aria-label="Fechar edição de usuário" onclick="fecharModalEditarUsuario()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">&times;</button>
       </div>
 
       <form onsubmit="event.preventDefault(); salvarEdicaoUsuario();">
         <input type="hidden" id="editUserId">
         <div class="form-group">
-          <label class="user-label">NOME *</label>
+          <label class="user-label" for="editUserNome">NOME *</label>
           <input type="text" id="editUserNome" class="user-input" required>
         </div>
         <div class="form-group" style="margin-top: 0.75rem;">
-          <label class="user-label">E-MAIL *</label>
+          <label class="user-label" for="editUserEmail">E-MAIL *</label>
           <input type="email" id="editUserEmail" class="user-input" required>
         </div>
         <div class="form-group" style="margin-top: 0.75rem;">
-          <label class="user-label">PAPEL / FUNÇÃO *</label>
+          <label class="user-label" for="editUserPapel">PAPEL / FUNÇÃO *</label>
           <select id="editUserPapel" class="user-input" required>
             <option value="TECNICO_USINAGEM">Técnico Usinagem</option>
             <option value="TECNICO_MONTAGEM">Técnico Montagem</option>
@@ -1433,11 +1436,11 @@
   <!-- ========================================================================= -->
   <!-- MODAL: ALTERAR SENHA                                                      -->
   <!-- ========================================================================= -->
-  <div id="modalAlterarSenhaUsuario" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalAlterarSenha()">
-    <div class="modal-content" style="max-width: 420px;">
+  <div id="modalAlterarSenhaUsuario" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="tituloModalAlterarSenha" onclick="if(event.target===this) fecharModalAlterarSenha()">
+    <div class="modal-content" style="max-width: 420px;" tabindex="-1">
       <div class="modal-header">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Alterar Senha do Usuário</h3>
-        <button onclick="fecharModalAlterarSenha()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">&times;</button>
+        <h3 id="tituloModalAlterarSenha" style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Alterar Senha do Usuário</h3>
+        <button type="button" aria-label="Fechar alteração de senha" onclick="fecharModalAlterarSenha()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">&times;</button>
       </div>
 
       <form onsubmit="event.preventDefault(); salvarNovaSenhaUsuario();">
@@ -1446,7 +1449,7 @@
           Definindo nova senha para: <strong id="senhaUserName" style="color: #0f172a;"></strong>
         </div>
         <div class="form-group">
-          <label class="user-label">NOVA SENHA (MÍN. 6 CARACTERES) *</label>
+          <label class="user-label" for="novaSenhaInput">NOVA SENHA (MÍN. 6 CARACTERES) *</label>
           <input type="password" id="novaSenhaInput" class="user-input" placeholder="Nova senha segura" required minlength="6">
         </div>
 
@@ -1461,26 +1464,26 @@
   <!-- ========================================================================= -->
   <!-- MODAL: NOVA SOLICITAÇÃO DE TESTE                                          -->
   <!-- ========================================================================= -->
-  <div id="modalNovaSolicitacao" class="modal-backdrop" style="display: none;" onclick="if(event.target===this) fecharModalNovaSolicitacao()">
-    <div class="modal-content modal-wide">
+  <div id="modalNovaSolicitacao" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="tituloModalNovaSolicitacao" onclick="if(event.target===this) fecharModalNovaSolicitacao()">
+    <div class="modal-content modal-wide" tabindex="-1">
       <div class="modal-header">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Nova Solicitação de Teste</h3>
-        <button onclick="fecharModalNovaSolicitacao()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">X</button>
+        <h3 id="tituloModalNovaSolicitacao" style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Nova Solicitação de Teste</h3>
+        <button type="button" aria-label="Fechar nova solicitação" onclick="fecharModalNovaSolicitacao()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">&times;</button>
       </div>
 
       <form onsubmit="event.preventDefault(); submeterModalSolicitacao();">
         <div class="grid grid-3 modal-form-grid">
           <div class="form-group">
-            <label>Data prevista do teste (quinta-feira) <span class="required">*</span></label>
+            <label for="modalDataPrevista">Data prevista do teste (quinta-feira) <span class="required">*</span></label>
             <select id="modalDataPrevista" class="form-control" required></select>
             <small class="form-note">Somente próximas quintas-feiras quinzenais, respeitando D+2.</small>
           </div>
           <div class="form-group">
-            <label>Solicitante <span class="required">*</span></label>
+            <label for="modalSolicitanteNome">Solicitante <span class="required">*</span></label>
             <input type="text" id="modalSolicitanteNome" class="form-control" placeholder="Digite o nome do solicitante" required>
           </div>
           <div class="form-group">
-            <label>Fornecedor <span class="required">*</span></label>
+            <label for="modalFornecedor">Fornecedor <span class="required">*</span></label>
             <input type="text" id="modalFornecedor" class="form-control" placeholder="Ex: Sandvik Coromant" required>
           </div>
         </div>
@@ -1516,7 +1519,7 @@
               </div>
             </div>
             <div class="form-group">
-              <label>Se outra, qual?</label>
+              <label for="modalTipoOutra">Se outra, qual?</label>
               <input type="text" id="modalTipoOutra" class="form-control" placeholder="Ex: alargador, fresa especial">
             </div>
           </div>
@@ -1526,11 +1529,11 @@
           <div style="background: #f8fafc; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
             <h4 style="font-size: 0.75rem; color: var(--status-blue-text); margin-bottom: 0.4rem; font-weight: 700;">Ferramenta Atual</h4>
             <div class="form-group">
-              <label>Código atual:</label>
+              <label for="modalFerrAtual">Código atual:</label>
               <input type="text" id="modalFerrAtual" class="form-control" placeholder="Ex: APMT1604" required>
             </div>
             <div class="form-group" style="margin-top: 0.35rem;">
-              <label>Descrição da ferramenta atual:</label>
+              <label for="modalFerrAtualDesc">Descrição da ferramenta atual:</label>
               <textarea id="modalFerrAtualDesc" class="form-control" rows="2" placeholder="Descreva a ferramenta atual"></textarea>
             </div>
             <div class="grid grid-4" style="margin-top: 0.35rem;">
@@ -1541,15 +1544,15 @@
             </div>
             <div class="grid grid-3" style="margin-top: 0.35rem;">
               <div class="form-group">
-                <label>Vida:</label>
+                <label for="modalVidaAtual">Vida:</label>
                 <input type="number" id="modalVidaAtual" class="form-control" placeholder="80" required>
               </div>
               <div class="form-group">
-                <label>Ciclo (s):</label>
+                <label for="modalCicloAtual">Ciclo (s):</label>
                 <input type="number" id="modalCicloAtual" class="form-control" placeholder="140">
               </div>
               <div class="form-group">
-                <label>Custo (R$):</label>
+                <label for="modalCustoAtual">Custo (R$):</label>
                 <input type="number" step="0.01" id="modalCustoAtual" class="form-control" placeholder="38.50">
               </div>
             </div>
@@ -1558,7 +1561,7 @@
           <div style="background: var(--viemar-orange-light); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--viemar-orange-border);">
             <h4 style="font-size: 0.75rem; color: var(--viemar-orange); margin-bottom: 0.4rem; font-weight: 700;">Nova Ferramenta</h4>
             <div class="form-group">
-              <label>Código da ferramenta:</label>
+              <label for="modalFerrTeste">Código da ferramenta:</label>
               <input type="text" id="modalFerrTeste" class="form-control" placeholder="Ex: ANHX1607" required>
             </div>
             <div class="grid grid-2" style="margin-top: 0.35rem;">
@@ -1566,7 +1569,7 @@
               <div class="form-group"><label>Perfil / Quebra-cavaco:</label><input type="text" id="modalPerfilQuebraCavaco" class="form-control" placeholder="Ex: PM, MF, chipbreaker"></div>
             </div>
             <div class="form-group" style="margin-top: 0.35rem;">
-              <label>Descrição da ferramenta:</label>
+              <label for="modalFerrTesteDesc">Descrição da ferramenta:</label>
               <textarea id="modalFerrTesteDesc" class="form-control" rows="2" placeholder="Descreva a nova ferramenta proposta"></textarea>
             </div>
             <div class="grid grid-4" style="margin-top: 0.35rem;">
@@ -1577,11 +1580,11 @@
             </div>
             <div class="grid grid-3" style="margin-top: 0.35rem;">
               <div class="form-group">
-                <label>Vida útil proposta:</label>
+                <label for="modalMetaVida">Vida útil proposta:</label>
                 <input type="number" id="modalMetaVida" class="form-control" placeholder="120" required>
               </div>
               <div class="form-group">
-                <label>Amostras:</label>
+                <label for="modalAmostras">Amostras:</label>
                 <input type="number" id="modalAmostras" class="form-control" placeholder="10" required>
               </div>
               <div class="form-group">
@@ -1594,33 +1597,33 @@
 
         <div class="grid grid-5 modal-form-grid" style="margin-top: 0.75rem;">
           <div class="form-group">
-            <label>Lead time (dias) <span class="required">*</span></label>
+            <label for="modalLeadTime">Lead time (dias) <span class="required">*</span></label>
             <input type="number" id="modalLeadTime" class="form-control" placeholder="15" required>
           </div>
           <div class="form-group">
-            <label>Estoque local?</label>
+            <label for="modalEstoqueLocal">Estoque local?</label>
             <select id="modalEstoqueLocal" class="form-control">
               <option value="SIM">SIM (distribuidor local)</option>
               <option value="NAO">NÃO (importação)</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Quantidade em estoque</label>
+            <label for="modalQtdEstoque">Quantidade em estoque</label>
             <input type="number" id="modalQtdEstoque" class="form-control" placeholder="Ex: 30">
           </div>
           <div class="form-group">
-            <label>Giro mensal</label>
+            <label for="modalGiroMensal">Giro mensal</label>
             <input type="number" id="modalGiroMensal" class="form-control" placeholder="Ex: 20">
           </div>
           <div class="form-group">
-            <label>Retorno esperado</label>
+            <label for="modalRetornoEsperado">Retorno esperado</label>
             <input type="text" id="modalRetornoEsperado" class="form-control" placeholder="Ex: menor CPP e vida útil maior">
           </div>
         </div>
 
         <div class="grid grid-2" style="margin-top: 0.75rem;">
           <div class="form-group">
-            <label>Motivo do teste <span class="required">*</span></label>
+            <label for="modalJustificativa">Motivo do teste <span class="required">*</span></label>
             <textarea id="modalJustificativa" class="form-control" rows="3" placeholder="Descreva por que o teste deve ser feito" required></textarea>
           </div>
           <div class="form-group">

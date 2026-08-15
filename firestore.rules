@@ -1,0 +1,88 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isBootstrapAdmin() {
+      return signedIn()
+        && request.auth.token.email == 'dteixeira@viemar.com.br';
+    }
+
+    function ownProfile() {
+      return get(/databases/$(database)/documents/toolflow_user_profiles/$(request.auth.uid));
+    }
+
+    function activeProfile() {
+      return signedIn() && ownProfile().data.ativo == true;
+    }
+
+    function isStoredAdmin() {
+      return activeProfile()
+        && ownProfile().data.roleKey in ['ADMIN', 'ENG_PROCESSO', 'ENG_PRODUTO'];
+    }
+
+    function canOperate() {
+      return activeProfile()
+        && ownProfile().data.roleKey in [
+          'ADMIN', 'ENG_PROCESSO', 'ENG_PRODUTO',
+          'TECNICO_USINAGEM', 'TECNICO_MONTAGEM',
+          'PRESET', 'PRESET_SOLICITANTE', 'GERENCIADOR', 'FORNECEDOR'
+        ];
+    }
+
+    function validProfile() {
+      return request.resource.data.keys().hasOnly([
+          'id', 'firebaseUid', 'name', 'email', 'roleKey', 'roleTitle',
+          'role', 'avatarBg', 'ativo', 'updatedAtLocal', 'updatedAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.ativo is bool
+        && request.resource.data.roleKey in [
+          'ADMIN', 'ENG_PROCESSO', 'ENG_PRODUTO',
+          'TECNICO_USINAGEM', 'TECNICO_MONTAGEM',
+          'PRESET', 'PRESET_SOLICITANTE', 'GERENCIADOR', 'FORNECEDOR', 'VISITANTE'
+        ];
+    }
+
+    function validTest() {
+      return request.resource.data.keys().hasOnly([
+          'id', 'ordem', 'payload', 'updatedBy', 'updatedAt'
+        ])
+        && request.resource.data.id is string
+        && request.resource.data.ordem is int
+        && request.resource.data.payload is map
+        && request.resource.data.payload.id is string
+        && request.resource.data.updatedBy == request.auth.token.email
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    match /toolflow_user_profiles/{userId} {
+      allow read: if signedIn() && (request.auth.uid == userId || isStoredAdmin());
+      allow create: if (isStoredAdmin() && validProfile())
+        || (isBootstrapAdmin()
+          && request.auth.uid == userId
+          && request.resource.data.roleKey == 'ADMIN'
+          && request.resource.data.email == request.auth.token.email
+          && validProfile());
+      allow update: if isStoredAdmin() && validProfile();
+      allow delete: if isStoredAdmin() && userId != request.auth.uid;
+    }
+
+    match /toolflow_tests/{testId} {
+      allow read: if activeProfile() || isBootstrapAdmin();
+      allow create: if (canOperate() || isBootstrapAdmin()) && validTest();
+      allow update: if (canOperate() || isBootstrapAdmin())
+        && validTest()
+        && request.resource.data.id == resource.data.id;
+      allow delete: if isStoredAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
