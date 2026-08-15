@@ -53,7 +53,7 @@ service cloud.firestore {
         ];
     }
 
-    function validTest() {
+    function validTest(testId) {
       return request.resource.data.keys().hasOnly([
           'id', 'ordem', 'payload', 'updatedBy', 'updatedAt'
         ])
@@ -66,8 +66,8 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time;
     }
 
-    function validRequesterSubmission() {
-      return validTest()
+    function validRequesterSubmission(testId) {
+      return validTest(testId)
         && request.resource.data.payload.stage == 'STAGE_2_ANALISE'
         && request.resource.data.payload.statusGeral == 'AGUARDANDO_ANALISE'
         && request.resource.data.payload.solicitacao is map
@@ -101,11 +101,11 @@ service cloud.firestore {
 
     match /toolflow_tests/{testId} {
       allow read: if activeProfile() || isBootstrapAdmin();
-      allow create: if (canOperate() && validTest())
-        || (isRequester() && validRequesterSubmission())
-        || (isBootstrapAdmin() && validTest());
+      allow create: if (canOperate() && validTest(testId))
+        || (isRequester() && validRequesterSubmission(testId))
+        || (isBootstrapAdmin() && validTest(testId));
       allow update: if (canOperate() || isBootstrapAdmin())
-        && validTest()
+        && validTest(testId)
         && request.resource.data.id == resource.data.id;
       allow delete: if isStoredAdmin();
     }

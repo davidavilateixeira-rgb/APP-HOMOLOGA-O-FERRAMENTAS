@@ -19,3 +19,18 @@ test('Vercel encaminha rotas para a aplicação', async () => {
   const config = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
   assert.ok(config.rewrites?.some(({ destination }) => destination.startsWith('/app/')));
 });
+
+test('versão da aplicação está consistente nos manifests e na interface', async () => {
+  const packageJson = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
+  const packageLock = JSON.parse(await readFile(new URL('../package-lock.json', import.meta.url), 'utf8'));
+  const html = await readFile(new URL('../app/index.html', import.meta.url), 'utf8');
+  const app = await readFile(new URL('../app/app.js', import.meta.url), 'utf8');
+  const firebaseConfig = await readFile(new URL('../app/firebase-config.js', import.meta.url), 'utf8');
+
+  assert.equal(packageJson.version, '1.10.0');
+  assert.equal(packageLock.version, packageJson.version);
+  assert.equal(packageLock.packages[''].version, packageJson.version);
+  assert.match(html, /v1\.10\.0/);
+  assert.match(app, /TOOLFLOW v1\.10\.0/);
+  assert.match(firebaseConfig, /TOOLFLOW v1\.10\.0/);
+});
