@@ -352,13 +352,16 @@ function atualizarStatusConexao(status, mensagem) {
   const statusSidebar = document.getElementById('cloudStatusLabel');
   const statusDashboard = document.getElementById('dashboardConnectionStatus');
   const conectado = status === 'online';
+  const visitante = status === 'visitante';
   if (statusSidebar) {
-    statusSidebar.textContent = mensagem || (conectado ? 'Firebase sincronizado' : 'Somente leitura - sem sincronizacao');
-    statusSidebar.classList.toggle('sync-error', !conectado);
+    statusSidebar.textContent = mensagem || (conectado
+      ? 'Firebase sincronizado'
+      : visitante ? 'Modo visitante - dados protegidos' : 'Somente leitura - sem sincronizacao');
+    statusSidebar.classList.toggle('sync-error', !conectado && !visitante);
   }
   if (statusDashboard) {
-    statusDashboard.textContent = conectado ? 'Online' : 'Sem sincronizacao';
-    statusDashboard.closest('.live-pill')?.classList.toggle('sync-error', !conectado);
+    statusDashboard.textContent = conectado ? 'Online' : visitante ? 'Modo visitante' : 'Sem sincronizacao';
+    statusDashboard.closest('.live-pill')?.classList.toggle('sync-error', !conectado && !visitante);
   }
 }
 
@@ -912,6 +915,7 @@ function entrarComoVisitante() {
   currentSelectedTestId = null;
 
   entrarNoApp(visitanteUser);
+  atualizarStatusConexao('visitante', 'Modo visitante - dados protegidos');
 }
 
 function entrarNoApp(user) {
