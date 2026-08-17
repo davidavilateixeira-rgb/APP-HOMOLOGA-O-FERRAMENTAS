@@ -1,5 +1,11 @@
 # Changelog - Viemar ToolFlow | Gestao de Testes de Usinagem
 
+## [v1.10.2] - 2026-08-17
+- Corrigida a abertura do Workflow quando timeline, comentários ou registros de arestas contêm itens nulos.
+- Normalizados parâmetros opcionais com estrutura inválida vindos de registros antigos.
+
+
+
 ## [v1.10.1] - 2026-08-17
 - Data prevista do teste liberada para qualquer data.
 - Corrigida a abertura do Workflow pelo Kanban/Pipeline para registros antigos ou incompletos.

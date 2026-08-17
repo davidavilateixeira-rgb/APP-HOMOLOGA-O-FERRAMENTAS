@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.10.1 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.10.2 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -1910,8 +1910,8 @@ function preencherCamposWorkflow(teste) {
   document.getElementById('wfSolProcessos').value = normalizarListaWorkflow(s.processos || s.processo || s.operacao);
   document.getElementById('wfSolTipos').value = `${normalizarListaWorkflow(s.tiposFerramenta)}${s.tipoFerramentaOutra ? ` | Outra: ${s.tipoFerramentaOutra}` : ''}${s.perfilQuebraCavaco ? ` | Perfil: ${s.perfilQuebraCavaco}` : ''}`;
 
-  const parametrosAtuais = s.parametrosAtuais || {};
-  const parametrosRecomendados = s.parametrosRecomendados || {};
+  const parametrosAtuais = s.parametrosAtuais && typeof s.parametrosAtuais === 'object' ? s.parametrosAtuais : {};
+  const parametrosRecomendados = s.parametrosRecomendados && typeof s.parametrosRecomendados === 'object' ? s.parametrosRecomendados : {};
 
   document.getElementById('wfSolFerrAtual').value = s.ferramentaAtual || '';
   document.getElementById('wfSolFerrAtualDesc').value = s.ferramentaAtualDescricao || '';
@@ -1955,7 +1955,7 @@ function preencherCamposWorkflow(teste) {
   document.getElementById('wfCfMaquina').value = cf.maquinaReal || s.maquina || '';
   document.getElementById('wfCfCiclo').value = cf.cicloRealMedido || s.cicloAtual || 0;
   
-  const p = cf.parametros || {};
+  const p = cf.parametros && typeof cf.parametros === 'object' ? cf.parametros : {};
   document.getElementById('wfCfVc').value = p.vc || 220;
   document.getElementById('wfCfRpm').value = p.rpm || 1400;
   document.getElementById('wfCfFz').value = p.fz || 0.18;
@@ -2174,7 +2174,7 @@ async function removerAnexoCavaco(tipo) {
   renderizarTimeline(teste);
 }
 function renderizarTabelaArestas(registros) {
-  registros = Array.isArray(registros) ? registros : [];
+  registros = Array.isArray(registros) ? registros.filter(Boolean) : [];
   const tbody = document.querySelector('#tabelaArestasDevFlow tbody');
   if (!tbody) return;
   tbody.innerHTML = '';
@@ -2393,7 +2393,7 @@ function renderizarTimeline(teste) {
   if (!container) return;
   container.innerHTML = '';
 
-  const timeline = Array.isArray(teste.timeline) ? teste.timeline : [];
+  const timeline = Array.isArray(teste.timeline) ? teste.timeline.filter(item => item && typeof item === 'object') : [];
   timeline.forEach((item, idx) => {
     const isLast = (idx === timeline.length - 1);
     const div = document.createElement('div');
@@ -2426,7 +2426,7 @@ function renderizarComentarios(teste) {
   if (!container) return;
   container.innerHTML = '';
 
-  const comentarios = Array.isArray(teste.comentarios) ? teste.comentarios : [];
+  const comentarios = Array.isArray(teste.comentarios) ? teste.comentarios.filter(item => item && typeof item === 'object') : [];
   comentarios.forEach(c => {
     const div = document.createElement('div');
     div.className = 'comment-card';
