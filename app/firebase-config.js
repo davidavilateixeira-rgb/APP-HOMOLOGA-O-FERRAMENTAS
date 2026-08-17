@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.10.0 - GOOGLE FIREBASE CONFIG & SYNC ENGINE
+// VIEMAR TOOLFLOW v1.10.1 - GOOGLE FIREBASE CONFIG & SYNC ENGINE
 // =========================================================================
 
 const firebaseConfig = {
@@ -24,7 +24,7 @@ if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "SUA_API_KEY_AQUI") {
       window.storage = null;
       isFirebaseConnected = true;
       window.isFirebaseConnected = true;
-      console.log("[Viemar ToolFlow v1.10.0] Firebase Firestore e Auth ativos. Storage desativado para operar sem plano pago.");
+      console.log("[Viemar ToolFlow v1.10.1] Firebase Firestore e Auth ativos. Storage desativado para operar sem plano pago.");
     }
   } catch (err) {
     console.warn("[Viemar ToolFlow] Falha na conexao Firebase:", err);
@@ -33,7 +33,7 @@ if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "SUA_API_KEY_AQUI") {
   }
 } else {
   window.isFirebaseConnected = false;
-  console.log("[Viemar ToolFlow v1.10.0] Operando com persistencia local em cache (Pronto para conectar ao Firebase).");
+  console.log("[Viemar ToolFlow v1.10.1] Operando com persistencia local em cache (Pronto para conectar ao Firebase).");
 }
 
 window.firebaseConfig = firebaseConfig;

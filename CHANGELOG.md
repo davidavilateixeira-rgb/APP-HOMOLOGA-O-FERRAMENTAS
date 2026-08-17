@@ -1,5 +1,12 @@
 # Changelog - Viemar ToolFlow | Gestao de Testes de Usinagem
 
+## [v1.10.1] - 2026-08-17
+- Data prevista do teste liberada para qualquer data.
+- Corrigida a abertura do Workflow pelo Kanban/Pipeline para registros antigos ou incompletos.
+- Normalizada a leitura de timeline, comentários, arestas e anexos opcionais.
+
+
+
 Todas as alteracoes e evolucoes deste projeto seguem rigorosamente o versionamento SemVer e a governanca do `.agents/AGENTS.md`.
 
 ---

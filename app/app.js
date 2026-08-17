@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.10.0 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.10.1 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -1902,7 +1902,7 @@ function parametroWorkflow(valor, unidade) {
   return unidade ? `${valor} ${unidade}` : `${valor}`;
 }
 function preencherCamposWorkflow(teste) {
-  const s = teste.solicitacao;
+  const s = teste.solicitacao || {};
   document.getElementById('wfSolData').value = s.dataSolicitacao || '';
   document.getElementById('wfSolDataPrev').value = s.dataPrevistaTeste || '';
   document.getElementById('wfSolNome').value = s.solicitante || '';
@@ -2027,6 +2027,7 @@ function limparInputsAnexosCavaco() {
 }
 
 function renderizarAnexosCavaco(anexos = {}) {
+  anexos = anexos && typeof anexos === 'object' && !Array.isArray(anexos) ? anexos : {};
   Object.entries(ANEXOS_CAVACO_CONFIG).forEach(([tipo, cfg]) => {
     const preview = document.getElementById(cfg.previewId);
     if (!preview) return;
@@ -2173,6 +2174,7 @@ async function removerAnexoCavaco(tipo) {
   renderizarTimeline(teste);
 }
 function renderizarTabelaArestas(registros) {
+  registros = Array.isArray(registros) ? registros : [];
   const tbody = document.querySelector('#tabelaArestasDevFlow tbody');
   if (!tbody) return;
   tbody.innerHTML = '';
@@ -2391,8 +2393,9 @@ function renderizarTimeline(teste) {
   if (!container) return;
   container.innerHTML = '';
 
-  (teste.timeline || []).forEach((item, idx) => {
-    const isLast = (idx === teste.timeline.length - 1);
+  const timeline = Array.isArray(teste.timeline) ? teste.timeline : [];
+  timeline.forEach((item, idx) => {
+    const isLast = (idx === timeline.length - 1);
     const div = document.createElement('div');
     div.className = 'timeline-item';
     div.innerHTML = `
@@ -2423,7 +2426,8 @@ function renderizarComentarios(teste) {
   if (!container) return;
   container.innerHTML = '';
 
-  (teste.comentarios || []).forEach(c => {
+  const comentarios = Array.isArray(teste.comentarios) ? teste.comentarios : [];
+  comentarios.forEach(c => {
     const div = document.createElement('div');
     div.className = 'comment-card';
     div.innerHTML = `
