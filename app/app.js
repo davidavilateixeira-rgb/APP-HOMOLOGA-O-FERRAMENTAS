@@ -1811,24 +1811,32 @@ function abrirDetalhesWorkflow(testeId) {
     return;
   }
 
-  currentSelectedTestId = testeId;
   const teste = testDataStore.find(t => t.id === testeId);
-  if (!teste) return;
+  if (!teste) {
+    alert('O teste ' + testeId + ' não foi encontrado nos dados carregados.');
+    return;
+  }
 
-  document.getElementById('wfIdTeste').textContent = teste.id;
-  document.getElementById('wfDescPeca').textContent = teste.solicitacao.descricaoPeca;
-  document.getElementById('wfFornecedor').textContent = teste.solicitacao.fornecedor;
+  currentSelectedTestId = testeId;
+  // Abre a tela antes de processar campos opcionais ou dados antigos incompletos.
+  navegarPara('viewWorkflow', 'Workflow ' + teste.id);
 
-  preencherCamposWorkflow(teste);
-  renderizarTimeline(teste);
-  renderizarComentarios(teste);
+  try {
+    document.getElementById('wfIdTeste').textContent = teste.id;
+    document.getElementById('wfDescPeca').textContent = teste.solicitacao?.descricaoPeca || '-';
+    document.getElementById('wfFornecedor').textContent = teste.solicitacao?.fornecedor || '-';
 
-  // Destacar etapa atual
-  const stageNum = WORKFLOW_STAGES[teste.stage]?.id || 1;
-  alternarAbaWorkflow(stageNum);
+    preencherCamposWorkflow(teste);
+    renderizarTimeline(teste);
+    renderizarComentarios(teste);
 
-  aplicarPermissoesUI();
-  navegarPara('viewWorkflow', `Workflow ${teste.id}`);
+    const stageNum = WORKFLOW_STAGES[teste.stage]?.id || 1;
+    alternarAbaWorkflow(stageNum);
+    aplicarPermissoesUI();
+  } catch (error) {
+    console.error('[ToolFlow] Falha ao carregar os detalhes do Workflow:', error);
+    alert('O teste foi aberto, mas alguns detalhes não puderam ser carregados. Verifique o console para identificar o campo incompleto.');
+  }
 }
 
 function obterEtapasConcluidasWorkflow(teste) {
@@ -2452,61 +2460,6 @@ function adicionarComentario() {
 // =========================================================================
 // MODAL DE NOVA SOLICITAÇÃO
 // =========================================================================
-const TOOLFLOW_QUINZENA_BASE_ISO = '2026-08-06';
-
-function criarDataLocal(iso) {
-  const partes = iso.split('-').map(Number);
-  return new Date(partes[0], partes[1] - 1, partes[2]);
-}
-
-function formatarDataIso(data) {
-  return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}-${String(data.getDate()).padStart(2, '0')}`;
-}
-
-function adicionarDias(data, dias) {
-  const nova = new Date(data);
-  nova.setDate(nova.getDate() + dias);
-  return nova;
-}
-
-function dataMinimaTesteIso() {
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-  return formatarDataIso(adicionarDias(hoje, 2));
-}
-
-function diasEntreDatas(isoA, isoB) {
-  return Math.round((criarDataLocal(isoA) - criarDataLocal(isoB)) / (24 * 60 * 60 * 1000));
-}
-
-function ehQuintaQuinzenalValida(iso) {
-  if (!iso || iso < dataMinimaTesteIso()) return false;
-  const data = criarDataLocal(iso);
-  return data.getDay() === 4 && diasEntreDatas(iso, TOOLFLOW_QUINZENA_BASE_ISO) % 14 === 0;
-}
-
-function formatarDataBR(iso) {
-  return criarDataLocal(iso).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-}
-
-function gerarQuintasQuinzenais(qtd = 10) {
-  const datas = [];
-  const minima = dataMinimaTesteIso();
-  let cursor = criarDataLocal(TOOLFLOW_QUINZENA_BASE_ISO);
-  while (formatarDataIso(cursor) < minima) cursor = adicionarDias(cursor, 14);
-  while (datas.length < qtd) {
-    datas.push(formatarDataIso(cursor));
-    cursor = adicionarDias(cursor, 14);
-  }
-  return datas;
-}
-
-function preencherDatasPrevistasTeste() {
-  const select = document.getElementById('modalDataPrevista');
-  if (!select) return;
-  select.innerHTML = gerarQuintasQuinzenais().map((iso, idx) => `<option value="${iso}">${formatarDataBR(iso)}${idx === 0 ? ' - pr\u00F3xima janela v\u00E1lida' : ''}</option>`).join('');
-}
-
 function coletarValoresMarcados(nome) {
   return Array.from(document.querySelectorAll(`input[name="${nome}"]:checked`)).map(input => input.value);
 }
@@ -2522,7 +2475,6 @@ function abrirModalNovaSolicitacao() {
   if (bloquearMutacaoVisitante()) return;
   ultimoGatilhoModalSolicitacao = document.activeElement;
   limparModalNovaSolicitacao();
-  preencherDatasPrevistasTeste();
   const modal = document.getElementById('modalNovaSolicitacao');
   const solicitante = document.getElementById('modalSolicitanteNome');
   if (solicitante) {
@@ -2614,8 +2566,7 @@ function submeterModalSolicitacao() {
   const tiposFerramenta = coletarValoresMarcados('modalTiposFerramenta');
   const indicadoresAtacados = coletarValoresMarcados('modalIndicadores');
   const tipoOutra = textoCadastroMaiusculo('modalTipoOutra');
-
-  if (!ehQuintaQuinzenalValida(dataPrevistaTeste)) { mostrarToast('Selecione uma quinta-feira quinzenal v\u00E1lida, com pelo menos D+2.', 'error'); return; }
+  if (!dataPrevistaTeste) { mostrarToast('Informe a data prevista para o teste.', 'error'); return; }
   if (processos.length === 0) { mostrarToast('Selecione pelo menos um processo.', 'error'); return; }
   if (tiposFerramenta.length === 0) { mostrarToast('Selecione pelo menos um tipo de ferramenta.', 'error'); return; }
   if (tiposFerramenta.includes('Outra') && !tipoOutra) { mostrarToast('Informe qual \u00E9 o outro tipo de ferramenta.', 'error'); return; }
@@ -2632,7 +2583,7 @@ function submeterModalSolicitacao() {
     solicitacao: {
       dataSolicitacao: hoje,
       dataPrevistaTeste: dataPrevistaTeste,
-      calendarioTeste: 'QUINTA-FEIRA QUINZENAL, M\u00CDNIMO D+2 DA SOLICITA\u00C7\u00C3O',
+      calendarioTeste: 'DATA LIVRE, DEFINIDA PELO SOLICITANTE',
       solicitante: solicitanteNome,
       fornecedor: textoCadastroMaiusculo('modalFornecedor'),
       contatoFornecedor: '',
