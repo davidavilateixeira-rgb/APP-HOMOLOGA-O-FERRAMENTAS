@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.10.2 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.10.3 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -1818,25 +1818,30 @@ function abrirDetalhesWorkflow(testeId) {
   }
 
   currentSelectedTestId = testeId;
-  // Abre a tela antes de processar campos opcionais ou dados antigos incompletos.
   navegarPara('viewWorkflow', 'Workflow ' + teste.id);
 
-  try {
+  const executarEtapa = (nome, callback) => {
+    try {
+      callback();
+    } catch (error) {
+      console.warn('[ToolFlow] Etapa ignorada ao abrir Workflow (' + nome + '):', error);
+    }
+  };
+
+  executarEtapa('identificação', () => {
     document.getElementById('wfIdTeste').textContent = teste.id;
     document.getElementById('wfDescPeca').textContent = teste.solicitacao?.descricaoPeca || '-';
     document.getElementById('wfFornecedor').textContent = teste.solicitacao?.fornecedor || '-';
+  });
 
-    preencherCamposWorkflow(teste);
-    renderizarTimeline(teste);
-    renderizarComentarios(teste);
-
+  executarEtapa('campos da solicitação', () => preencherCamposWorkflow(teste));
+  executarEtapa('timeline', () => renderizarTimeline(teste));
+  executarEtapa('comentários', () => renderizarComentarios(teste));
+  executarEtapa('etapa atual', () => {
     const stageNum = WORKFLOW_STAGES[teste.stage]?.id || 1;
     alternarAbaWorkflow(stageNum);
-    aplicarPermissoesUI();
-  } catch (error) {
-    console.error('[ToolFlow] Falha ao carregar os detalhes do Workflow:', error);
-    alert('O teste foi aberto, mas alguns detalhes não puderam ser carregados. Verifique o console para identificar o campo incompleto.');
-  }
+  });
+  executarEtapa('permissões', () => aplicarPermissoesUI());
 }
 
 function obterEtapasConcluidasWorkflow(teste) {

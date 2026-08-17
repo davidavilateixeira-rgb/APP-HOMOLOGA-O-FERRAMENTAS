@@ -1,5 +1,11 @@
 # Changelog - Viemar ToolFlow | Gestao de Testes de Usinagem
 
+## [v1.10.3] - 2026-08-17
+- Workflow passa a abrir mesmo quando um bloco secundário do teste contém dados inválidos.
+- Falhas isoladas em campos, timeline, comentários ou permissões não bloqueiam mais o acesso à tela.
+
+
+
 ## [v1.10.2] - 2026-08-17
 - Corrigida a abertura do Workflow quando timeline, comentários ou registros de arestas contêm itens nulos.
 - Normalizados parâmetros opcionais com estrutura inválida vindos de registros antigos.
