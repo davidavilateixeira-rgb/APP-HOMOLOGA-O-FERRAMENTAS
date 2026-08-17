@@ -38,6 +38,18 @@ service cloud.firestore {
         && ownProfile().data.roleKey == 'PRESET_SOLICITANTE';
     }
 
+    function isRequesterOwner() {
+      return isRequester()
+        && resource.data.payload.solicitacao is map
+        && request.resource.data.payload.solicitacao is map
+        && resource.data.payload.solicitacao.solicitante is string
+        && request.resource.data.payload.solicitacao.solicitante is string
+        && resource.data.payload.solicitacao.solicitante.upper() == ownProfile().data.name.upper()
+        && request.resource.data.payload.solicitacao.solicitante == resource.data.payload.solicitacao.solicitante
+        && request.resource.data.payload.diff(resource.data.payload).affectedKeys().hasOnly([
+          'solicitacao', 'timeline'
+        ]);
+    }
     function validProfile() {
       return request.resource.data.keys().hasOnly([
           'id', 'firebaseUid', 'name', 'email', 'roleKey', 'roleTitle',
@@ -104,9 +116,12 @@ service cloud.firestore {
       allow create: if (canOperate() && validTest())
         || (isRequester() && validRequesterSubmission())
         || (isBootstrapAdmin() && validTest());
-      allow update: if (canOperate() || isBootstrapAdmin())
-        && validTest()
-        && request.resource.data.id == resource.data.id;
+      allow update: if (
+          (canOperate() || isBootstrapAdmin())
+          && validTest()
+          && request.resource.data.id == resource.data.id
+        )
+        || (isRequesterOwner() && validTest());
       allow delete: if isStoredAdmin();
     }
 

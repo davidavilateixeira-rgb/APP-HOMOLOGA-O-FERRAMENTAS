@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.10.3 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.10.4 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -994,6 +994,15 @@ function usuarioSolicitante() {
   return currentUser?.roleKey === 'PRESET_SOLICITANTE';
 }
 
+function usuarioPodeEditarSolicitacao(teste) {
+  if (!currentUser || usuarioSomenteLeitura() || !teste) return false;
+  if (usuarioAdmin() || currentUser.role === TOOLFLOW_ROLES.TECNICO) return true;
+  if (currentUser.roleKey === 'PRESET') return true;
+
+  const nomeAtual = String(currentUser.name || '').trim().toLocaleUpperCase('pt-BR');
+  const nomeSolicitante = String(teste.solicitacao?.solicitante || '').trim().toLocaleUpperCase('pt-BR');
+  return currentUser.roleKey === 'PRESET_SOLICITANTE' && Boolean(nomeAtual && nomeAtual === nomeSolicitante);
+}
 function mostrarToast(mensagem, tipo = 'info') {
   const regiao = document.getElementById('toastRegion');
   if (!regiao) {
@@ -1106,12 +1115,15 @@ function aplicarPermissoesUI() {
   const btnAresta = document.getElementById('btnAdicionarLinhaAresta');
   const btnFech = document.getElementById('btnSalvarFechamento');
   const btnComent = document.getElementById('btnEnviarComentario');
+  const btnEditarSolicitacao = document.getElementById('btnEditarSolicitacao');
+  const testeAtualPermissoes = testDataStore.find(teste => teste.id === currentSelectedTestId);
 
   if (btnAnalise) btnAnalise.style.display = isAdmin ? 'block' : 'none';
   if (btnChao) btnChao.style.display = (isAdmin || isTecnico) ? 'block' : 'none';
   if (btnAresta) btnAresta.style.display = (isAdmin || isTecnico) ? 'inline-block' : 'none';
   if (btnFech) btnFech.style.display = isAdmin ? 'block' : 'none';
   if (btnComent) btnComent.style.display = isLeitura ? 'none' : 'block';
+  if (btnEditarSolicitacao) btnEditarSolicitacao.style.display = usuarioPodeEditarSolicitacao(testeAtualPermissoes) ? 'inline-flex' : 'none';
 
   document.querySelectorAll('.btn-admin-delete').forEach(btn => {
     btn.style.display = isAdmin ? 'inline-flex' : 'none';
@@ -1620,6 +1632,7 @@ function renderizarTabelaPipeline() {
       else if (t.statusGeral === 'REPROVADO') badgeStatusClass = 'badge-red';
 
       const podeAbrirWorkflow = !usuarioSemAcessoWorkflow();
+      const podeEditarSolicitacao = usuarioPodeEditarSolicitacao(t);
       const acaoWorkflowDesktop = podeAbrirWorkflow
         ? '<button class="btn btn-secondary btn-sm" data-action="abrir-workflow">Acessar</button>'
         : '<span class="badge badge-gray">Somente consulta</span>';
@@ -1642,11 +1655,13 @@ function renderizarTabelaPipeline() {
         <td data-label="Ações" style="text-align: right;">
           <div class="table-action-row">
             ${acaoWorkflowDesktop}
+            ${podeEditarSolicitacao ? '<button class="btn btn-secondary btn-sm" data-action="editar-solicitacao">Editar</button>' : ''}
             ${usuarioAdmin() ? '<button class="btn btn-danger btn-sm btn-admin-delete" data-action="excluir-teste">Excluir</button>' : ''}
           </div>
         </td>
       `;
       tr.querySelector('[data-action="abrir-workflow"]')?.addEventListener('click', () => abrirDetalhesWorkflow(t.id));
+      tr.querySelector('[data-action="editar-solicitacao"]')?.addEventListener('click', () => abrirModalEditarSolicitacao(t.id));
       tr.querySelector('[data-action="excluir-teste"]')?.addEventListener('click', () => excluirTeste(t.id));
       tbody.appendChild(tr);
 
@@ -1666,10 +1681,12 @@ function renderizarTabelaPipeline() {
           <div class="mobile-card-detail"><strong>Etapa:</strong> <span class="badge ${classeCssSegura(WORKFLOW_STAGES[t.stage]?.badgeClass, 'badge-gray')}">${escaparHTML(WORKFLOW_STAGES[t.stage]?.label || t.stage)}</span></div>
           <div class="mobile-card-actions">
             ${acaoWorkflowMobile}
+            ${podeEditarSolicitacao ? '<button class="btn btn-secondary btn-sm" data-action="editar-solicitacao">Editar</button>' : ''}
             ${usuarioAdmin() ? '<button class="btn btn-danger btn-sm btn-admin-delete" data-action="excluir-teste">Excluir</button>' : ''}
           </div>
         `;
         card.querySelector('[data-action="abrir-workflow"]')?.addEventListener('click', () => abrirDetalhesWorkflow(t.id));
+        card.querySelector('[data-action="editar-solicitacao"]')?.addEventListener('click', () => abrirModalEditarSolicitacao(t.id));
         card.querySelector('[data-action="excluir-teste"]')?.addEventListener('click', () => excluirTeste(t.id));
         mobileCardsContainer.appendChild(card);
       }
@@ -1712,6 +1729,7 @@ function criarCardKanban(teste) {
     teste.statusGeral === 'REPROVADO' ? 'badge-red' : 'badge-blue';
 
   const podeAbrirWorkflow = !usuarioSemAcessoWorkflow();
+  const podeEditarSolicitacao = usuarioPodeEditarSolicitacao(teste);
   const acaoWorkflow = podeAbrirWorkflow
     ? `<button class="btn btn-secondary btn-sm" data-action="abrir-workflow" data-test-id="${escaparHTML(teste.id)}">Acessar</button>`
     : '<span class="badge badge-gray">Somente consulta</span>';
@@ -1729,6 +1747,7 @@ function criarCardKanban(teste) {
         <span class="badge ${badgeStatusClass}">${escaparHTML(formatarStatusVisual(teste.statusGeral))}</span>
         <div class="kanban-card-actions">
           ${acaoWorkflow}
+          ${podeEditarSolicitacao ? `<button class="btn btn-secondary btn-sm" data-action="editar-solicitacao" data-test-id="${escaparHTML(teste.id)}">Editar</button>` : ''}
           ${usuarioAdmin() ? `<button class="btn btn-danger btn-sm btn-admin-delete" data-action="excluir-teste" data-test-id="${escaparHTML(teste.id)}">Excluir</button>` : ''}
         </div>
       </div>
@@ -1756,6 +1775,7 @@ function renderizarKanban() {
       ? itens.map(criarCardKanban).join('')
       : '<div class="kanban-empty">Nenhum teste nesta etapa.</div>';
     el.querySelectorAll('[data-action="abrir-workflow"]').forEach(btn => btn.addEventListener('click', () => abrirDetalhesWorkflow(btn.dataset.testId)));
+    el.querySelectorAll('[data-action="editar-solicitacao"]').forEach(btn => btn.addEventListener('click', () => abrirModalEditarSolicitacao(btn.dataset.testId)));
     el.querySelectorAll('[data-action="excluir-teste"]').forEach(btn => btn.addEventListener('click', () => excluirTeste(btn.dataset.testId)));
   });
 
@@ -2473,11 +2493,25 @@ function coletarValoresMarcados(nome) {
   return Array.from(document.querySelectorAll(`input[name="${nome}"]:checked`)).map(input => input.value);
 }
 
+function atualizarCabecalhoModalSolicitacao(modoEdicao) {
+  const titulo = document.getElementById('tituloModalNovaSolicitacao');
+  const ajuda = document.getElementById('requestFormHelp');
+  const submit = document.getElementById('btnSubmitSolicitacao');
+  if (titulo) titulo.textContent = modoEdicao ? 'Editar Solicitação de Teste' : 'Nova Solicitação de Teste';
+  if (ajuda) ajuda.textContent = modoEdicao
+    ? 'Atualize os dados da solicitação. O histórico do teste será preservado.'
+    : 'Preencha primeiro os dados essenciais. As seções podem ser abertas e fechadas sem perder o conteúdo.';
+  if (submit) submit.textContent = modoEdicao ? 'Salvar alterações da solicitação' : 'Enviar para análise técnica';
+}
+
 function limparModalNovaSolicitacao() {
   const modal = document.getElementById('modalNovaSolicitacao');
   const formulario = modal?.querySelector('form');
   if (formulario) formulario.reset();
   modal?.querySelectorAll('[aria-invalid="true"]').forEach(campo => campo.removeAttribute('aria-invalid'));
+  const idEdicao = document.getElementById('modalSolicitacaoEditingId');
+  if (idEdicao) idEdicao.value = '';
+  atualizarCabecalhoModalSolicitacao(false);
 }
 
 function abrirModalNovaSolicitacao() {
@@ -2495,6 +2529,84 @@ function abrirModalNovaSolicitacao() {
   modal.querySelector('.modal-content')?.focus();
 }
 
+function valoresComoListaFormulario(valor) {
+  if (Array.isArray(valor)) return valor.filter(Boolean);
+  return String(valor || '').split(',').map(item => item.trim()).filter(Boolean);
+}
+
+function marcarCheckboxesFormulario(nome, valores) {
+  const selecionados = new Set(valoresComoListaFormulario(valores));
+  document.querySelectorAll('input[name="' + nome + '"]').forEach(input => {
+    input.checked = selecionados.has(input.value);
+  });
+}
+
+function abrirModalEditarSolicitacao(testeId = currentSelectedTestId) {
+  if (bloquearMutacaoVisitante()) return;
+
+  const teste = testDataStore.find(item => item.id === testeId);
+  if (!teste) {
+    mostrarToast('Solicitação não encontrada nos dados carregados.', 'error');
+    return;
+  }
+  if (!usuarioPodeEditarSolicitacao(teste)) {
+    mostrarToast('Seu perfil não pode editar esta solicitação.', 'error');
+    return;
+  }
+
+  ultimoGatilhoModalSolicitacao = document.activeElement;
+  limparModalNovaSolicitacao();
+
+  const s = teste.solicitacao || {};
+  const parametrosAtuais = s.parametrosAtuais && typeof s.parametrosAtuais === 'object' ? s.parametrosAtuais : {};
+  const parametrosRecomendados = s.parametrosRecomendados && typeof s.parametrosRecomendados === 'object' ? s.parametrosRecomendados : {};
+  const idEdicao = document.getElementById('modalSolicitacaoEditingId');
+  if (idEdicao) idEdicao.value = teste.id;
+
+  document.getElementById('modalDataPrevista').value = s.dataPrevistaTeste || '';
+  document.getElementById('modalSolicitanteNome').value = s.solicitante || '';
+  document.getElementById('modalSolicitanteNome').readOnly = usuarioSolicitante();
+  document.getElementById('modalFornecedor').value = s.fornecedor || '';
+  marcarCheckboxesFormulario('modalProcessos', s.processos || s.processo || s.operacao);
+  marcarCheckboxesFormulario('modalTiposFerramenta', s.tiposFerramenta);
+  document.getElementById('modalTipoOutra').value = s.tipoFerramentaOutra || '';
+
+  document.getElementById('modalFerrAtual').value = s.ferramentaAtual || '';
+  document.getElementById('modalFerrAtualDesc').value = s.ferramentaAtualDescricao || '';
+  document.getElementById('modalAtualAvanco').value = parametrosAtuais.avanco ?? '';
+  document.getElementById('modalAtualAp').value = parametrosAtuais.ap ?? '';
+  document.getElementById('modalAtualVc').value = parametrosAtuais.vc ?? '';
+  document.getElementById('modalAtualRpm').value = parametrosAtuais.rpm ?? '';
+  document.getElementById('modalVidaAtual').value = s.vidaAtual ?? '';
+  document.getElementById('modalCicloAtual').value = s.cicloAtual ?? '';
+  document.getElementById('modalCustoAtual').value = s.custoAtual ?? '';
+
+  document.getElementById('modalFerrTeste').value = s.ferramentaTeste || '';
+  document.getElementById('modalClasseFerramenta').value = s.classeFerramenta || '';
+  document.getElementById('modalPerfilQuebraCavaco').value = s.perfilQuebraCavaco || '';
+  document.getElementById('modalFerrTesteDesc').value = s.ferramentaTesteDescricao || '';
+  document.getElementById('modalRecAvanco').value = parametrosRecomendados.avanco ?? '';
+  document.getElementById('modalRecAp').value = parametrosRecomendados.ap ?? '';
+  document.getElementById('modalRecVc').value = parametrosRecomendados.vc ?? '';
+  document.getElementById('modalRecRpm').value = parametrosRecomendados.rpm ?? '';
+  document.getElementById('modalMetaVida').value = s.metaVida ?? '';
+  document.getElementById('modalAmostras').value = s.amostrasBonificadas ?? '';
+  document.getElementById('modalPrecoTeste').value = s.precoTeste ?? '';
+
+  document.getElementById('modalLeadTime').value = s.leadTimeDias ?? '';
+  document.getElementById('modalEstoqueLocal').value = s.estoqueLocal || 'SIM';
+  document.getElementById('modalQtdEstoque').value = s.quantidadeEstoque ?? '';
+  document.getElementById('modalGiroMensal').value = s.giroMensal ?? '';
+  document.getElementById('modalRetornoEsperado').value = s.retornoEsperado || '';
+  document.getElementById('modalJustificativa').value = s.justificativa || '';
+  marcarCheckboxesFormulario('modalIndicadores', s.indicadoresAtacados);
+
+  atualizarCabecalhoModalSolicitacao(true);
+  const modal = document.getElementById('modalNovaSolicitacao');
+  modal.style.display = 'flex';
+  modal.querySelector('.modal-content')?.focus();
+}
+
 function fecharModalNovaSolicitacao() {
   const modal = document.getElementById('modalNovaSolicitacao');
   modal.style.display = 'none';
@@ -2502,7 +2614,6 @@ function fecharModalNovaSolicitacao() {
   if (ultimoGatilhoModalSolicitacao instanceof HTMLElement) ultimoGatilhoModalSolicitacao.focus();
   ultimoGatilhoModalSolicitacao = null;
 }
-
 function textoCadastroMaiusculo(id) {
   const elemento = document.getElementById(id);
   if (!elemento) return '';
@@ -2650,6 +2761,48 @@ function submeterModalSolicitacao() {
     ],
     comentarios: []
   };
+
+  const idEdicao = document.getElementById('modalSolicitacaoEditingId')?.value;
+  if (idEdicao) {
+    const testeExistente = testDataStore.find(item => item.id === idEdicao);
+    if (!testeExistente || !usuarioPodeEditarSolicitacao(testeExistente)) {
+      mostrarToast('Seu perfil não pode editar esta solicitação.', 'error');
+      return;
+    }
+
+    const camposEditaveis = [
+      'dataPrevistaTeste', 'calendarioTeste', 'solicitante', 'fornecedor',
+      'processos', 'tiposFerramenta', 'tipoFerramentaOutra',
+      'maquina', 'operacao', 'ferramentaAtual', 'ferramentaAtualDescricao',
+      'parametrosAtuais', 'vidaAtual', 'cicloAtual', 'custoAtual',
+      'ferramentaTeste', 'classeFerramenta', 'ferramentaTesteDescricao',
+      'perfilQuebraCavaco', 'parametrosRecomendados', 'metaVida',
+      'amostrasBonificadas', 'precoTeste', 'leadTimeDias', 'estoqueLocal',
+      'quantidadeEstoque', 'giroMensal', 'justificativa', 'retornoEsperado',
+      'indicadoresAtacados'
+    ];
+    const solicitacaoEditada = { ...(testeExistente.solicitacao || {}) };
+    camposEditaveis.forEach(campo => {
+      solicitacaoEditada[campo] = novoTeste.solicitacao[campo];
+    });
+    solicitacaoEditada.descricaoPeca = novoTeste.solicitacao.descricaoPeca;
+    testeExistente.solicitacao = solicitacaoEditada;
+
+    registrarTimeline(
+      testeExistente,
+      'Solicitação Atualizada',
+      'Dados da solicitação atualizados por ' + (currentUser?.name || 'usuário autorizado') + '.'
+    );
+    salvarDadosLocais(true, testeExistente);
+    fecharModalNovaSolicitacao();
+    renderizarDashboard();
+    renderizarTabelaPipeline();
+    renderizarKanban();
+    mostrarToast('Solicitação ' + testeExistente.id + ' atualizada com sucesso.', 'success');
+    if (usuarioSolicitante()) abrirMinhasSolicitacoes();
+    else abrirDetalhesWorkflow(testeExistente.id);
+    return;
+  }
 
   testDataStore.unshift(novoTeste);
   salvarDadosLocais(true, novoTeste);

@@ -120,7 +120,7 @@ test('Firestore nega acesso por padrão e exige autenticação', () => {
   assert.doesNotMatch(rules, /allow\s+(?:read|write|read\s*,\s*write)\s*:\s*if\s+true/);
 });
 
-test('solicitante ativo pode ler e criar, mas nao integra os perfis que atualizam testes', () => {
+test('solicitante ativo pode ler, criar e atualizar somente a própria solicitação', () => {
   const requester = rulesBodyOf('isRequester');
   const operators = rulesBodyOf('canOperate');
   const testsMatch = testsRulesMatchBody();
@@ -134,7 +134,9 @@ test('solicitante ativo pode ler e criar, mas nao integra os perfis que atualiza
   const updateRule = testsMatch.match(/allow\s+update\s*:\s*if([\s\S]*?);/);
   assert.ok(updateRule, 'Regra de update de testes nao encontrada');
   assert.match(updateRule[1], /canOperate\s*\(\s*\)/);
-  assert.doesNotMatch(updateRule[1], /isRequester|PRESET_SOLICITANTE/);
+  assert.match(updateRule[1], /isRequesterOwner\s*\(\s*\)/);
+  assert.match(rules, /affectedKeys\(\)[\s\S]*solicitacao[\s\S]*timeline/);
+  assert.match(rules, /solicitante\.upper\(\)/);
 
   const deleteRule = testsMatch.match(/allow\s+delete\s*:\s*if([\s\S]*?);/);
   assert.ok(deleteRule, 'Regra de delete de testes nao encontrada');

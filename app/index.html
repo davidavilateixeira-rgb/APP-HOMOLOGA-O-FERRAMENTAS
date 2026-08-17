@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
-  <title>Viemar ToolFlow v1.10.3 | Gestão de Testes de Ferramentas</title>
+  <title>Viemar ToolFlow v1.10.4 | Gestão de Testes de Ferramentas</title>
   
   <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,7 +53,7 @@
         <div class="login-brand-titles">
           <div class="login-title-row">
             <span class="login-main-title">ToolFlow</span>
-            <span class="login-version-tag">v1.10.3</span>
+            <span class="login-version-tag">v1.10.4</span>
           </div>
           <span class="login-subtitle">Engenharia de Processos · VMR</span>
         </div>
@@ -103,7 +103,7 @@
           </div>
         </div>
         <div class="version-badge-container">
-          <span class="version-badge">v1.10.3</span>
+          <span class="version-badge">v1.10.4</span>
           <div class="sync-status-badge" title="Status da sincronização" role="status" aria-live="polite" aria-atomic="true">
             <span class="sync-dot"></span> <span id="cloudStatusLabel">Conectando ao Firebase...</span>
           </div>
@@ -774,7 +774,7 @@
             <img src="logo.png" alt="Viemar" class="print-logo">
             <div style="text-align: right;">
               <h3 style="font-size: 11pt; margin: 0; color: #ff6600;">ENGENHARIA DE USINAGEM</h3>
-              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatório Oficial ToolFlow v1.10.3</p>
+              <p style="font-size: 8.5pt; margin: 0; color: #64748b;">Relatório Oficial ToolFlow v1.10.4</p>
             </div>
           </div>
 
@@ -823,7 +823,7 @@
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">Etapa 1: Dados da Solicitação Inicial</h3>
-                <span class="badge badge-blue">Cadastro Formal</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="badge badge-blue">Cadastro Formal</span><button type="button" id="btnEditarSolicitacao" class="btn btn-secondary btn-sm no-print" onclick="abrirModalEditarSolicitacao()">Editar solicitação</button></div>
               </div>
               <div class="grid grid-3">
                 <div class="form-group">
@@ -1497,7 +1497,7 @@
         <button type="button" aria-label="Fechar nova solicitação" onclick="fecharModalNovaSolicitacao()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--text-muted);">&times;</button>
       </div>
 
-      <form onsubmit="event.preventDefault(); submeterModalSolicitacao();">
+      <form onsubmit="event.preventDefault(); submeterModalSolicitacao();"><input type="hidden" id="modalSolicitacaoEditingId" value="">
         <ol class="request-form-progress" aria-label="Etapas do formulário">
           <li><span>1</span>Identificação</li>
           <li><span>2</span>Ferramentas</li>
@@ -1688,7 +1688,7 @@
 
         <div class="request-form-actions">
           <button type="button" class="btn btn-secondary" onclick="fecharModalNovaSolicitacao()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Enviar para análise técnica</button>
+          <button type="submit" id="btnSubmitSolicitacao" class="btn btn-primary">Enviar para análise técnica</button>
         </div>
       </form>
     </div>
