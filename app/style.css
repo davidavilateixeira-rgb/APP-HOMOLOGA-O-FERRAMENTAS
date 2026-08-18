@@ -3464,6 +3464,19 @@ body {
     align-items: center;
   }
 
+  .app-container.sidebar-collapsed .sidebar-collapse-btn {
+    right: 50%;
+    transform: translateX(50%);
+  }
+
+  .app-container.sidebar-collapsed .sidebar-collapse-btn:hover {
+    transform: translateX(50%) scale(1.04);
+  }
+
+  .app-container.sidebar-collapsed .sidebar-brand {
+    margin-top: 2.25rem;
+  }
+
   .app-container.sidebar-collapsed .sidebar-brand {
     padding-right: 0;
     justify-content: center;

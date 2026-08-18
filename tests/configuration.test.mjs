@@ -27,10 +27,10 @@ test('versão da aplicação está consistente nos manifests e na interface', as
   const app = await readFile(new URL('../app/app.js', import.meta.url), 'utf8');
   const firebaseConfig = await readFile(new URL('../app/firebase-config.js', import.meta.url), 'utf8');
 
-  assert.equal(packageJson.version, '1.10.5');
+  assert.equal(packageJson.version, '1.10.6');
   assert.equal(packageLock.version, packageJson.version);
   assert.equal(packageLock.packages[''].version, packageJson.version);
-  assert.match(html, /v1\.10\.5/);
-  assert.match(app, /TOOLFLOW v1\.10\.5/);
-  assert.match(firebaseConfig, /TOOLFLOW v1\.10\.5/);
+  assert.match(html, /v1\.10\.6/);
+  assert.match(app, /TOOLFLOW v1\.10\.6/);
+  assert.match(firebaseConfig, /TOOLFLOW v1\.10\.6/);
 });
