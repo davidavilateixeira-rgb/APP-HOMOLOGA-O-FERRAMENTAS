@@ -1,5 +1,10 @@
 # Changelog - Viemar ToolFlow | Gestao de Testes de Usinagem
 
+## [v1.10.5] - 2026-08-18
+- Adicionado botão para recolher e expandir a barra lateral no desktop.
+- A preferência da sidebar é salva no navegador e a gaveta mobile permanece disponível.
+
+
 ## [v1.10.4] - 2026-08-17
 - Adicionada edição dos dados da solicitação para Técnico, Setor Preset e Administrador.
 - Preset / Solicitante pode editar somente as próprias solicitações.

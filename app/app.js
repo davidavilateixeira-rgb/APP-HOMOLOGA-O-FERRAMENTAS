@@ -1,5 +1,5 @@
 // =========================================================================
-// VIEMAR TOOLFLOW v1.10.4 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
+// VIEMAR TOOLFLOW v1.10.5 - SISTEMA DE WORKFLOW E HOMOLOGAÇÃO DE FERRAMENTAS
 // =========================================================================
 
 // Perfis de Acesso e Papeis de Governanca
@@ -815,18 +815,42 @@ function toggleMobileSidebar(forceState) {
   const overlay = document.getElementById('sidebarOverlay');
   if (!sidebar) return;
 
-  const isOpen = sidebar.classList.contains('open');
+  const isOpen = sidebar.classList.contains('sidebar-open');
   const shouldOpen = (forceState !== undefined) ? forceState : !isOpen;
 
-  if (shouldOpen) {
-    sidebar.classList.add('open');
-    if (overlay) overlay.classList.add('active');
-  } else {
-    sidebar.classList.remove('open');
-    if (overlay) overlay.classList.remove('active');
+  sidebar.classList.toggle('sidebar-open', shouldOpen);
+  if (overlay) overlay.classList.toggle('active', shouldOpen);
+}
+
+function aplicarSidebarColapsada(colapsada) {
+  const container = document.querySelector('.app-container');
+  const button = document.getElementById('sidebarCollapseBtn');
+  if (!container) return;
+
+  container.classList.toggle('sidebar-collapsed', colapsada);
+  if (button) {
+    button.setAttribute('aria-expanded', String(!colapsada));
+    button.setAttribute('aria-label', colapsada ? 'Mostrar barra lateral' : 'Ocultar barra lateral');
+    button.title = colapsada ? 'Mostrar barra lateral' : 'Ocultar barra lateral';
+    const texto = button.querySelector('.sr-only');
+    if (texto) texto.textContent = colapsada ? 'Mostrar barra lateral' : 'Ocultar barra lateral';
   }
 }
 
+function initSidebarLayout() {
+  const preferencia = localStorage.getItem('viemar_toolflow_sidebar_collapsed') === 'true';
+  aplicarSidebarColapsada(preferencia);
+}
+
+function toggleSidebarCollapsed(forceState) {
+  const container = document.querySelector('.app-container');
+  if (!container) return;
+
+  const colapsada = container.classList.contains('sidebar-collapsed');
+  const novaPreferencia = (forceState !== undefined) ? forceState : !colapsada;
+  aplicarSidebarColapsada(novaPreferencia);
+  localStorage.setItem('viemar_toolflow_sidebar_collapsed', String(novaPreferencia));
+}
 function atualizarBottomNav(viewId) {
   document.querySelectorAll('.mobile-bottom-nav .mobile-nav-item').forEach(btn => {
     if (btn.getAttribute('data-nav') === viewId) {
@@ -846,6 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function inicializarAplicacao() {
   initTheme();
+  initSidebarLayout();
 
   const firebaseUser = await aguardarUsuarioFirebaseInicial();
   if (firebaseUser && firebaseDisponivel()) {
